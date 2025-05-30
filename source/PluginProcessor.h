@@ -1,7 +1,7 @@
 #pragma once
 
+#include "AudioDSP/Standard-Delay/DelayProcessor.h"
 #include <juce_audio_processors/juce_audio_processors.h>
-#include "AudioDSP/DelayProcessor.h"
 
 #if (MSVC)
 #include "ipps.h"
