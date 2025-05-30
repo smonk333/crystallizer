@@ -1,6 +1,7 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
+#include "AudioDSP/DelayProcessor.h"
 
 #if (MSVC)
 #include "ipps.h"
@@ -38,6 +39,23 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    //==========================APVTS setup=====================================
+
+    // standard delay parameters
+    std::atomic<float>* delayTimeParam; // delay length in seconds
+    std::atomic<float>* feedbackParam;  // feedback amount
+    std::atomic<float>* wetDryParam;    // wet/dry mix
+
+    // more fx parameters below here as we add classes to handle processing
+
+    juce::AudioProcessorValueTreeState apvts;
+    juce::AudioProcessorValueTreeState::ParameterLayout createParams();
+
 private:
+
+    DelayProcessor delay;
+
+    // more fx processors below here as we add classes to handle processing
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginProcessor)
 };

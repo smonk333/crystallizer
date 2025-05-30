@@ -10,12 +10,40 @@ PluginProcessor::PluginProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
+                     apvts (*this, nullptr,
+                         "Parameters", createParams())
 {
+    // constructing parameter pointers
+
+    // standard delay parameters
+    delayTimeParam = apvts.getRawParameterValue("delayTime");
+    feedbackParam = apvts.getRawParameterValue("feedback");
+    wetDryParam = apvts.getRawParameterValue("wetDry");
 }
 
 PluginProcessor::~PluginProcessor()
 {
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParams()
+{
+    // create a vector of parameters
+    std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
+
+    // push standard delay parameters into the vector
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("delayTime",
+        "Delay Time", 0.01f, 60.0f, 0.01f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("feedback",
+        "Feedback", 0.0f, 1.0f, 0.5f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("wetDry",
+        "Wet/Dry Mix", 0.0f, 1.0f, 0.5f));
+
+    // push more fx parameters here as we add classes to handle processing
+
+
+    // return the vector of parameters
+    return { params.begin(), params.end() };
 }
 
 //==============================================================================
@@ -177,6 +205,7 @@ void PluginProcessor::setStateInformation (const void* data, int sizeInBytes)
     // whose contents will have been created by the getStateInformation() call.
     juce::ignoreUnused (data, sizeInBytes);
 }
+
 
 //==============================================================================
 // This creates new instances of the plugin..
