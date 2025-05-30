@@ -21,5 +21,15 @@ private:
     PluginProcessor& processorRef;
     std::unique_ptr<melatonin::Inspector> inspector;
     juce::TextButton inspectButton { "Inspect the UI" };
+
+    // Standard delay slider, attachment and label setup
+    juce::Slider delayTimeSlider, feedbackSlider, wetDrySlider;
+    juce::Label delayTimeLabel, feedbackLabel, wetDryLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
+        delayTimeSliderAttach, feedbackSliderAttach, wetDrySliderAttach;
+
+    // add fx controls, labels, and attachments here as we build the
+    // processor classes for them
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)
 };

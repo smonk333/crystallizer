@@ -16,12 +16,17 @@ DelayProcessor::~DelayProcessor()
 
 void DelayProcessor::prepare (const juce::dsp::ProcessSpec& spec)
 {
-    // prepare the left DelayLine with the sampleRate and maximum delay time
+    // Calculate the maximum delay in samples for 60 seconds
+    const size_t maxDelaySamples = static_cast<size_t>(spec.sampleRate * 60.0);
+
+    // Prepare the left DelayLine with the sampleRate and maximum delay time
     leftDelay.prepare(spec);
+    leftDelay.setMaximumDelayInSamples(maxDelaySamples);
     leftDelay.reset();
 
-    // prepare the right DelayLine with the sampleRate and maximum delay time
+    // Prepare the right DelayLine with the sampleRate and maximum delay time
     rightDelay.prepare(spec);
+    rightDelay.setMaximumDelayInSamples(maxDelaySamples);
     rightDelay.reset();
 }
 
@@ -33,7 +38,7 @@ void DelayProcessor::reset()
 
 void DelayProcessor::process (juce::AudioBuffer<float>& buffer,
     float* cleanSignalL, float* cleanSignalR, float delayTime,
-    float feedbackL, float feedbackR, float wetDryMix, float output)
+    float feedbackL, float feedbackR, float wetDryMix)
 {
     leftDelay.setDelay(delayTime);
     rightDelay.setDelay(delayTime);
@@ -49,7 +54,7 @@ void DelayProcessor::process (juce::AudioBuffer<float>& buffer,
         leftDelay.pushSample(0, channelDataL[sample] + feedbackL * delayedL);
         rightDelay.pushSample(1, channelDataR[sample] + feedbackR * delayedR);
 
-        channelDataL[sample] = ((delayedL * wetDryMix) + (cleanSignalL[sample] * (1 - wetDryMix))) * juce::Decibels::decibelsToGain(output);
-        channelDataR[sample] = ((delayedR * wetDryMix) + (cleanSignalR[sample] * (1 - wetDryMix))) * juce::Decibels::decibelsToGain(output);
+        channelDataL[sample] = ((delayedL * wetDryMix) + (cleanSignalL[sample] * (1 - wetDryMix)));
+        channelDataR[sample] = ((delayedR * wetDryMix) + (cleanSignalR[sample] * (1 - wetDryMix)));
     }
 }

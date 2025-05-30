@@ -116,7 +116,17 @@ void PluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-    juce::ignoreUnused (sampleRate, samplesPerBlock);
+
+    // set up a ProcessSpec object to prepare the standard delay
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = getTotalNumOutputChannels();
+
+    // prepare the standard delay processor
+    delay.prepare(spec);
+
+    // prepare more fx processors here as we add classes to handle processing
 }
 
 void PluginProcessor::releaseResources()
@@ -175,8 +185,39 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     {
         auto* channelData = buffer.getWritePointer (channel);
         juce::ignoreUnused (channelData);
-        // ..do something to the data...
     }
+
+    auto* delayLength = apvts.getRawParameterValue("delayTime");
+    auto* feedbackL = apvts.getRawParameterValue("feedback");
+    auto* feedbackR = apvts.getRawParameterValue("feedback");
+    auto* mix       = apvts.getRawParameterValue("wetDry");
+
+    float delayTime = *delayLength * getSampleRate(); // convert seconds to samples
+
+    float* cleanSignalL = new float[buffer.getNumSamples()];
+    float* cleanSignalR = new float[buffer.getNumSamples()];
+
+    auto* channelDataL = buffer.getWritePointer(0);
+    auto* channelDataR = buffer.getWritePointer(1);
+
+    // Store the clean signal before processing
+    for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+    {
+        cleanSignalL[sample] = channelDataL[sample];
+        cleanSignalR[sample] = channelDataR[sample];
+    }
+
+    delay.process(
+        buffer, cleanSignalL, cleanSignalR,
+        delayTime,
+        feedbackL->load(),
+        feedbackR->load(),
+        mix->load()
+    );
+
+    delete[] cleanSignalL;
+    delete[] cleanSignalR;
+
 }
 
 //==============================================================================

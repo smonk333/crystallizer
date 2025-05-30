@@ -26,12 +26,11 @@ public:
         float delayTime,
         float feedbackL,
         float feedbackR,
-        float wetDryMix,
-        float output);
+        float wetDryMix);
 
 private:
-    juce::dsp::DelayLine<float> leftDelay {410000};
-    juce::dsp::DelayLine<float> rightDelay {410000};
+    juce::dsp::DelayLine<float> leftDelay { 410000};
+    juce::dsp::DelayLine<float> rightDelay { 410000 };
 };
 
 
