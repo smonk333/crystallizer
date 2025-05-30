@@ -29,7 +29,7 @@ public:
         float wetDryMix);
 
 private:
-    juce::dsp::DelayLine<float> leftDelay { 410000};
+    juce::dsp::DelayLine<float> leftDelay { 410000 };
     juce::dsp::DelayLine<float> rightDelay { 410000 };
 };
 
