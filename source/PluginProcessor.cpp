@@ -252,6 +252,17 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     auto* delayedSignalL = new float[buffer.getNumSamples()];
     auto* delayedSignalR = new float[buffer.getNumSamples()];
 
+    // copy input buffer to delayedSignal arrays for dry signal
+    auto* readL = buffer.getReadPointer(0);
+    auto* readR = buffer.getReadPointer(1);
+    for (int i = 0; i < buffer.getNumSamples(); ++i) {
+        delayedSignalL[i] = readL[i];
+        if (readR)
+            delayedSignalR[i] = readR[i];
+        else
+            delayedSignalR[i] = 0.0f;
+    }
+
     // set up reverb parameters
     auto* roomSize = apvts.getRawParameterValue("reverbRoomSize");
     auto* damping = apvts.getRawParameterValue("reverbDamping");
