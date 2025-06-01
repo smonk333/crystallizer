@@ -45,7 +45,8 @@ PluginEditor::PluginEditor (PluginProcessor& p)
     setupSlider(reverbWetLevelSlider);
     setupSlider(reverbDryLevelSlider);
     setupSlider(reverbWidthSlider);
-    setupSlider(reverbFreezeSlider);
+    addAndMakeVisible(&reverbFreezeButton); // add button to editor
+    reverbFreezeButton.setClickingTogglesState(true); // make button toggleable
 
     // set up reverb control labels
     setupLabel(reverbRoomSizeLabel, "Room Size");
@@ -61,8 +62,7 @@ PluginEditor::PluginEditor (PluginProcessor& p)
     reverbWetLevelAttach = std::make_unique<SliderAttachment>(params, "reverbWetLevel", reverbWetLevelSlider);
     reverbDryLevelAttach = std::make_unique<SliderAttachment>(params, "reverbDryLevel", reverbDryLevelSlider);
     reverbWidthAttach = std::make_unique<SliderAttachment>(params, "reverbWidth", reverbWidthSlider);
-    reverbFreezeAttach = std::make_unique<SliderAttachment>(params, "reverbFreeze", reverbFreezeSlider);
-
+    reverbFreezeAttach = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(params, "reverbFreeze", reverbFreezeButton);
 
     // set up additional fx controls, labels, and attachments here as we build them
 
@@ -113,7 +113,7 @@ void PluginEditor::resized()
     wetDryLabel.setBounds(delayLabelRow.removeFromLeft(delayLabelWidth));
 
     // reverb section ==========================================================
-    auto reverbSection = area.removeFromTop(140);
+    auto reverbSection = area.removeFromTop(200);
     reverbSection.removeFromTop(30); // space for section label
 
     // split reverb into two rows (3 controls each)
@@ -138,7 +138,7 @@ void PluginEditor::resized()
     // bottom row: Dry Level, Width, Freeze
     reverbDryLevelSlider.setBounds(reverbRowBottom.removeFromLeft(reverbSliderWidth));
     reverbWidthSlider.setBounds(reverbRowBottom.removeFromLeft(reverbSliderWidth));
-    reverbFreezeSlider.setBounds(reverbRowBottom.removeFromLeft(reverbSliderWidth));
+    reverbFreezeButton.setBounds(reverbRowBottom.removeFromLeft(reverbSliderWidth)); // button instead of slider
 
     // bottom row labels
     reverbLabelWidth = reverbLabelRowBottom.getWidth() / 3;

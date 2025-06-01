@@ -58,8 +58,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
         "Reverb Dry Level", 0.0f, 1.0f, 0.5f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("reverbWidth",
         "Reverb Width", 0.0f, 1.0f, 0.5f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("reverbFreeze",
-        "Reverb Freeze Mode", 0.0f, 1.0f, 0.0f)); // binary toggle
+    params.push_back(std::make_unique<juce::AudioParameterBool>("reverbFreeze",
+        "Reverb Freeze Mode", false)); // binary toggle
 
     // push more fx parameters here as we add classes to handle processing
 

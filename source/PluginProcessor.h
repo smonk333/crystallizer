@@ -53,7 +53,7 @@ public:
     std::atomic<float>* reverbWetLevelParam;    // sets the wet level of the reverb
     std::atomic<float>* reverbDryLevelParam;    // sets the dry level of the reverb
     std::atomic<float>* reverbWidthParam;       // sets the stereo width of the reverb
-    std::atomic<float>* reverbFreezeParam;      // sets the freeze mode of the reverb
+    std::atomic<float>* reverbFreezeParam;      // sets the freeze mode of the reverb (now bool, but keep pointer for compatibility)
 
     // more fx parameters below here as we add classes to handle processing
 

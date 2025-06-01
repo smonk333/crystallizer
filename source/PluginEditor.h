@@ -30,14 +30,16 @@ private:
 
     // reverb controls, labels, attachments
     juce::Slider reverbRoomSizeSlider, reverbDampingSlider, reverbWetLevelSlider;
-    juce::Slider reverbDryLevelSlider, reverbWidthSlider, reverbFreezeSlider;
+    juce::Slider reverbDryLevelSlider, reverbWidthSlider;
+    juce::TextButton reverbFreezeButton { "Freeze" };
 
     juce::Label reverbRoomSizeLabel, reverbDampingLabel, reverbWetLevelLabel;
     juce::Label reverbDryLevelLabel, reverbWidthLabel, reverbFreezeLabel;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
         reverbRoomSizeAttach, reverbDampingAttach, reverbWetLevelAttach,
-        reverbDryLevelAttach, reverbWidthAttach, reverbFreezeAttach;
+        reverbDryLevelAttach, reverbWidthAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> reverbFreezeAttach;
 
     // add fx controls, labels, and attachments here as we build the
     // processor classes for them
