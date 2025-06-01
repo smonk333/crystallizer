@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AudioDSP/Reverb/ReverbProcessor.h"
 #include "AudioDSP/Standard-Delay/DelayProcessor.h"
 #include <juce_audio_processors/juce_audio_processors.h>
 
@@ -46,6 +47,14 @@ public:
     std::atomic<float>* feedbackParam;  // feedback amount
     std::atomic<float>* wetDryParam;    // wet/dry mix
 
+    // reverb parameters
+    std::atomic<float>* reverbRoomSizeParam;    // sets the size of the "room"
+    std::atomic<float>* reverbDampingParam;     // sets the damping of high frequencies
+    std::atomic<float>* reverbWetLevelParam;    // sets the wet level of the reverb
+    std::atomic<float>* reverbDryLevelParam;    // sets the dry level of the reverb
+    std::atomic<float>* reverbWidthParam;       // sets the stereo width of the reverb
+    std::atomic<float>* reverbFreezeParam;      // sets the freeze mode of the reverb
+
     // more fx parameters below here as we add classes to handle processing
 
     juce::AudioProcessorValueTreeState apvts;
@@ -54,6 +63,7 @@ public:
 private:
 
     DelayProcessor delay;
+    ReverbProcessor reverb;
 
     // more fx processors below here as we add classes to handle processing
 

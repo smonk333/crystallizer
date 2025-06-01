@@ -65,10 +65,9 @@ void ReverbProcessor::process (juce::AudioBuffer<float>& buffer,
     // create audio block for processing the reverb
 
     juce::dsp::AudioBlock<float> block(buffer);
-    juce::dsp::ProcessContextReplacing<float> context(block);
+    juce::dsp::ProcessContextReplacing context(block);
 
     // process with reverb
-
     reverb.process(context);
 
     // apply additional low-pass filtering to enhance damping effect

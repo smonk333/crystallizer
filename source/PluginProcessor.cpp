@@ -20,6 +20,14 @@ PluginProcessor::PluginProcessor()
     delayTimeParam = apvts.getRawParameterValue("delayTime");
     feedbackParam = apvts.getRawParameterValue("feedback");
     wetDryParam = apvts.getRawParameterValue("wetDry");
+
+    // reverb parameters
+    reverbRoomSizeParam = apvts.getRawParameterValue("reverbRoomSize");
+    reverbDampingParam = apvts.getRawParameterValue("reverbDamping");
+    reverbWetLevelParam = apvts.getRawParameterValue("reverbWetLevel");
+    reverbDryLevelParam = apvts.getRawParameterValue("reverbDryLevel");
+    reverbWidthParam = apvts.getRawParameterValue("reverbWidth");
+    reverbFreezeParam = apvts.getRawParameterValue("reverbFreeze");
 }
 
 PluginProcessor::~PluginProcessor()
@@ -38,6 +46,20 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
         "Feedback", 0.0f, 1.0f, 0.5f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("wetDry",
         "Wet/Dry Mix", 0.0f, 1.0f, 0.5f));
+
+    // push reverb parameters into the vector
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("reverbRoomSize",
+        "Reverb Room Size", 0.0f, 1.0f, 0.5f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("reverbDamping",
+        "Reverb Damping", 0.0f, 1.0f, 0.5f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("reverbWetLevel",
+        "Reverb Wet Level", 0.0f, 1.0f, 0.5f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("reverbDryLevel",
+        "Reverb Dry Level", 0.0f, 1.0f, 0.5f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("reverbWidth",
+        "Reverb Width", 0.0f, 1.0f, 0.5f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("reverbFreeze",
+        "Reverb Freeze Mode", 0.0f, 1.0f, 0.0f)); // binary toggle
 
     // push more fx parameters here as we add classes to handle processing
 
@@ -117,7 +139,7 @@ void PluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
 
-    // set up a ProcessSpec object to prepare the standard delay
+    // set up a ProcessSpec object to prepare the standard delay, reverb
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
@@ -125,6 +147,9 @@ void PluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 
     // prepare the standard delay processor
     delay.prepare(spec);
+
+    // prepare the reverb processor
+    reverb.prepare(spec);
 
     // prepare more fx processors here as we add classes to handle processing
 }
@@ -194,19 +219,22 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
     float delayTime = *delayLength * getSampleRate(); // convert seconds to samples
 
-    float* cleanSignalL = new float[buffer.getNumSamples()];
-    float* cleanSignalR = new float[buffer.getNumSamples()];
+    // variables to read in the clean signal on both channels to use in wet/dry mixing
+    auto* cleanSignalL = new float[buffer.getNumSamples()];
+    auto* cleanSignalR = new float[buffer.getNumSamples()];
 
+    // grab a write pointer for both channels of audio
     auto* channelDataL = buffer.getWritePointer(0);
     auto* channelDataR = buffer.getWritePointer(1);
 
-    // Store the clean signal before processing
+    // store the clean signal before processing
     for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
     {
         cleanSignalL[sample] = channelDataL[sample];
         cleanSignalR[sample] = channelDataR[sample];
     }
 
+    // add the delay processing to the output buffer
     delay.process(
         buffer, cleanSignalL, cleanSignalR,
         delayTime,
@@ -215,8 +243,40 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         mix->load()
     );
 
+//==============================================================================
+    // THIS SECTION IS FOR PROCESSING THE SIGNAL IN SERIAL,
+    // WE DO NOT WANT TO KEEP THIS PERMANENTLY STUCK IN SERIAL
+    // TODO: IMPLEMENT LOGIC TO SWITCH BETWEEN PARALLEL PROCESSING AND SERIAL PROCESSING
+
+    // set up variables to hold the newly delayed audio for reverb processing
+    auto* delayedSignalL = new float[buffer.getNumSamples()];
+    auto* delayedSignalR = new float[buffer.getNumSamples()];
+
+    // set up reverb parameters
+    auto* roomSize = apvts.getRawParameterValue("reverbRoomSize");
+    auto* damping = apvts.getRawParameterValue("reverbDamping");
+    auto* wetLevel = apvts.getRawParameterValue("reverbWetLevel");
+    auto* dryLevel = apvts.getRawParameterValue("reverbDryLevel");
+    auto* width = apvts.getRawParameterValue("reverbWidth");
+    auto* freeze = apvts.getRawParameterValue("reverbFreeze");
+
+    // process reverb
+    reverb.process(
+        buffer, delayedSignalL, delayedSignalR,
+        roomSize->load(),
+        damping->load(),
+        wetLevel->load(),
+        dryLevel->load(),
+        width->load(),
+        freeze->load()
+    );
+
     delete[] cleanSignalL;
     delete[] cleanSignalR;
+
+    // clean up delayed signal buffers
+    delete[] delayedSignalL;
+    delete[] delayedSignalR;
 
 }
 

@@ -37,6 +37,33 @@ PluginEditor::PluginEditor (PluginProcessor& p)
     feedbackSliderAttach = std::make_unique<SliderAttachment>(params, "feedback", feedbackSlider);
     wetDrySliderAttach = std::make_unique<SliderAttachment>(params, "wetDry", wetDrySlider);
 
+    // reverb controls =========================================================
+
+    // set up reverb control sliders
+    setupSlider(reverbRoomSizeSlider);
+    setupSlider(reverbDampingSlider);
+    setupSlider(reverbWetLevelSlider);
+    setupSlider(reverbDryLevelSlider);
+    setupSlider(reverbWidthSlider);
+    setupSlider(reverbFreezeSlider);
+
+    // set up reverb control labels
+    setupLabel(reverbRoomSizeLabel, "Room Size");
+    setupLabel(reverbDampingLabel, "Damping");
+    setupLabel(reverbWetLevelLabel, "Wet Level");
+    setupLabel(reverbDryLevelLabel, "Dry Level");
+    setupLabel(reverbWidthLabel, "Width");
+    setupLabel(reverbFreezeLabel, "Freeze");
+
+    // set up attachments for reverb controls
+    reverbRoomSizeAttach = std::make_unique<SliderAttachment>(params, "reverbRoomSize", reverbRoomSizeSlider);
+    reverbDampingAttach = std::make_unique<SliderAttachment>(params, "reverbDamping", reverbDampingSlider);
+    reverbWetLevelAttach = std::make_unique<SliderAttachment>(params, "reverbWetLevel", reverbWetLevelSlider);
+    reverbDryLevelAttach = std::make_unique<SliderAttachment>(params, "reverbDryLevel", reverbDryLevelSlider);
+    reverbWidthAttach = std::make_unique<SliderAttachment>(params, "reverbWidth", reverbWidthSlider);
+    reverbFreezeAttach = std::make_unique<SliderAttachment>(params, "reverbFreeze", reverbFreezeSlider);
+
+
     // set up additional fx controls, labels, and attachments here as we build them
 
 
@@ -44,7 +71,8 @@ PluginEditor::PluginEditor (PluginProcessor& p)
 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    setSize (600, 400);
+    setResizable(true, true);
 }
 
 PluginEditor::~PluginEditor()
@@ -55,28 +83,67 @@ void PluginEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+
+    g.setColour(juce::Colours::white);
+    g.setFont(16.0f);
+    g.drawText("DELAY", 20, 10, 560, 20, juce::Justification::left);
+    g.drawText("REVERB", 20, 160, 560, 20, juce::Justification::left);
 }
 
 void PluginEditor::resized()
 {
-    // layout the positions of your child components here
+// layout the positions of your child components here
     auto area = getLocalBounds().reduced(20);
 
     // Standard delay section
-    auto standardSection = area.removeFromTop(100);
-    auto standardRow = standardSection.removeFromTop(80);
-    auto standardLabelRow = standardSection;
+    auto delaySection = area.removeFromTop(140);
+    delaySection.removeFromTop(30); // space for section label
+    auto delayRow = delaySection.removeFromTop(80);
+    auto delayLabelRow = delaySection;
 
-    auto sliderWidth = standardRow.getWidth() / 3; // 3 controls
+    auto delaySliderWidth = delayRow.getWidth() / 3; // 3 controls
+    delayTimeSlider.setBounds(delayRow.removeFromLeft(delaySliderWidth));
+    feedbackSlider.setBounds(delayRow.removeFromLeft(delaySliderWidth));
+    wetDrySlider.setBounds(delayRow.removeFromLeft(delaySliderWidth));
 
-    delayTimeSlider.setBounds(area.removeFromLeft(sliderWidth));
-    feedbackSlider.setBounds(area.removeFromLeft(sliderWidth));
-    wetDrySlider.setBounds(area.removeFromLeft(sliderWidth));
+    // delay labels
+    auto delayLabelWidth = delayLabelRow.getWidth() / 3;
+    delayTimeLabel.setBounds(delayLabelRow.removeFromLeft(delayLabelWidth));
+    feedbackLabel.setBounds(delayLabelRow.removeFromLeft(delayLabelWidth));
+    wetDryLabel.setBounds(delayLabelRow.removeFromLeft(delayLabelWidth));
 
-    // standard delay labels
-    auto labelWidth = standardLabelRow.getWidth() / 3;
-    delayTimeLabel.setBounds(standardLabelRow.removeFromLeft(labelWidth));
-    feedbackLabel.setBounds(standardLabelRow.removeFromLeft(labelWidth));
-    wetDryLabel.setBounds(standardLabelRow.removeFromLeft(labelWidth));
+    // reverb section ==========================================================
+    auto reverbSection = area.removeFromTop(140);
+    reverbSection.removeFromTop(30); // space for section label
+
+    // split reverb into two rows (3 controls each)
+    auto reverbRowTop = reverbSection.removeFromTop(60);
+    auto reverbLabelRowTop = reverbSection.removeFromTop(20);
+    auto reverbRowBottom = reverbSection.removeFromTop(60);
+    auto reverbLabelRowBottom = reverbSection.removeFromTop(20);
+
+    auto reverbSliderWidth = reverbRowTop.getWidth() / 3;
+
+    // top row: Room Size, Damping, Wet Level
+    reverbRoomSizeSlider.setBounds(reverbRowTop.removeFromLeft(reverbSliderWidth));
+    reverbDampingSlider.setBounds(reverbRowTop.removeFromLeft(reverbSliderWidth));
+    reverbWetLevelSlider.setBounds(reverbRowTop.removeFromLeft(reverbSliderWidth));
+
+    // top row labels
+    auto reverbLabelWidth = reverbLabelRowTop.getWidth() / 3;
+    reverbRoomSizeLabel.setBounds(reverbLabelRowTop.removeFromLeft(reverbLabelWidth));
+    reverbDampingLabel.setBounds(reverbLabelRowTop.removeFromLeft(reverbLabelWidth));
+    reverbWetLevelLabel.setBounds(reverbLabelRowTop.removeFromLeft(reverbLabelWidth));
+
+    // bottom row: Dry Level, Width, Freeze
+    reverbDryLevelSlider.setBounds(reverbRowBottom.removeFromLeft(reverbSliderWidth));
+    reverbWidthSlider.setBounds(reverbRowBottom.removeFromLeft(reverbSliderWidth));
+    reverbFreezeSlider.setBounds(reverbRowBottom.removeFromLeft(reverbSliderWidth));
+
+    // bottom row labels
+    reverbLabelWidth = reverbLabelRowBottom.getWidth() / 3;
+    reverbDryLevelLabel.setBounds(reverbLabelRowBottom.removeFromLeft(reverbLabelWidth));
+    reverbWidthLabel.setBounds(reverbLabelRowBottom.removeFromLeft(reverbLabelWidth));
+    reverbFreezeLabel.setBounds(reverbLabelRowBottom.removeFromLeft(reverbLabelWidth));
 
 }
