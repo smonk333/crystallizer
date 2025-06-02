@@ -14,7 +14,7 @@ DelayProcessor::~DelayProcessor()
     // empty destructor
 }
 
-void DelayProcessor::prepare (const juce::dsp::ProcessSpec& spec)
+void DelayProcessor::prepare(const juce::dsp::ProcessSpec& spec)
 {
     // Calculate the maximum delay in samples for 60 seconds
     const size_t maxDelaySamples = static_cast<size_t>(spec.sampleRate * 60.0);
@@ -28,6 +28,9 @@ void DelayProcessor::prepare (const juce::dsp::ProcessSpec& spec)
     rightDelay.prepare(spec);
     rightDelay.setMaximumDelayInSamples(maxDelaySamples);
     rightDelay.reset();
+
+    // Store sample rate for delay time calculations
+    currentSampleRate = spec.sampleRate;
 }
 
 void DelayProcessor::reset()
@@ -67,3 +70,4 @@ void DelayProcessor::process (juce::AudioBuffer<float>& buffer,
         channelDataR[sample] = ((delayedR * wetDryMix) + (cleanSignalR[sample] * (1 - wetDryMix)));
     }
 }
+
