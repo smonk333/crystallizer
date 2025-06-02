@@ -3,6 +3,8 @@
 #include "PluginProcessor.h"
 #include "BinaryData.h"
 #include "melatonin_inspector/melatonin_inspector.h"
+#include "LayoutHelpers/DelayLayout/DelayLayout.h"
+#include "LayoutHelpers/ReverbLayout/ReverbLayout.h"
 
 //==============================================================================
 class PluginEditor : public juce::AudioProcessorEditor
@@ -22,24 +24,9 @@ private:
     std::unique_ptr<melatonin::Inspector> inspector;
     juce::TextButton inspectButton { "Inspect the UI" };
 
-    // Standard delay slider, attachment and label setup
-    juce::Slider delayTimeSlider, feedbackSlider, wetDrySlider;
-    juce::Label delayTimeLabel, feedbackLabel, wetDryLabel;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
-        delayTimeSliderAttach, feedbackSliderAttach, wetDrySliderAttach;
-
-    // reverb controls, labels, attachments
-    juce::Slider reverbRoomSizeSlider, reverbDampingSlider, reverbMixSlider;
-    juce::Slider reverbWidthSlider;
-    juce::TextButton reverbFreezeButton { "Freeze" };
-
-    juce::Label reverbRoomSizeLabel, reverbDampingLabel, reverbMixLabel;
-    juce::Label reverbWidthLabel, reverbFreezeLabel;
-
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
-        reverbRoomSizeAttach, reverbDampingAttach, reverbMixAttach,
-        reverbWidthAttach;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> reverbFreezeAttach;
+    // Use dedicated layout components for effect sections
+    DelayLayout delayLayout;
+    ReverbLayout reverbLayout;
 
     // add fx controls, labels, and attachments here as we build the
     // processor classes for them
