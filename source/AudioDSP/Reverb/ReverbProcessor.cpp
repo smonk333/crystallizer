@@ -47,7 +47,10 @@ void ReverbProcessor::process (juce::AudioBuffer<float>& buffer,
     reverbParams.wetLevel = juce::jlimit(0.0f, 1.0f, wetLevel);
     reverbParams.dryLevel = juce::jlimit(0.0f, 1.0f, dryLevel);
     reverbParams.width = juce::jlimit(0.0f, 1.0f, width);
-    reverbParams.freezeMode = freezeMode > 0.5f ? 1.0f : 0.0f; // binary toggle
+    if (freezeMode > 0.5f)
+        reverbParams.freezeMode = 1.0f;
+    else
+        reverbParams.freezeMode = 0.0f; // binary toggle
 
     // apply parameters to the reverb
     reverb.setParameters(reverbParams);

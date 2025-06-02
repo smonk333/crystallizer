@@ -24,8 +24,7 @@ PluginProcessor::PluginProcessor()
     // reverb parameters
     reverbRoomSizeParam = apvts.getRawParameterValue("reverbRoomSize");
     reverbDampingParam = apvts.getRawParameterValue("reverbDamping");
-    reverbWetLevelParam = apvts.getRawParameterValue("reverbWetLevel");
-    reverbDryLevelParam = apvts.getRawParameterValue("reverbDryLevel");
+    reverbMixParam = apvts.getRawParameterValue("reverbMix");
     reverbWidthParam = apvts.getRawParameterValue("reverbWidth");
     reverbFreezeParam = apvts.getRawParameterValue("reverbFreeze");
 }
@@ -52,10 +51,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
         "Reverb Room Size", 0.0f, 1.0f, 0.5f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("reverbDamping",
         "Reverb Damping", 0.0f, 1.0f, 0.5f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("reverbWetLevel",
-        "Reverb Wet Level", 0.0f, 1.0f, 0.5f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>("reverbDryLevel",
-        "Reverb Dry Level", 0.0f, 1.0f, 0.5f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("reverbMix",
+        "Reverb Mix", 0.0f, 1.0f, 0.5f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("reverbWidth",
         "Reverb Width", 0.0f, 1.0f, 0.5f));
     params.push_back(std::make_unique<juce::AudioParameterBool>("reverbFreeze",
@@ -212,6 +209,7 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         juce::ignoreUnused (channelData);
     }
 
+    // signal processing here
     auto* delayLength = apvts.getRawParameterValue("delayTime");
     auto* feedbackL = apvts.getRawParameterValue("feedback");
     auto* feedbackR = apvts.getRawParameterValue("feedback");
@@ -266,18 +264,22 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // set up reverb parameters
     auto* roomSize = apvts.getRawParameterValue("reverbRoomSize");
     auto* damping = apvts.getRawParameterValue("reverbDamping");
-    auto* wetLevel = apvts.getRawParameterValue("reverbWetLevel");
-    auto* dryLevel = apvts.getRawParameterValue("reverbDryLevel");
+    auto* mixParam = apvts.getRawParameterValue("reverbMix");
     auto* width = apvts.getRawParameterValue("reverbWidth");
     auto* freeze = apvts.getRawParameterValue("reverbFreeze");
+
+    // combining the wet and dry parameter for ease of use
+    float mixed = mixParam->load();
+    float wetLevel = mixed;
+    float dryLevel = 1.0f - mixed;
 
     // process reverb
     reverb.process(
         buffer, delayedSignalL, delayedSignalR,
         roomSize->load(),
         damping->load(),
-        wetLevel->load(),
-        dryLevel->load(),
+        wetLevel,
+        dryLevel,
         width->load(),
         freeze->load()
     );

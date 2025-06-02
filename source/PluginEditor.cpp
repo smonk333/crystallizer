@@ -42,8 +42,7 @@ PluginEditor::PluginEditor (PluginProcessor& p)
     // set up reverb control sliders
     setupSlider(reverbRoomSizeSlider);
     setupSlider(reverbDampingSlider);
-    setupSlider(reverbWetLevelSlider);
-    setupSlider(reverbDryLevelSlider);
+    setupSlider(reverbMixSlider);
     setupSlider(reverbWidthSlider);
     addAndMakeVisible(&reverbFreezeButton); // add button to editor
     reverbFreezeButton.setClickingTogglesState(true); // make button toggleable
@@ -51,22 +50,33 @@ PluginEditor::PluginEditor (PluginProcessor& p)
     // set up reverb control labels
     setupLabel(reverbRoomSizeLabel, "Room Size");
     setupLabel(reverbDampingLabel, "Damping");
-    setupLabel(reverbWetLevelLabel, "Wet Level");
-    setupLabel(reverbDryLevelLabel, "Dry Level");
+    setupLabel(reverbMixLabel, "Wet/Dry Mix");
     setupLabel(reverbWidthLabel, "Width");
     setupLabel(reverbFreezeLabel, "Freeze");
 
     // set up attachments for reverb controls
     reverbRoomSizeAttach = std::make_unique<SliderAttachment>(params, "reverbRoomSize", reverbRoomSizeSlider);
     reverbDampingAttach = std::make_unique<SliderAttachment>(params, "reverbDamping", reverbDampingSlider);
-    reverbWetLevelAttach = std::make_unique<SliderAttachment>(params, "reverbWetLevel", reverbWetLevelSlider);
-    reverbDryLevelAttach = std::make_unique<SliderAttachment>(params, "reverbDryLevel", reverbDryLevelSlider);
+    reverbMixAttach = std::make_unique<SliderAttachment>(params, "reverbMix", reverbMixSlider);
     reverbWidthAttach = std::make_unique<SliderAttachment>(params, "reverbWidth", reverbWidthSlider);
     reverbFreezeAttach = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(params, "reverbFreeze", reverbFreezeButton);
 
     // set up additional fx controls, labels, and attachments here as we build them
 
 
+    // add a button to inspect the UI in the melatonin inspector
+    addAndMakeVisible (inspectButton);
+
+    // this chunk of code instantiates and opens the melatonin inspector
+    inspectButton.onClick = [&] {
+        if (!inspector)
+        {
+            inspector = std::make_unique<melatonin::Inspector> (*this);
+            inspector->onClose = [this]() { inspector.reset(); };
+        }
+
+        inspector->setVisible (true);
+    };
 
 
     // Make sure that before the constructor has finished, you've set the
@@ -127,22 +137,23 @@ void PluginEditor::resized()
     // top row: Room Size, Damping, Wet Level
     reverbRoomSizeSlider.setBounds(reverbRowTop.removeFromLeft(reverbSliderWidth));
     reverbDampingSlider.setBounds(reverbRowTop.removeFromLeft(reverbSliderWidth));
-    reverbWetLevelSlider.setBounds(reverbRowTop.removeFromLeft(reverbSliderWidth));
+    reverbMixSlider.setBounds(reverbRowTop.removeFromLeft(reverbSliderWidth));
 
     // top row labels
     auto reverbLabelWidth = reverbLabelRowTop.getWidth() / 3;
     reverbRoomSizeLabel.setBounds(reverbLabelRowTop.removeFromLeft(reverbLabelWidth));
     reverbDampingLabel.setBounds(reverbLabelRowTop.removeFromLeft(reverbLabelWidth));
-    reverbWetLevelLabel.setBounds(reverbLabelRowTop.removeFromLeft(reverbLabelWidth));
+    reverbMixLabel.setBounds(reverbLabelRowTop.removeFromLeft(reverbLabelWidth));
 
     // bottom row: Dry Level, Width, Freeze
-    reverbDryLevelSlider.setBounds(reverbRowBottom.removeFromLeft(reverbSliderWidth));
     reverbWidthSlider.setBounds(reverbRowBottom.removeFromLeft(reverbSliderWidth));
     reverbFreezeButton.setBounds(reverbRowBottom.removeFromLeft(reverbSliderWidth)); // button instead of slider
 
+    // inspect button (remove later)
+    inspectButton.setBounds(getWidth() - 100, getHeight() - 30, 80, 25);
+
     // bottom row labels
     reverbLabelWidth = reverbLabelRowBottom.getWidth() / 3;
-    reverbDryLevelLabel.setBounds(reverbLabelRowBottom.removeFromLeft(reverbLabelWidth));
     reverbWidthLabel.setBounds(reverbLabelRowBottom.removeFromLeft(reverbLabelWidth));
     reverbFreezeLabel.setBounds(reverbLabelRowBottom.removeFromLeft(reverbLabelWidth));
 

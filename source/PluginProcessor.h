@@ -50,8 +50,7 @@ public:
     // reverb parameters
     std::atomic<float>* reverbRoomSizeParam;    // sets the size of the "room"
     std::atomic<float>* reverbDampingParam;     // sets the damping of high frequencies
-    std::atomic<float>* reverbWetLevelParam;    // sets the wet level of the reverb
-    std::atomic<float>* reverbDryLevelParam;    // sets the dry level of the reverb
+    std::atomic<float>* reverbMixParam;         // sets the wet/dry mix of the reverb
     std::atomic<float>* reverbWidthParam;       // sets the stereo width of the reverb
     std::atomic<float>* reverbFreezeParam;      // sets the freeze mode of the reverb (now bool, but keep pointer for compatibility)
 
