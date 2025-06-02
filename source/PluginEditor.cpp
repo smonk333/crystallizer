@@ -102,59 +102,91 @@ void PluginEditor::paint (juce::Graphics& g)
 
 void PluginEditor::resized()
 {
-// layout the positions of your child components here
+    // layout the positions of your child components here
     auto area = getLocalBounds().reduced(20);
 
-    // Standard delay section
+    //=standard delay section (updating to use FlexBox layout)==================
+
     auto delaySection = area.removeFromTop(140);
     delaySection.removeFromTop(30); // space for section label
-    auto delayRow = delaySection.removeFromTop(80);
-    auto delayLabelRow = delaySection;
 
-    auto delaySliderWidth = delayRow.getWidth() / 3; // 3 controls
-    delayTimeSlider.setBounds(delayRow.removeFromLeft(delaySliderWidth));
-    feedbackSlider.setBounds(delayRow.removeFromLeft(delaySliderWidth));
-    wetDrySlider.setBounds(delayRow.removeFromLeft(delaySliderWidth));
+    juce::FlexBox delayControls;
+    delayControls.flexDirection = juce::FlexBox::Direction::row;
+    delayControls.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
+
+    delayControls.items.add(juce::FlexItem(delayTimeSlider).withFlex(1));
+    delayControls.items.add(juce::FlexItem(feedbackSlider).withFlex(1));
+    delayControls.items.add(juce::FlexItem(wetDrySlider).withFlex(1));
 
     // delay labels
-    auto delayLabelWidth = delayLabelRow.getWidth() / 3;
-    delayTimeLabel.setBounds(delayLabelRow.removeFromLeft(delayLabelWidth));
-    feedbackLabel.setBounds(delayLabelRow.removeFromLeft(delayLabelWidth));
-    wetDryLabel.setBounds(delayLabelRow.removeFromLeft(delayLabelWidth));
+    juce::FlexBox delayLabels;
+    delayLabels.flexDirection = juce::FlexBox::Direction::row;
+    delayLabels.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
 
-    // reverb section ==========================================================
+    delayLabels.items.add(juce::FlexItem(delayTimeLabel).withFlex(1));
+    delayLabels.items.add(juce::FlexItem(feedbackLabel).withFlex(1));
+    delayLabels.items.add(juce::FlexItem(wetDryLabel).withFlex(1));
+
+    //=reverb section ==========================================================
+
     auto reverbSection = area.removeFromTop(200);
     reverbSection.removeFromTop(30); // space for section label
 
-    // split reverb into two rows (3 controls each)
-    auto reverbRowTop = reverbSection.removeFromTop(60);
-    auto reverbLabelRowTop = reverbSection.removeFromTop(20);
-    auto reverbRowBottom = reverbSection.removeFromTop(60);
-    auto reverbLabelRowBottom = reverbSection.removeFromTop(20);
+    // upper row controls
+    juce::FlexBox reverbTopControls;
+    reverbTopControls.flexDirection = juce::FlexBox::Direction::row;
+    reverbTopControls.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
 
-    auto reverbSliderWidth = reverbRowTop.getWidth() / 3;
+    reverbTopControls.items.add(juce::FlexItem(reverbRoomSizeSlider).withFlex(1));
+    reverbTopControls.items.add(juce::FlexItem(reverbDampingSlider).withFlex(1));
+    reverbTopControls.items.add(juce::FlexItem(reverbMixSlider).withFlex(1));
 
-    // top row: Room Size, Damping, Wet Level
-    reverbRoomSizeSlider.setBounds(reverbRowTop.removeFromLeft(reverbSliderWidth));
-    reverbDampingSlider.setBounds(reverbRowTop.removeFromLeft(reverbSliderWidth));
-    reverbMixSlider.setBounds(reverbRowTop.removeFromLeft(reverbSliderWidth));
+    // upper row labels
+    juce::FlexBox reverbTopLabels;
+    reverbTopLabels.flexDirection = juce::FlexBox::Direction::row;
+    reverbTopLabels.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
 
-    // top row labels
-    auto reverbLabelWidth = reverbLabelRowTop.getWidth() / 3;
-    reverbRoomSizeLabel.setBounds(reverbLabelRowTop.removeFromLeft(reverbLabelWidth));
-    reverbDampingLabel.setBounds(reverbLabelRowTop.removeFromLeft(reverbLabelWidth));
-    reverbMixLabel.setBounds(reverbLabelRowTop.removeFromLeft(reverbLabelWidth));
+    reverbTopLabels.items.add(juce::FlexItem(reverbRoomSizeLabel).withFlex(1));
+    reverbTopLabels.items.add(juce::FlexItem(reverbDampingLabel).withFlex(1));
+    reverbTopLabels.items.add(juce::FlexItem(reverbMixLabel).withFlex(1));
 
-    // bottom row: Dry Level, Width, Freeze
-    reverbWidthSlider.setBounds(reverbRowBottom.removeFromLeft(reverbSliderWidth));
-    reverbFreezeButton.setBounds(reverbRowBottom.removeFromLeft(reverbSliderWidth)); // button instead of slider
+    // lower row controls
+    juce::FlexBox reverbBottomControls;
+    reverbBottomControls.flexDirection = juce::FlexBox::Direction::row;
+    reverbBottomControls.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
 
-    // inspect button (remove later)
+    reverbBottomControls.items.add(juce::FlexItem(reverbWidthSlider).withFlex(1));
+    reverbBottomControls.items.add(juce::FlexItem(reverbFreezeButton).withFlex(1));
+    reverbBottomControls.items.add(juce::FlexItem().withFlex(1)); // empty space for balance
+
+    // lower row labels
+    juce::FlexBox reverbBottomLabels;
+    reverbBottomLabels.flexDirection = juce::FlexBox::Direction::row;
+    reverbBottomLabels.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
+
+    reverbBottomLabels.items.add(juce::FlexItem(reverbWidthLabel).withFlex(1));
+    reverbBottomLabels.items.add(juce::FlexItem(reverbFreezeLabel).withFlex(1));
+    reverbBottomLabels.items.add(juce::FlexItem().withFlex(1)); // empty space for balance
+
+    //=add more sections here as we build the processor classes for them========
+
+
+    //=perform layouts==========================================================
+
+    //=delay section============================================================
+    delayControls.performLayout(delaySection.removeFromTop(80));
+    delayLabels.performLayout(delaySection);
+
+    //=reverb section===========================================================
+    reverbTopControls.performLayout(reverbSection.removeFromTop(60));
+    reverbTopLabels.performLayout(reverbSection.removeFromTop(20));
+    reverbBottomControls.performLayout(reverbSection.removeFromTop(60));
+    reverbBottomLabels.performLayout(reverbSection);
+
+    //=add more sections here as we build the processor classes for them========
+
+
+    //=position the inspect button (TODO: REMOVE THIS LATER)====================
     inspectButton.setBounds(getWidth() - 100, getHeight() - 30, 80, 25);
-
-    // bottom row labels
-    reverbLabelWidth = reverbLabelRowBottom.getWidth() / 3;
-    reverbWidthLabel.setBounds(reverbLabelRowBottom.removeFromLeft(reverbLabelWidth));
-    reverbFreezeLabel.setBounds(reverbLabelRowBottom.removeFromLeft(reverbLabelWidth));
 
 }
