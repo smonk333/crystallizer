@@ -40,6 +40,12 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    //=parameter update methods=================================================
+
+    void updateDelayParameters(float time, float feedback, float mix);
+    void updateReverbParameters(float roomSize, float damping, float wet,
+        float dry, float width, float freeze);
+
     //==========================APVTS setup=====================================
 
     // standard delay parameters
@@ -54,6 +60,10 @@ public:
     std::atomic<float>* reverbWidthParam;       // sets the stereo width of the reverb
     std::atomic<float>* reverbFreezeParam;      // sets the freeze mode of the reverb (now bool, but keep pointer for compatibility)
 
+    // signal processing chain parameters
+    std::atomic<float>* processingModeParam; // 0 = delay only, 1 = reverb only,
+                                             // 2 = serial, 3 = parallel
+
     // more fx parameters below here as we add classes to handle processing
 
     juce::AudioProcessorValueTreeState apvts;
@@ -61,8 +71,22 @@ public:
 
 private:
 
-    DelayProcessor delay;
-    ReverbProcessor reverb;
+    // commented out legacy processor handling
+    // DelayProcessor delay;
+    // ReverbProcessor reverb;
+
+    //=define processor indices for the ProcessChain============================
+    enum
+    {
+        delayIndex,
+        reverbIndex
+    };
+
+    //=ProcessorChains with the processors in different configurations
+    juce::dsp::ProcessorChain<DelayProcessor, ReverbProcessor> serialChain;
+    juce::dsp::ProcessorChain<DelayProcessor, ReverbProcessor> parallelChain;
+    juce::dsp::ProcessorChain<DelayProcessor> delayChain;
+    juce::dsp::ProcessorChain<ReverbProcessor> reverbChain;
 
     // more fx processors below here as we add classes to handle processing
 
