@@ -73,6 +73,14 @@ public:
     void setFeedback(float newFeedback) { currentFeedback = newFeedback; }
     void setWetLevel(float newWetLevel) { currentWetLevel = newWetLevel; }
 
+    // unified method to update all parameters at once
+    void updateParameters(float time, float feedback, float mix)
+    {
+        setDelayTime(time);
+        setFeedback(feedback);
+        setWetLevel(mix);
+    }
+
 private:
     juce::dsp::DelayLine<float> leftDelay { 410000 };
     juce::dsp::DelayLine<float> rightDelay { 410000 };

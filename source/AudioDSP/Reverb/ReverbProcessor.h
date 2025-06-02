@@ -72,14 +72,10 @@ public:
             juce::dsp::ProcessContextReplacing<float> reverbContext(block);
             reverb.process(reverbContext);
 
-            // apply stereo width if needed
-            if (currentWidth < 1.0f)
-            {
-                // correct way to update filter coefficients
-                *lowPassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeLowPass(
-                    sampleRate, 20000.0f * currentWidth, 0.707f);
-                lowPassFilter.process(reverbContext);
-            }
+            // apply low-pass filter for damping enhancement
+             *lowPassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeLowPass(
+                 sampleRate, 12000.0f, 0.707f);
+             lowPassFilter.process(reverbContext);
         }
     }
 
@@ -90,6 +86,18 @@ public:
     void setDryLevel(float newDryLevel) { currentDryLevel = newDryLevel; }
     void setWidth(float newWidth) { currentWidth = newWidth; }
     void setFreezeMode(float newFreezeMode) { currentFreezeMode = newFreezeMode; }
+
+    // unified method to update all parameters at once
+    void updateParameters(float roomSize, float damping, float wet,
+        float dry, float width, float freeze)
+    {
+        setRoomSize(roomSize);
+        setDamping(damping);
+        setWetLevel(wet);
+        setDryLevel(dry);
+        setWidth(width);
+        setFreezeMode(freeze);
+    }
 
 private:
     juce::dsp::Reverb reverb;
