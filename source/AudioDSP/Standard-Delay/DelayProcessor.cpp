@@ -78,7 +78,7 @@ void DelayProcessor::process(const juce::dsp::ProcessContextReplacing<float>& co
 void DelayProcessor::setDelayTime(float newDelayTime)
 {
     currentDelayTime = newDelayTime;
-    auto delayInSamples = currentDelayTime * currentSampleRate;
+    auto delayInSamples = static_cast<float>(currentDelayTime * currentSampleRate);
     leftDelay.setDelay(delayInSamples);
     rightDelay.setDelay(delayInSamples);
 }
