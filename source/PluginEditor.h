@@ -2,7 +2,7 @@
 
 #include "BinaryData.h"
 #include "LayoutHelpers/DelayLayout/DelayLayout.h"
-#include "LayoutHelpers/ProcessingModeLayout/ProcessingModeSelector.h"
+#include "LayoutHelpers/ProcessingModeLayout/ProcessingModeLayout.h"
 #include "LayoutHelpers/ReverbLayout/ReverbLayout.h"
 #include "PluginProcessor.h"
 #include "melatonin_inspector/melatonin_inspector.h"
@@ -25,12 +25,10 @@ private:
     std::unique_ptr<melatonin::Inspector> inspector;
     juce::TextButton inspectButton { "Inspect the UI" };
 
-    // Use dedicated layout components for effect sections
+    // use dedicated layout components for effect sections
     DelayLayout delayLayout;
     ReverbLayout reverbLayout;
-
-    // Processing mode selector
-    ProcessingModeSelector processingModeSelector;
+    ProcessingModeLayout processingModeSelector;  // processing mode selector
 
     // add fx controls, labels, and attachments here as we build the
     // processor classes for them
