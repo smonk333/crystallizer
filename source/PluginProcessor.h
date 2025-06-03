@@ -90,5 +90,9 @@ private:
 
     // more fx processors below here as we add classes to handle processing
 
+    // Pre-allocated buffers for parallel processing to avoid allocating in audio thread
+    juce::AudioBuffer<float> parallelDelayBuffer;
+    juce::AudioBuffer<float> parallelReverbBuffer;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginProcessor)
 };

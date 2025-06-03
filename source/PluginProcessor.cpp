@@ -168,6 +168,10 @@ void PluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     serialChain.reset();
     parallelChain.reset();
 
+    // Allocate parallel processing buffers to avoid reallocating in the audio thread
+    parallelDelayBuffer.setSize(getTotalNumOutputChannels(), samplesPerBlock);
+    parallelReverbBuffer.setSize(getTotalNumOutputChannels(), samplesPerBlock);
+
     // Set up initial parameters for all processors
     updateDelayParameters(delayTimeParam->load(), feedbackParam->load(), wetDryParam->load());
     updateReverbParameters(reverbRoomSizeParam->load(), reverbDampingParam->load(),
@@ -360,24 +364,28 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
             // 2. Process one copy through delay and one through reverb
             // 3. Mix the results together
 
-            // Create a copy of the input for parallel processing
-            juce::AudioBuffer<float> delayBuffer(buffer.getNumChannels(), buffer.getNumSamples());
-            juce::AudioBuffer<float> reverbBuffer(buffer.getNumChannels(), buffer.getNumSamples());
+            // Ensure our pre-allocated buffers have the right size
+            if (parallelDelayBuffer.getNumChannels() != buffer.getNumChannels() ||
+                parallelDelayBuffer.getNumSamples() != buffer.getNumSamples())
+            {
+                parallelDelayBuffer.setSize(buffer.getNumChannels(), buffer.getNumSamples(), false, false, true);
+                parallelReverbBuffer.setSize(buffer.getNumChannels(), buffer.getNumSamples(), false, false, true);
+            }
 
             // Copy input to both buffers
             for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
             {
-                delayBuffer.copyFrom(channel, 0, buffer, channel, 0, buffer.getNumSamples());
-                reverbBuffer.copyFrom(channel, 0, buffer, channel, 0, buffer.getNumSamples());
+                parallelDelayBuffer.copyFrom(channel, 0, buffer, channel, 0, buffer.getNumSamples());
+                parallelReverbBuffer.copyFrom(channel, 0, buffer, channel, 0, buffer.getNumSamples());
             }
 
             // Process delay buffer
-            juce::dsp::AudioBlock<float> delayBlock(delayBuffer);
+            juce::dsp::AudioBlock<float> delayBlock(parallelDelayBuffer);
             juce::dsp::ProcessContextReplacing<float> delayContext(delayBlock);
             delayChain.process(delayContext);
 
             // Process reverb buffer
-            juce::dsp::AudioBlock<float> reverbBlock(reverbBuffer);
+            juce::dsp::AudioBlock<float> reverbBlock(parallelReverbBuffer);
             juce::dsp::ProcessContextReplacing<float> reverbContext(reverbBlock);
             reverbChain.process(reverbContext);
 
@@ -385,8 +393,8 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
             for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
             {
                 auto* outPtr = buffer.getWritePointer(channel);
-                auto* delayPtr = delayBuffer.getReadPointer(channel);
-                auto* reverbPtr = reverbBuffer.getReadPointer(channel);
+                auto* delayPtr = parallelDelayBuffer.getReadPointer(channel);
+                auto* reverbPtr = parallelReverbBuffer.getReadPointer(channel);
 
                 for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
                 {
@@ -456,11 +464,4 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new PluginProcessor();
 }
-
-
-
-
-
-
-
 
