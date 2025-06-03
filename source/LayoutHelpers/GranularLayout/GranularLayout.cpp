@@ -41,5 +41,5 @@ void GranularLayout::resized()
 {
     auto bounds = getLocalBounds();
 
-    //
+    //TODO: continue working here
 }
