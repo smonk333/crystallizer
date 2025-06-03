@@ -37,27 +37,91 @@ void ReverbProcessor::reset()
     lowPassFilter.reset();
 }
 
-// legacy process method for backward compatibility
-void ReverbProcessor::process(juce::AudioBuffer<float>& buffer,
-    float* cleanSignalL, float* cleanSignalR, float roomSize, float damping,
-    float wetLevel, float dryLevel, float width, float freezeMode)
+// Required implementation for ProcessorBase inheritance
+void ReverbProcessor::process (const juce::dsp::ProcessContextReplacing<float>& context)
 {
-    // update reverb parameters
-    reverbParams.roomSize = juce::jlimit(0.0f, 1.0f, roomSize);
-    reverbParams.damping = juce::jlimit(0.0f, 1.0f, damping);
-    reverbParams.wetLevel = juce::jlimit(0.0f, 1.0f, wetLevel);
-    reverbParams.dryLevel = juce::jlimit(0.0f, 1.0f, dryLevel);
-    reverbParams.width = juce::jlimit(0.0f, 1.0f, width);
-    if (freezeMode > 0.5f)
-        reverbParams.freezeMode = true;
-    else
-        reverbParams.freezeMode = false;
+    auto& inputBlock = context.getInputBlock();
+    auto& outputBlock = context.getOutputBlock();
 
-    reverb.setParameters(reverbParams);
+    // make sure we have right number of channels
+    jassert (inputBlock.getNumChannels() >= 1);
+    jassert (outputBlock.getNumChannels() >= 1);
 
-    // apply reverb to the buffer (stereo only)
-    juce::dsp::AudioBlock<float> block(buffer);
-    juce::dsp::ProcessContextReplacing<float> context(block);
-    reverb.process(context);
+    // create an AudioBlock to work with
+    juce::dsp::AudioBlock<float> block (outputBlock);
+
+    // copy input to output if they're not already the same
+    if (!context.isBypassed)
+    {
+        if (context.usesSeparateInputAndOutputBlocks())
+            block.copyFrom (inputBlock);
+
+        // store clean signal for dry/wet mixing
+        juce::HeapBlock<float> cleanSignalL (block.getNumSamples());
+        juce::HeapBlock<float> cleanSignalR (block.getNumSamples());
+
+        for (int i = 0; i < block.getNumSamples(); ++i)
+        {
+            cleanSignalL[i] = block.getSample (0, i);
+            cleanSignalR[i] = block.getNumChannels() > 1 ? block.getSample (1, i) : block.getSample (0, i);
+        }
+
+        // apply reverb parameters
+        reverbParams.roomSize = currentRoomSize;
+        reverbParams.damping = currentDamping;
+        reverbParams.wetLevel = currentWetLevel;
+        reverbParams.dryLevel = currentDryLevel;
+        reverbParams.width = currentWidth;
+        reverbParams.freezeMode = currentFreezeMode > 0.5f;
+        reverb.setParameters (reverbParams);
+
+        // process through reverb
+        juce::dsp::ProcessContextReplacing<float> reverbContext (block);
+        reverb.process (reverbContext);
+
+        // apply low-pass filter for damping enhancement
+        *lowPassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeLowPass (
+            sampleRate, 12000.0f, 0.707f);
+        lowPassFilter.process (reverbContext);
+    }
 }
 
+void ReverbProcessor::setRoomSize (float newRoomSize)
+{
+    currentRoomSize = newRoomSize;
+}
+
+void ReverbProcessor::setDamping (float newDamping)
+{
+    currentDamping = newDamping;
+}
+
+void ReverbProcessor::setWetLevel (float newWetLevel)
+{
+    currentWetLevel = newWetLevel;
+}
+
+void ReverbProcessor::setDryLevel (float newDryLevel)
+{
+    currentDryLevel = newDryLevel;
+}
+
+void ReverbProcessor::setWidth (float newWidth)
+{
+    currentWidth = newWidth;
+}
+
+void ReverbProcessor::setFreezeMode (float newFreezeMode)
+{
+    currentFreezeMode = newFreezeMode;
+}
+
+void ReverbProcessor::updateParameters (float roomSize, float damping, float wet, float dry, float width, float freeze)
+{
+    setRoomSize (roomSize);
+    setDamping (damping);
+    setWetLevel (wet);
+    setDryLevel (dry);
+    setWidth (width);
+    setFreezeMode (freeze);
+}

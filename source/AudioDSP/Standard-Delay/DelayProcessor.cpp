@@ -43,43 +43,6 @@ void DelayProcessor::reset()
     rightDelay.reset();
 }
 
-void DelayProcessor::process(juce::AudioBuffer<float>& buffer,
-    float* cleanSignalL, float* cleanSignalR, float delayTime,
-    float feedbackL, float feedbackR, float wetDryMix)
-{
-    // Update parameters
-    setDelayTime(delayTime);
-    setFeedback((feedbackL + feedbackR) * 0.5f);
-    setWetLevel(wetDryMix);
-
-    // grab a write pointer for the two channels in the input buffer
-    auto* channelDataL = buffer.getWritePointer(0);
-    auto* channelDataR = buffer.getWritePointer(1);
-
-    // for every sample in the buffer,
-    for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
-    {
-        // Store clean signal for wet/dry mixing if pointers are provided
-        if (cleanSignalL != nullptr)
-            cleanSignalL[sample] = channelDataL[sample];
-        if (cleanSignalR != nullptr)
-            cleanSignalR[sample] = channelDataR[sample];
-
-        // ... pop the delayed samples from both channels
-        float delayedL = leftDelay.popSample(0);
-        float delayedR = rightDelay.popSample(0);
-
-        // ... write the delayed samples back into the delay lines, adding the feedback
-        leftDelay.pushSample(0, channelDataL[sample] + (delayedL * currentFeedback));
-        rightDelay.pushSample(0, channelDataR[sample] + (delayedR * currentFeedback));
-
-        // ... apply wet/dry mix to produce the final output, where the delay is
-        // mixed with the original signal
-        channelDataL[sample] = (delayedL * currentWetLevel) + (channelDataL[sample] * (1.0f - currentWetLevel));
-        channelDataR[sample] = (delayedR * currentWetLevel) + (channelDataR[sample] * (1.0f - currentWetLevel));
-    }
-}
-
 void DelayProcessor::process(const juce::dsp::ProcessContextReplacing<float>& context)
 {
     auto& inputBlock = context.getInputBlock();
