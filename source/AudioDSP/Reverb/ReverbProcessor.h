@@ -18,21 +18,21 @@ public:
     void reset() override;
 
     // original process method (keep for backward compatibility)
-    void process(
-        juce::AudioBuffer<float>& buffer,
-        float* cleanSignalL,
-        float* cleanSignalR,
-        float roomSize,
-        float damping,
-        float wetLevel,
-        float dryLevel,
-        float width,
-        float freezeMode);
+    // void process(
+    //     juce::AudioBuffer<float>& buffer,
+    //     float* cleanSignalL,
+    //     float* cleanSignalR,
+    //     float roomSize,
+    //     float damping,
+    //     float wetLevel,
+    //     float dryLevel,
+    //     float width,
+    //     float freezeMode);
 
     // Required implementation of ProcessorBase::process
     void process(const juce::dsp::ProcessContextReplacing<float>& context) override;
 
-    // parameter setters for ProcessorChain use - inline for better performance
+    // parameter setters for ProcessorChain use
     void setRoomSize (float newRoomSize);
     void setDamping (float newDamping);
     void setWetLevel (float newWetLevel);

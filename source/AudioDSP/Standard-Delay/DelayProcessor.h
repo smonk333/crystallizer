@@ -17,16 +17,6 @@ public:
     void prepare(const juce::dsp::ProcessSpec& spec) override;
     void reset() override;
 
-    // Original process method (keep for backward compatibility)
-    void process(
-        juce::AudioBuffer<float>& buffer,
-        float* cleanSignalL,
-        float* cleanSignalR,
-        float delayTime,
-        float feedbackL,
-        float feedbackR,
-        float wetDryMix);
-
     // Required implementation of ProcessorBase::process
     void process(const juce::dsp::ProcessContextReplacing<float>& context) override;
 
