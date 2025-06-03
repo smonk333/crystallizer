@@ -17,7 +17,7 @@ DelayProcessor::~DelayProcessor()
 void DelayProcessor::prepare(const juce::dsp::ProcessSpec& spec)
 {
     // Calculate the maximum delay in samples for 60 seconds
-    const size_t maxDelaySamples = static_cast<size_t>(spec.sampleRate * 60.0);
+    const int maxDelaySamples = static_cast<int>(spec.sampleRate * 60.0);
 
     // Prepare the left DelayLine with the sampleRate and maximum delay time
     leftDelay.prepare(spec);

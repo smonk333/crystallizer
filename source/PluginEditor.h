@@ -1,10 +1,11 @@
 #pragma once
 
-#include "PluginProcessor.h"
 #include "BinaryData.h"
-#include "melatonin_inspector/melatonin_inspector.h"
 #include "LayoutHelpers/DelayLayout/DelayLayout.h"
+#include "LayoutHelpers/ProcessingModeLayout/ProcessingModeSelector.h"
 #include "LayoutHelpers/ReverbLayout/ReverbLayout.h"
+#include "PluginProcessor.h"
+#include "melatonin_inspector/melatonin_inspector.h"
 
 //==============================================================================
 class PluginEditor : public juce::AudioProcessorEditor
@@ -27,6 +28,9 @@ private:
     // Use dedicated layout components for effect sections
     DelayLayout delayLayout;
     ReverbLayout reverbLayout;
+
+    // Processing mode selector
+    ProcessingModeSelector processingModeSelector;
 
     // add fx controls, labels, and attachments here as we build the
     // processor classes for them

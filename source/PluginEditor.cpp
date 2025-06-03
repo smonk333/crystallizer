@@ -5,11 +5,13 @@
 
 PluginEditor::PluginEditor (PluginProcessor& p)
     : AudioProcessorEditor (&p), processorRef (p),
-      delayLayout(p.apvts), reverbLayout(p.apvts)
+      delayLayout(p.apvts), reverbLayout(p.apvts),
+      processingModeSelector(p.apvts)
 {
     // Add the layout components to the editor
     addAndMakeVisible(delayLayout);
     addAndMakeVisible(reverbLayout);
+    addAndMakeVisible(processingModeSelector);
 
     // Add a button to inspect the UI in the melatonin inspector
     addAndMakeVisible(inspectButton);
@@ -44,6 +46,7 @@ void PluginEditor::paint (juce::Graphics& g)
     g.setFont(16.0f);
     g.drawText("DELAY", 20, 10, 560, 20, juce::Justification::left);
     g.drawText("REVERB", 20, 160, 560, 20, juce::Justification::left);
+    g.drawText("ROUTING MODE", 20, 350, 560, 20, juce::Justification::left);
 }
 
 void PluginEditor::resized()
@@ -62,8 +65,15 @@ void PluginEditor::resized()
     auto reverbSection = area.removeFromTop(200);
     reverbSection.removeFromTop(30); // space for section label
 
-    // position the ReverbLayout component in the reverb section
+    //=position the ReverbLayout component in the reverb section================
     reverbLayout.setBounds(reverbSection);
+
+    //=processing mode selector section=========================================
+    auto processingSection = area.removeFromTop(100);
+    processingSection.removeFromTop(30); // space for section label
+
+    // position the ProcessingModeSelector component
+    processingModeSelector.setBounds(processingSection);
 
     //=position the inspect button (TODO: REMOVE THIS LATER)====================
     inspectButton.setBounds(getWidth() - 100, getHeight() - 30, 80, 25);

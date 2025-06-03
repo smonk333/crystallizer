@@ -53,7 +53,7 @@ public:
             juce::HeapBlock<float> cleanSignalL(block.getNumSamples());
             juce::HeapBlock<float> cleanSignalR(block.getNumSamples());
 
-            for (size_t i = 0; i < block.getNumSamples(); ++i)
+            for (int i = 0; i < block.getNumSamples(); ++i)
             {
                 cleanSignalL[i] = block.getSample(0, i);
                 cleanSignalR[i] = block.getSample(1, i);
