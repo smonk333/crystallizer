@@ -74,7 +74,7 @@ void PluginEditor::resized()
     auto processingSection = area.removeFromTop(100);
     processingSection.removeFromTop(30); // space for section label
 
-    // position the ProcessingModeSelector component
+    //=position the ProcessingModeSelector component in the processing section==
     processingModeSelector.setBounds(processingSection);
 
     //=granular section=========================================================
