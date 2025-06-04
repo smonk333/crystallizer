@@ -38,7 +38,7 @@ void ReverbProcessor::reset()
 }
 
 // Required implementation for ProcessorBase inheritance
-void ReverbProcessor::process (const juce::dsp::ProcessContextReplacing<float>& context)
+void ReverbProcessor::process(const juce::dsp::ProcessContextReplacing<float>& context)
 {
     auto& inputBlock = context.getInputBlock();
     auto& outputBlock = context.getOutputBlock();
