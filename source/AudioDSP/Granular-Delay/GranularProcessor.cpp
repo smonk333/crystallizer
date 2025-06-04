@@ -168,15 +168,17 @@ void GranularProcessor::setSpread (float newSpread)
     currentSpread = juce::jlimit(0.0f, 1.0f, newSpread);
 }
 
-void GranularProcessor::updateParameters (float delayTime, float grainSize, float density, float pitchShift, float feedback, float wetDryMix, float spread)
+void GranularProcessor::updateParameters (float delayTime,
+    float grainSize, float density, float pitchShift,
+    float feedback, float wetDryMix, float spread)
 {
     setDelayTime(delayTime);
     setGrainSize(grainSize);
     setGrainDensity(density);
-    setSpread(spread);
-    setPitchShift(pitchShift);
-    setFeedback(feedback);
-    setWetDryMix(wetDryMix);
+    setPitchShift (pitchShift);
+    setFeedback (feedback);
+    setWetDryMix (wetDryMix);
+    setSpread (spread);
 
     // update grain timing after changing density
     updateGrainTiming();

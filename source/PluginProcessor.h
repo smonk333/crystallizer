@@ -44,8 +44,8 @@ public:
     //=parameter update methods=================================================
 
     void updateDelayParameters(float time, float feedback, float mix);
-    void updateReverbParameters(float roomSize, float damping, float wet,
-        float dry, float width, float freeze);
+    void updateReverbParameters (float roomSize, float damping, float wet, float dry, float width, float freeze);
+    void updateGranularParameters (float delayTime, float grainSize, float grainDensity, float pitchShift, float feedback, float wetDry, float spread);
 
     //==========================APVTS setup=====================================
 
@@ -66,13 +66,13 @@ public:
                                              // 2 = serial, 3 = parallel
 
     // granular delay parameters
-    std::atomic<float>* granularDelayTimeParam;   // delay time in seconds
-    std::atomic<float>* granularGrainSizeParam;   // grain size in seconds
-    std::atomic<float>* granularGrainDensityParam; // grains per second
-    std::atomic<float>* granularPitchShiftParam;  // pitch shift ratio (1.0 = no shift)
-    std::atomic<float>* granularFeedbackParam;    // feedback level (0.0 to 1.0)
-    std::atomic<float>* granularWetDryParam;      // wet/dry mix ratio (0.0 to 1.0)
-    std::atomic<float>* granularSpreadParam;      // random position spread
+    std::atomic<float>* granularDelayTimeParam;     // delay time in seconds
+    std::atomic<float>* grainSizeParam;             // grain size in seconds
+    std::atomic<float>* grainDensityParam;          // grains per second
+    std::atomic<float>* granularPitchShiftParam;    // pitch shift ratio (1.0 = no shift)
+    std::atomic<float>* granularFeedbackParam;      // feedback level (0.0 to 1.0)
+    std::atomic<float>* granularWetDryParam;        // wet/dry mix ratio (0.0 to 1.0)
+    std::atomic<float>* granularSpreadParam;        // random position spread
 
     // more fx parameters below here as we add classes to handle processing
 
@@ -91,8 +91,8 @@ private:
         delayIndex,
         reverbIndex,
         serialChainIndex,
-        parallelChainIndex,
-        granularIndex
+        granularIndex,
+        parallelChainIndex
     };
 
     //=ProcessorChains with the processors in different configurations

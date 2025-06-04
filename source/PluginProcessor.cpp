@@ -28,6 +28,15 @@ PluginProcessor::PluginProcessor()
     reverbWidthParam = apvts.getRawParameterValue("reverbWidth");
     reverbFreezeParam = apvts.getRawParameterValue("reverbFreeze");
 
+    // granular delay parameters
+    granularDelayTimeParam = apvts.getRawParameterValue("granularDelayTime");
+    grainSizeParam = apvts.getRawParameterValue ("grainSize");
+    grainDensityParam = apvts.getRawParameterValue ("grainDensity");
+    granularPitchShiftParam = apvts.getRawParameterValue("pitchShift");
+    granularFeedbackParam = apvts.getRawParameterValue("granularFeedback");
+    granularWetDryParam = apvts.getRawParameterValue("granularWetDry");
+    granularSpreadParam = apvts.getRawParameterValue("spread");
+
     // signal processing chain parameters
     processingModeParam = apvts.getRawParameterValue("processingMode");
 }
@@ -352,6 +361,15 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         reverbMixParam->load(), 1.0f - reverbMixParam->load(),
         reverbWidthParam->load(), reverbFreezeParam->load());
 
+    //=update granular processor parameters=====================================
+
+    updateGranularParameters(granularDelayTimeParam->load(),
+        grainSizeParam->load(), grainDensityParam->load(),
+        granularPitchShiftParam->load(), granularFeedbackParam->load(),
+        granularWetDryParam->load(), granularSpreadParam->load());
+
+    //=REGISTER MORE UPDATE BLOCKS HERE AS WE ADD PROCESSORS====================
+
     //=create audio block and context===========================================
 
     juce::dsp::AudioBlock<float> block(buffer);
@@ -452,6 +470,22 @@ void PluginProcessor::updateReverbParameters(float roomSize, float damping, floa
     reverbChain.get<0>().updateParameters(roomSize, damping, wet, dry, width, freeze);
 }
 
+void PluginProcessor::updateGranularParameters(float delayTime, float grainSize,
+    float grainDensity, float pitchShift, float feedback, float wetDry,
+    float spread)
+{
+    // update parameters in the granular processor chain +
+    // other chains that implement the granular processor
+    granularChain.get<0>().updateParameters(
+        delayTime,
+        grainSize,
+        grainDensity,
+        pitchShift,
+        feedback,
+        wetDry,
+        spread
+    );
+}
 //==============================================================================
 bool PluginProcessor::hasEditor() const
 {

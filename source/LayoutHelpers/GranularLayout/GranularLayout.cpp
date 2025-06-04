@@ -28,12 +28,12 @@ GranularLayout::GranularLayout (juce::AudioProcessorValueTreeState& apvts)
     LabelSetup::setupLabel(spreadLabel, "Spread", this);
 
     // create slider attachments using the AttachmentSetup helper
-    delayTimeAttachment = AttachmentSetup::createSliderAttachment(apvts, "delayTime", delayTimeSlider);
+    delayTimeAttachment = AttachmentSetup::createSliderAttachment(apvts, "granularDelayTime", delayTimeSlider);
     grainSizeAttachment = AttachmentSetup::createSliderAttachment(apvts, "grainSize", grainSizeSlider);
     grainDensityAttachment = AttachmentSetup::createSliderAttachment(apvts, "grainDensity", grainDensitySlider);
     pitchShiftAttachment = AttachmentSetup::createSliderAttachment(apvts, "pitchShift", pitchShiftSlider);
-    feedbackAttachment = AttachmentSetup::createSliderAttachment(apvts, "feedback", feedbackSlider);
-    wetDryAttachment = AttachmentSetup::createSliderAttachment(apvts, "wetDry", wetDrySlider);
+    feedbackAttachment = AttachmentSetup::createSliderAttachment(apvts, "granularFeedback", feedbackSlider);
+    wetDryAttachment = AttachmentSetup::createSliderAttachment(apvts, "granularWetDry", wetDrySlider);
     spreadAttachment = AttachmentSetup::createSliderAttachment(apvts, "spread", spreadSlider);
 }
 
@@ -55,9 +55,9 @@ void GranularLayout::resized()
     topLabels.flexDirection = juce::FlexBox::Direction::row;
     topLabels.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
 
+    topLabels.items.add(juce::FlexItem(delayTimeLabel).withFlex(1));
     topLabels.items.add(juce::FlexItem(grainSizeLabel).withFlex(1));
     topLabels.items.add(juce::FlexItem(grainDensityLabel).withFlex(1));
-    topLabels.items.add(juce::FlexItem(delayTimeLabel).withFlex(1));
 
     // lower row controls
     juce::FlexBox bottomControls;
@@ -74,8 +74,8 @@ void GranularLayout::resized()
     bottomLabels.flexDirection = juce::FlexBox::Direction::row;
     bottomLabels.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
 
-    bottomLabels.items.add(juce::FlexItem(feedbackLabel).withFlex(1));
     bottomLabels.items.add(juce::FlexItem(pitchShiftLabel).withFlex(1));
+    bottomLabels.items.add(juce::FlexItem(feedbackLabel).withFlex(1));
     bottomLabels.items.add(juce::FlexItem(wetDryLabel).withFlex(1));
     bottomLabels.items.add(juce::FlexItem(spreadLabel).withFlex(1));
 
@@ -85,3 +85,4 @@ void GranularLayout::resized()
     bottomControls.performLayout(bounds.removeFromTop(60));
     bottomLabels.performLayout(bounds.removeFromTop(20));
 }
+
