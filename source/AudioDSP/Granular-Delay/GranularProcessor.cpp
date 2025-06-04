@@ -193,7 +193,9 @@ void GranularProcessor::triggerNewGrain()
     // calculate grain parameters
     newGrain.totalSamples = static_cast<int>(currentGrainSize * sampleRate);
     newGrain.currentSample = 0;
-    newGrain.pitchRatio = currentPitchShift;
+
+    // convert pitch shift ratio into semitones (TODO: make this more flexible)
+    newGrain.pitchRatio = std::pow(2.0f, currentPitchShift / 12.0f);
     newGrain.grainAmplitude = 0.5f; // base amplitude
 
     // set grain delay position with spread

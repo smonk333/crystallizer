@@ -48,6 +48,7 @@ void PluginEditor::paint (juce::Graphics& g)
     g.drawText("DELAY", 20, 10, 560, 20, juce::Justification::left);
     g.drawText("REVERB", 20, 160, 560, 20, juce::Justification::left);
     g.drawText("ROUTING MODE", 20, 350, 560, 20, juce::Justification::left);
+    g.drawText("GRANULAR DELAY", 20, 470, 560, 20, juce::Justification::left);
 }
 
 void PluginEditor::resized()
