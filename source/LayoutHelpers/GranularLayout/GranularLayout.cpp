@@ -41,5 +41,47 @@ void GranularLayout::resized()
 {
     auto bounds = getLocalBounds();
 
-    //TODO: continue working here
+    // upper row controls
+    juce::FlexBox topControls;
+    topControls.flexDirection = juce::FlexBox::Direction::row;
+    topControls.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
+
+    topControls.items.add(juce::FlexItem(delayTimeSlider).withFlex(1));
+    topControls.items.add(juce::FlexItem(grainSizeSlider).withFlex(1));
+    topControls.items.add(juce::FlexItem(grainDensitySlider).withFlex(1));
+
+    // upper row labels
+    juce::FlexBox topLabels;
+    topLabels.flexDirection = juce::FlexBox::Direction::row;
+    topLabels.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
+
+    topLabels.items.add(juce::FlexItem(grainSizeLabel).withFlex(1));
+    topLabels.items.add(juce::FlexItem(grainDensityLabel).withFlex(1));
+    topLabels.items.add(juce::FlexItem(delayTimeLabel).withFlex(1));
+
+    // lower row controls
+    juce::FlexBox bottomControls;
+    bottomControls.flexDirection = juce::FlexBox::Direction::row;
+    bottomControls.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
+
+    bottomControls.items.add(juce::FlexItem(pitchShiftSlider).withFlex(1));
+    bottomControls.items.add(juce::FlexItem(feedbackSlider).withFlex(1));
+    bottomControls.items.add(juce::FlexItem(wetDrySlider).withFlex(1));
+    bottomControls.items.add(juce::FlexItem(spreadSlider).withFlex(1));
+
+    // lower row labels
+    juce::FlexBox bottomLabels;
+    bottomLabels.flexDirection = juce::FlexBox::Direction::row;
+    bottomLabels.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
+
+    bottomLabels.items.add(juce::FlexItem(feedbackLabel).withFlex(1));
+    bottomLabels.items.add(juce::FlexItem(pitchShiftLabel).withFlex(1));
+    bottomLabels.items.add(juce::FlexItem(wetDryLabel).withFlex(1));
+    bottomLabels.items.add(juce::FlexItem(spreadLabel).withFlex(1));
+
+    // perform layouts
+    topControls.performLayout(bounds.removeFromTop(60));
+    topLabels.performLayout(bounds.removeFromTop(20));
+    bottomControls.performLayout(bounds.removeFromTop(60));
+    bottomLabels.performLayout(bounds.removeFromTop(20));
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AudioDSP/Granular-Delay/GranularProcessor.h"
 #include "AudioDSP/Reverb/ReverbProcessor.h"
 #include "AudioDSP/Standard-Delay/DelayProcessor.h"
 #include <juce_audio_processors/juce_audio_processors.h>
@@ -64,6 +65,15 @@ public:
     std::atomic<float>* processingModeParam; // 0 = delay only, 1 = reverb only,
                                              // 2 = serial, 3 = parallel
 
+    // granular delay parameters
+    std::atomic<float>* granularDelayTimeParam;   // delay time in seconds
+    std::atomic<float>* granularGrainSizeParam;   // grain size in seconds
+    std::atomic<float>* granularGrainDensityParam; // grains per second
+    std::atomic<float>* granularPitchShiftParam;  // pitch shift ratio (1.0 = no shift)
+    std::atomic<float>* granularFeedbackParam;    // feedback level (0.0 to 1.0)
+    std::atomic<float>* granularWetDryParam;      // wet/dry mix ratio (0.0 to 1.0)
+    std::atomic<float>* granularSpreadParam;      // random position spread
+
     // more fx parameters below here as we add classes to handle processing
 
     juce::AudioProcessorValueTreeState apvts;
@@ -79,7 +89,10 @@ private:
     enum
     {
         delayIndex,
-        reverbIndex
+        reverbIndex,
+        serialChainIndex,
+        parallelChainIndex,
+        granularIndex
     };
 
     //=ProcessorChains with the processors in different configurations
@@ -87,6 +100,7 @@ private:
     juce::dsp::ProcessorChain<DelayProcessor, ReverbProcessor> parallelChain;
     juce::dsp::ProcessorChain<DelayProcessor> delayChain;
     juce::dsp::ProcessorChain<ReverbProcessor> reverbChain;
+    juce::dsp::ProcessorChain<GranularProcessor> granularChain;
 
     // more fx processors below here as we add classes to handle processing
 

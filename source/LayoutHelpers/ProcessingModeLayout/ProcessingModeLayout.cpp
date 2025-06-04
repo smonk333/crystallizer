@@ -16,7 +16,8 @@ ProcessingModeLayout::ProcessingModeLayout(juce::AudioProcessorValueTreeState& a
     modeSelector.addItem("Delay Only", 1);
     modeSelector.addItem("Reverb Only", 2);
     modeSelector.addItem("Serial", 3);
-    modeSelector.addItem("Parallel", 4);
+    modeSelector.addItem("Granular Only (test)", 4);
+    modeSelector.addItem("Parallel", 5);
 
     // Add the label
     addAndMakeVisible(modeLabel);

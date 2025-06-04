@@ -12,6 +12,7 @@
 
 class GranularProcessor : public juce::dsp::ProcessorBase
 {
+public:
     GranularProcessor();
     ~GranularProcessor() override;
 

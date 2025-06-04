@@ -6,12 +6,13 @@
 PluginEditor::PluginEditor (PluginProcessor& p)
     : AudioProcessorEditor (&p), processorRef (p),
       delayLayout(p.apvts), reverbLayout(p.apvts),
-      processingModeSelector(p.apvts)
+      processingModeSelector(p.apvts), granularLayout (p.apvts)
 {
     // Add the layout components to the editor
     addAndMakeVisible(delayLayout);
     addAndMakeVisible(reverbLayout);
     addAndMakeVisible(processingModeSelector);
+    addAndMakeVisible(granularLayout);
 
     // Add a button to inspect the UI in the melatonin inspector
     addAndMakeVisible(inspectButton);
@@ -74,6 +75,13 @@ void PluginEditor::resized()
 
     // position the ProcessingModeSelector component
     processingModeSelector.setBounds(processingSection);
+
+    //=granular section=========================================================
+    auto granularSection = area.removeFromTop(200);
+    granularSection.removeFromTop(30); // space for section label
+
+    //=position the GranularLayout component in the granular section============
+    granularLayout.setBounds(granularSection);
 
     //=position the inspect button (TODO: REMOVE THIS LATER)====================
     inspectButton.setBounds(getWidth() - 100, getHeight() - 30, 80, 25);

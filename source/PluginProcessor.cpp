@@ -63,7 +63,23 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
 
     // push processing mode parameter into the vector
     params.push_back(std::make_unique<juce::AudioParameterChoice>("processingMode",
-        "Processing Mode", juce::StringArray{"Delay Only", "Reverb Only", "Serial", "Parallel"}, 0));
+        "Processing Mode", juce::StringArray{"Delay Only", "Reverb Only", "Serial", "Granular Only (test)", "Parallel"}, 0));
+
+    // push granular delay parameters into the vector
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("granularDelayTime",
+        "Granular Delay Time", 0.01f, 5.0f, 0.5f));
+    params.push_back( std::make_unique<juce::AudioParameterFloat>("grainSize",
+        "Grain Size", 0.01f, 5.0f, 0.5f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("grainDensity",
+        "Grain Density", 0.01f, 10.0f, 1.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("pitchShift",
+        "Pitch Shift", -4.0f, 4.0f, 1.0f)); // 1.0 = no shift))
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("granularFeedback",
+        "Granular Feedback", 0.0f, 1.0f, 0.5f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("granularWetDry",
+        "Granular Wet/Dry Mix", 0.0f, 1.0f, 0.5f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("spread",
+        "Spread", 0.0f, 1.0f, 0.5f));
 
     // push more fx parameters here as we add classes to handle processing
 
@@ -161,12 +177,14 @@ void PluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     delayChain.prepare(spec);
     serialChain.prepare(spec);
     parallelChain.prepare(spec);
+    granularChain.prepare(spec);
 
     //=reset ProcessorChain objects=============================================
     reverbChain.reset();
     delayChain.reset();
     serialChain.reset();
     parallelChain.reset();
+    granularChain.reset();
 
     // Allocate parallel processing buffers to avoid reallocating in the audio thread
     parallelDelayBuffer.setSize(getTotalNumOutputChannels(), samplesPerBlock);
@@ -357,7 +375,11 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
             serialChain.process(context);
             break;
 
-        case 3: // parallel (delay alongside reverb)
+        case 3: // granular only (testing)
+            granularChain.process(context);
+            break;
+
+        case 4: // parallel (delay alongside reverb)
         {
             // For parallel processing, we need to:
             // 1. Create a copy of the input

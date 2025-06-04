@@ -2,6 +2,7 @@
 
 #include "BinaryData.h"
 #include "LayoutHelpers/DelayLayout/DelayLayout.h"
+#include "LayoutHelpers/GranularLayout/GranularLayout.h"
 #include "LayoutHelpers/ProcessingModeLayout/ProcessingModeLayout.h"
 #include "LayoutHelpers/ReverbLayout/ReverbLayout.h"
 #include "PluginProcessor.h"
@@ -29,6 +30,7 @@ private:
     DelayLayout delayLayout;
     ReverbLayout reverbLayout;
     ProcessingModeLayout processingModeSelector;  // processing mode selector
+    GranularLayout granularLayout;
 
     // add fx controls, labels, and attachments here as we build the
     // processor classes for them
