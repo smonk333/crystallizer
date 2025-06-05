@@ -168,17 +168,15 @@ void GranularProcessor::setSpread (float newSpread)
     currentSpread = juce::jlimit(0.0f, 1.0f, newSpread);
 }
 
-void GranularProcessor::updateParameters (float delayTime,
-    float grainSize, float density, float pitchShift,
-    float feedback, float wetDryMix, float spread)
+void GranularProcessor::updateParameters (float delayTime, float grainSize, float density, float pitchShift, float feedback, float wetDryMix, float spread)
 {
     setDelayTime(delayTime);
     setGrainSize(grainSize);
     setGrainDensity(density);
-    setPitchShift (pitchShift);
-    setFeedback (feedback);
-    setWetDryMix (wetDryMix);
-    setSpread (spread);
+    setSpread(spread);
+    setPitchShift(pitchShift);
+    setFeedback(feedback);
+    setWetDryMix(wetDryMix);
 
     // update grain timing after changing density
     updateGrainTiming();
@@ -193,9 +191,7 @@ void GranularProcessor::triggerNewGrain()
     // calculate grain parameters
     newGrain.totalSamples = static_cast<int>(currentGrainSize * sampleRate);
     newGrain.currentSample = 0;
-
-    // convert pitch shift ratio into semitones (TODO: make this more flexible)
-    newGrain.pitchRatio = std::pow(2.0f, currentPitchShift / 12.0f);
+    newGrain.pitchRatio = currentPitchShift;
     newGrain.grainAmplitude = 0.5f; // base amplitude
 
     // set grain delay position with spread
