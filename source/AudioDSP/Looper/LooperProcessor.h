@@ -31,10 +31,10 @@ public:
     // enum for State
     enum State
     {
-        Stopped,
-        Recording,
-        Playing,
-        Overdubbing
+        Stopped,        // looper is not active
+        Recording,      // capturing new audio
+        Playing,        // replaying the captured audio
+        Overdubbing     // adding new audio to the existing loop
     };
 
     // parameter getters

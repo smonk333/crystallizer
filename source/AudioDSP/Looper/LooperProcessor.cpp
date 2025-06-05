@@ -39,31 +39,129 @@ void LooperProcessor::process (const juce::dsp::ProcessContextReplacing<float>& 
     auto& inputBlock = context.getInputBlock();
     auto& outputBlock = context.getOutputBlock();
 
+    const auto numChannels = juce::jmin(
+        inputBlock.getNumChannels(),
+        outputBlock.getNumChannels(),
+        size_t(2)
+    );
     const auto numSamples = inputBlock.getNumSamples();
-    const auto numChannels = inputBlock.getNumChannels();
+
+    for (int sample = 0; sample < numSamples; ++sample)
+    {
+        // read input samples
+        float inputL = inputBlock.getSample(0, sample);
+        float inputR;
+        if (numChannels > 1)
+            inputR = inputBlock.getSample (1, sample);
+        else
+            inputR = inputL;
+
+        // handle looper states
+        switch (currentState)
+        {
+            case Recording:
+                // store input samples in loop buffer and increment position
+                loopBuffer.setSample(0, position, inputL);
+                loopBuffer.setSample(1, position, inputR);
+                position++;
+
+                // check if buffer is full
+                if (position >= maxBufferSize)
+                {
+                    loopLength = maxBufferSize;
+
+                    // reset position to start of loop
+                    position = 0;
+
+                    // switch to playing state because we hit the end of the buffer
+                    currentState = Playing;
+                }
+                break;
+
+            case Playing:
+                // read samples from loop buffer and write to output
+                inputL = loopBuffer.getSample(0, position);
+                inputR = loopBuffer.getSample(1, position);
+
+                // wrap to the start of the loop if we reach the end
+                position = (position + 1) % juce::jmax(1, loopLength);
+                break;
+
+            case Overdubbing:
+                // mix input with existing loop samples
+                float mixL = loopBuffer.getSample(0, position) + inputL;
+                float mixR = loopBuffer.getSample(1, position) + inputR;
+
+                // store mixed result
+                loopBuffer.setSample(0, position, mixL);
+                loopBuffer.setSample(1, position, mixR);
+
+                // output mixed samples
+                inputL = mixL;
+                inputR = mixR;
+
+                // wrap to the start of the loop if we reach the end
+                position = (position + 1) % juce::jmax(1, loopLength);
+                break;
+
+            case Stopped:
+                // pass input directly to output, no processing needed
+                break;
+
+            default:
+                // handle unexpected state (*should* never happen, but just to be safe)
+                jassertfalse; // debug break if we hit this case
+                break;
+        }
+    }
 
 }
 
-// void LooperProcessor::startRecording()
-// {
-// }
-//
-// void LooperProcessor::startPlayback()
-// {
-// }
-//
-// void LooperProcessor::startOverdubbing()
-// {
-// }
-//
-// void LooperProcessor::stop()
-// {
-// }
-//
-// void LooperProcessor::clear()
-// {
-// }
-//
-// float LooperProcessor::getLoopPosition() const noexcept
-// {
-// }
+// state management methods
+void LooperProcessor::startRecording()
+{
+    clear();
+    currentState = Recording;
+}
+
+void LooperProcessor::startPlayback()
+{
+    if (loopLength > 0)
+    {
+        position = 0;
+        currentState = Playing;
+    }
+}
+
+void LooperProcessor::startOverdubbing()
+{
+    if (loopLength > 0)
+    {
+        currentState = Overdubbing;
+    }
+}
+
+void LooperProcessor::stop()
+{
+    if (currentState == Recording)
+    {
+        loopLength = position;
+    }
+    position = 0;
+    currentState = Stopped;
+}
+
+void LooperProcessor::clear()
+{
+    loopBuffer.clear();
+    position = 0;
+    loopLength = 0;
+    currentState = Stopped;
+}
+
+float LooperProcessor::getLoopPosition() const noexcept
+{
+    if (loopLength == 0)
+        return 0.0f;
+    return static_cast<float>(position) / static_cast<float>(loopLength);
+}

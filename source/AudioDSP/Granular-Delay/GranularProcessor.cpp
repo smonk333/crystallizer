@@ -14,7 +14,7 @@ GranularProcessor::~GranularProcessor()
     // empty destructor
 }
 
-void GranularProcessor::prepare (const juce::dsp::ProcessSpec& spec)
+void GranularProcessor::prepare(const juce::dsp::ProcessSpec& spec)
 {
     sampleRate = spec.sampleRate;
 
@@ -23,18 +23,9 @@ void GranularProcessor::prepare (const juce::dsp::ProcessSpec& spec)
 
     // prepare AudioBuffer for delay
     delayBuffer.setSize(2, bufferSize); // allocate for a stereo buffer
-    delayBuffer.clear();
 
-    // reset write position
-    writePos = 0;
-
-    // initialize grain vector with 200 grains
-    grains.clear();
-    grains.reserve(200);
-
-    // update grain timing
-    updateGrainTiming();
-    grainTriggerTimer = 0.0f;
+    // reset to clear buffers and vectors
+    reset();
 }
 
 void GranularProcessor::reset()
@@ -43,12 +34,16 @@ void GranularProcessor::reset()
     delayBuffer.clear();
     writePos = 0;
 
-    // clear all active grains
+    // clear all active grains and initialize grain vector with 200 grains
     grains.clear();
+    grains.reserve(200);
+
+    // reset grain trigger timer and update grain timing
+    updateGrainTiming();
     grainTriggerTimer = 0.0f;
 }
 
-void GranularProcessor::process (const juce::dsp::ProcessContextReplacing<float>& context)
+void GranularProcessor::process(const juce::dsp::ProcessContextReplacing<float>& context)
 {
     auto& inputBlock = context.getInputBlock();
     auto& outputBlock = context.getOutputBlock();
@@ -132,43 +127,43 @@ void GranularProcessor::process (const juce::dsp::ProcessContextReplacing<float>
     }
 }
 
-void GranularProcessor::setDelayTime (float newDelayTime)
+void GranularProcessor::setDelayTime(float newDelayTime)
 {
     currentDelayTime = juce::jlimit(0.01f, 5.0f, newDelayTime);
 }
 
-void GranularProcessor::setGrainSize (float newGrainSize)
+void GranularProcessor::setGrainSize(float newGrainSize)
 {
     currentGrainSize = juce::jlimit(0.01f, 1.0f, newGrainSize);
 }
 
-void GranularProcessor::setGrainDensity (float newDensity)
+void GranularProcessor::setGrainDensity(float newDensity)
 {
     currentGrainDensity = juce::jlimit(0.5f, 50.0f, newDensity);
     updateGrainTiming();
 }
 
-void GranularProcessor::setPitchShift (float newPitchShift)
+void GranularProcessor::setPitchShift(float newPitchShift)
 {
     currentPitchShift = juce::jlimit(-4.0f, 4.0f, newPitchShift);
 }
 
-void GranularProcessor::setFeedback (float newFeedback)
+void GranularProcessor::setFeedback(float newFeedback)
 {
     currentFeedback = juce::jlimit(0.0f, 1.0f, newFeedback);
 }
 
-void GranularProcessor::setWetDryMix (float newWetDryMix)
+void GranularProcessor::setWetDryMix(float newWetDryMix)
 {
     currentWetDryMix = juce::jlimit(0.0f, 1.0f, newWetDryMix);
 }
 
-void GranularProcessor::setSpread (float newSpread)
+void GranularProcessor::setSpread(float newSpread)
 {
     currentSpread = juce::jlimit(0.0f, 1.0f, newSpread);
 }
 
-void GranularProcessor::updateParameters (float delayTime, float grainSize, float density, float pitchShift, float feedback, float wetDryMix, float spread)
+void GranularProcessor::updateParameters(float delayTime, float grainSize, float density, float pitchShift, float feedback, float wetDryMix, float spread)
 {
     setDelayTime(delayTime);
     setGrainSize(grainSize);
@@ -218,7 +213,7 @@ void GranularProcessor::updateGrainTiming()
     samplesPerGrainTrigger = static_cast<float>(sampleRate / currentGrainDensity);
 }
 
-float GranularProcessor::processActiveGrains (int channel)
+float GranularProcessor::processActiveGrains(int channel)
 {
     float output = 0.0f;
 
@@ -260,7 +255,7 @@ float GranularProcessor::processActiveGrains (int channel)
     return output;
 }
 
-float GranularProcessor::getDelayedSample (int channel, float position)
+float GranularProcessor::getDelayedSample(int channel, float position)
 {
     // ensure position is within bounds
     while (position < 0)
@@ -279,14 +274,14 @@ float GranularProcessor::getDelayedSample (int channel, float position)
     return sample1 * (1.0f - frac) + sample2 * frac;
 }
 
-float GranularProcessor::applyWindow (float phase)
+float GranularProcessor::applyWindow(float phase)
 {
     // hanning window
     phase = juce::jlimit(0.0f, 1.0f, phase);
     return 0.5f * (1.0f - std::cos(2.0f * juce::MathConstants<float>::pi * phase));
 }
 
-int GranularProcessor::samplesToDelayPosition (float delaySamples)
+int GranularProcessor::samplesToDelayPosition(float delaySamples)
 {
     int delayPos = writePos - static_cast<int>(delaySamples);
     while (delayPos < 0)
