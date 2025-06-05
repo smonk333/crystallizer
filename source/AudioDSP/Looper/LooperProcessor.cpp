@@ -39,6 +39,9 @@ void LooperProcessor::process (const juce::dsp::ProcessContextReplacing<float>& 
     auto& inputBlock = context.getInputBlock();
     auto& outputBlock = context.getOutputBlock();
 
+    // set up mix variables for overdubbing
+    float mixL = 0.0f, mixR = 0.0f;
+
     const auto numChannels = juce::jmin(
         inputBlock.getNumChannels(),
         outputBlock.getNumChannels(),
@@ -89,8 +92,8 @@ void LooperProcessor::process (const juce::dsp::ProcessContextReplacing<float>& 
 
             case Overdubbing:
                 // mix input with existing loop samples
-                float mixL = loopBuffer.getSample(0, position) + inputL;
-                float mixR = loopBuffer.getSample(1, position) + inputR;
+                mixL = loopBuffer.getSample(0, position) + inputL;
+                mixR = loopBuffer.getSample(1, position) + inputR;
 
                 // store mixed result
                 loopBuffer.setSample(0, position, mixL);
@@ -113,8 +116,18 @@ void LooperProcessor::process (const juce::dsp::ProcessContextReplacing<float>& 
                 jassertfalse; // debug break if we hit this case
                 break;
         }
-    }
 
+        // write to output block
+        outputBlock.setSample(0, sample, inputL);
+        if (numChannels > 1)
+        {
+            outputBlock.setSample(1, sample, inputR);
+        }
+        else
+        {
+            outputBlock.setSample(1, sample, inputL); // mono case
+        }
+    }
 }
 
 // state management methods
