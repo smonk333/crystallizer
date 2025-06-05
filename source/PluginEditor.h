@@ -6,6 +6,7 @@
 #include "ProcessorLayouts/DelayLayout/DelayLayout.h"
 #include "ProcessorLayouts/GranularLayout/GranularLayout.h"
 #include "ProcessorLayouts/ReverbLayout/ReverbLayout.h"
+#include "ProcessorLayouts/LooperLayout/LooperLayout.h"
 #include "melatonin_inspector/melatonin_inspector.h"
 
 //==============================================================================
@@ -31,6 +32,7 @@ private:
     ReverbLayout reverbLayout;
     ProcessingModeLayout processingModeSelector;  // processing mode selector
     GranularLayout granularLayout;
+    LooperLayout looperLayout;
 
     // add fx controls, labels, and attachments here as we build the
     // processor classes for them

@@ -11,4 +11,3 @@ void ToggleSetup::setupToggleButton(juce::TextButton& button, const juce::String
     if (parent != nullptr)
         parent->addAndMakeVisible(button);
 }
-

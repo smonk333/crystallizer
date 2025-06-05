@@ -3,8 +3,8 @@
 //
 
 #include "ProcessingModeLayout.h"
-#include "../ControlSetupHelpers/LabelSetup/LabelSetup.h"
-#include "../ControlSetupHelpers/AttachmentSetup/AttachmentSetup.h"
+#include "../../LayoutHelpers/ControlSetupHelpers/LabelSetup/LabelSetup.h"
+#include "../../LayoutHelpers/ControlSetupHelpers/AttachmentSetup/AttachmentSetup.h"
 
 ProcessingModeLayout::ProcessingModeLayout(juce::AudioProcessorValueTreeState& apvts)
     : processorState(apvts)
