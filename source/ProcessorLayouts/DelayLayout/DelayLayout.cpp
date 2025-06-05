@@ -3,10 +3,9 @@
 //
 
 #include "DelayLayout.h"
-#include "../ControlSetupHelpers/SliderSetup/SliderSetup.h"
-#include "../ControlSetupHelpers/LabelSetup/LabelSetup.h"
-#include "../ControlSetupHelpers/AttachmentSetup/AttachmentSetup.h"
-
+#include "../../LayoutHelpers/ControlSetupHelpers/AttachmentSetup/AttachmentSetup.h"
+#include "../../LayoutHelpers/ControlSetupHelpers/LabelSetup/LabelSetup.h"
+#include "../../LayoutHelpers/ControlSetupHelpers/SliderSetup/SliderSetup.h"
 
 DelayLayout::DelayLayout(juce::AudioProcessorValueTreeState& apvts)
 {

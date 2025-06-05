@@ -7,8 +7,8 @@
 #ifndef REVERBLAYOUT_H
 #define REVERBLAYOUT_H
 
-#include <juce_gui_basics/juce_gui_basics.h>
-#include <juce_audio_processors/juce_audio_processors.h>
+    #include <juce_audio_processors/juce_audio_processors.h>
+    #include <juce_gui_basics/juce_gui_basics.h>
 
 class ReverbLayout : public juce::Component
 {

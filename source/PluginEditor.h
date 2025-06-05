@@ -1,11 +1,11 @@
 #pragma once
 
 #include "BinaryData.h"
-#include "LayoutHelpers/DelayLayout/DelayLayout.h"
-#include "LayoutHelpers/GranularLayout/GranularLayout.h"
-#include "LayoutHelpers/ProcessingModeLayout/ProcessingModeLayout.h"
-#include "LayoutHelpers/ReverbLayout/ReverbLayout.h"
+#include "ProcessorLayouts/ProcessingModeLayout/ProcessingModeLayout.h"
 #include "PluginProcessor.h"
+#include "ProcessorLayouts/DelayLayout/DelayLayout.h"
+#include "ProcessorLayouts/GranularLayout/GranularLayout.h"
+#include "ProcessorLayouts/ReverbLayout/ReverbLayout.h"
 #include "melatonin_inspector/melatonin_inspector.h"
 
 //==============================================================================

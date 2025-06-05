@@ -7,10 +7,8 @@
 #ifndef GRANULARLAYOUT_H
 #define GRANULARLAYOUT_H
 
-#include <juce_gui_basics/juce_gui_basics.h>
-#include <juce_audio_processors/juce_audio_processors.h>
-
-
+    #include <juce_audio_processors/juce_audio_processors.h>
+    #include <juce_gui_basics/juce_gui_basics.h>
 
 class GranularLayout : public juce::Component
 {
