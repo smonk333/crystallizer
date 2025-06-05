@@ -141,6 +141,7 @@ void LooperProcessor::startPlayback()
 {
     if (loopLength > 0)
     {
+        // go to the start of the loop to play
         position = 0;
         currentState = Playing;
     }
