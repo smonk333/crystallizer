@@ -80,18 +80,13 @@ public:
     juce::AudioProcessorValueTreeState::ParameterLayout createParams();
 
 private:
-
-    // commented out legacy processor handling
-    // DelayProcessor delay;
-    // ReverbProcessor reverb;
-
     //=define processor indices for the ProcessChain============================
     enum
     {
         delayIndex,
         reverbIndex,
-        serialChainIndex,
         granularIndex,
+        serialChainIndex,
         parallelChainIndex
     };
 

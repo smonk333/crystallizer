@@ -29,7 +29,7 @@ public:
     void reset() override;
     void process(const juce::dsp::ProcessContextReplacing<float>& context) override;
 
-    // Processing mode enum
+    // processing mode enum
     enum ProcessingMode
     {
         DelayOnly = 0,
@@ -38,62 +38,78 @@ public:
         LooperOnly = 3,
         Serial = 4,
         Parallel = 5,
-        // Add new modes here as needed
+        // add new modes here as needed
     };
 
-    // Set the processing mode (this will initialize the necessary chains)
+    // set the processing mode (this will initialize the necessary chains)
     void setProcessingMode(ProcessingMode newMode);
 
-    // Get the current processing mode
+    // get the current processing mode
     ProcessingMode getCurrentMode() const { return currentMode; }
 
-    // Get processor references for parameter updates
-    // This is more efficient than having separate parameter update methods
+    // get processor references for parameter updates
+    // this is more efficient than having separate parameter update methods
     DelayProcessor* getDelayProcessor();
     ReverbProcessor* getReverbProcessor();
     GranularProcessor* getGranularProcessor();
     LooperProcessor* getLooperProcessor();
 
 private:
-    // Define processor chain index constants
+    // define processor chain index constants
     enum
     {
-        delayIndex,
-        reverbIndex
+        looper,
+        delay,
+        granular,
+        reverb
     };
 
-    // Current processing mode
+    // current processing mode
     ProcessingMode currentMode = DelayOnly;
 
-    // Process spec for lazily initializing processors
+    // process spec for lazily initializing processors
     juce::dsp::ProcessSpec currentSpec;
     bool isPrepared = false;
 
-    // Processor chain pointers (only initialized when needed)
+    // processor chain pointers (only initialized when needed)
     std::unique_ptr<juce::dsp::ProcessorChain<DelayProcessor>> delayChain;
     std::unique_ptr<juce::dsp::ProcessorChain<ReverbProcessor>> reverbChain;
-    std::unique_ptr<juce::dsp::ProcessorChain<DelayProcessor, ReverbProcessor>> serialChain;
     std::unique_ptr<juce::dsp::ProcessorChain<GranularProcessor>> granularChain;
     std::unique_ptr<juce::dsp::ProcessorChain<LooperProcessor>> looperChain;
 
-    // Buffers for parallel processing
+    // serial chain setup:
+    // add more processors as we create them and put them in the order that the
+    // effects need to be processed in.
+    std::unique_ptr<juce::dsp::ProcessorChain<LooperProcessor,
+                                              DelayProcessor,
+                                              GranularProcessor,
+                                              ReverbProcessor>> serialChain;
+
+    // buffers for parallel processing
     juce::AudioBuffer<float> parallelDelayBuffer;
     juce::AudioBuffer<float> parallelReverbBuffer;
 
-    // Helper methods for initialization
+    // map processing modes to their corresponding initialization functions
+    const std::unordered_map<ProcessingMode, std::function<void()>> modeInitializers = {
+        { DelayOnly, [this]() { initializeDelayChain(); } },
+        { ReverbOnly, [this]() { initializeReverbChain(); } },
+        { GranularOnly, [this]() { initializeGranularChain(); } },
+        { LooperOnly, [this]() { initializeLooperChain(); } },
+        { Serial, [this]() { initializeSerialChain(); } },
+        { Parallel, [this]() { initializeParallelChain(); } }
+    };
+
+    // helper methods for initialization
     void initializeDelayChain();
     void initializeReverbChain();
-    void initializeSerialChain();
     void initializeGranularChain();
     void initializeLooperChain();
+    void initializeSerialChain();
     void initializeParallelChain();
-
-    // Clean up unused chains to free memory
+    // clean up unused chains to free memory
     void cleanupUnusedChains();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SignalPathManager)
 };
-
-
 
 #endif //SIGNALPATHMANAGER_H
