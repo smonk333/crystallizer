@@ -14,10 +14,11 @@ ProcessingModeLayout::ProcessingModeLayout(juce::AudioProcessorValueTreeState& a
 
     // Add the mode options - these must match the choices in AudioParameterChoice
     modeSelector.addItem("Delay Only", 1);
-    modeSelector.addItem("Reverb Only", 2);
-    modeSelector.addItem("Serial", 3);
-    modeSelector.addItem("Granular Only (test)", 4);
-    modeSelector.addItem("Parallel", 5);
+    modeSelector.addItem ("Reverb Only", 2);
+    modeSelector.addItem ("Granular Only (test)", 3);
+    modeSelector.addItem("Looper Only", 4);
+    modeSelector.addItem("Serial", 5);
+    modeSelector.addItem("Parallel", 6);
 
     // Add the label
     addAndMakeVisible(modeLabel);

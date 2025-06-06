@@ -72,7 +72,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
 
     // push processing mode parameter into the vector
     params.push_back(std::make_unique<juce::AudioParameterChoice>("processingMode",
-        "Processing Mode", juce::StringArray{"Delay Only", "Reverb Only", "Serial", "Granular Only (test)", "Parallel"}, 0));
+        "Processing Mode", juce::StringArray{
+            "Delay Only",
+            "Reverb Only",
+            "Granular Only (test)",
+            "Looper Only",
+            "Serial",
+            "Parallel"}, 0));
 
     // push granular delay parameters into the vector
     params.push_back(std::make_unique<juce::AudioParameterFloat>("granularDelayTime",
@@ -173,13 +179,6 @@ void PluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = getTotalNumOutputChannels();
-
-    // commented out legacy processor logic
-    // // prepare the standard delay processor
-    // delay.prepare(spec);
-    //
-    // // prepare the reverb processor
-    // reverb.prepare(spec);
 
     //=prepare ProcessorChain objects===========================================
     reverbChain.prepare(spec);
