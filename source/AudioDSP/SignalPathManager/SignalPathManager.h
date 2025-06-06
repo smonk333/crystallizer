@@ -23,9 +23,9 @@ class SignalPathManager : public juce::dsp::ProcessorBase
 {
 public:
     SignalPathManager();
-    ~SignalPathManager() override = default;
+    ~SignalPathManager() override;
 
-    void prepare(const juce::dsp::ProcessSpec& spec) override;
+    void prepare(const juce::dsp::ProcessSpec& spec, ) override;
     void reset() override;
     void process(const juce::dsp::ProcessContextReplacing<float>& context) override;
 

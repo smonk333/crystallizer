@@ -21,3 +21,13 @@ the new layout class you just created, via the
 [SliderSetup](https://github.com/smonk333/crystallizer/tree/main/source/LayoutHelpers/ControlSetupHelpers/SliderSetup),
 and [ToggleSetup](https://github.com/smonk333/crystallizer/tree/main/source/LayoutHelpers/ControlSetupHelpers/ToggleSetup) 
 helper classes).
+
+## Star History
+
+<a href="https://www.star-history.com/#smonk333/crystallizer&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=smonk333/crystallizer&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=smonk333/crystallizer&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=smonk333/crystallizer&type=Date" />
+ </picture>
+</a>
