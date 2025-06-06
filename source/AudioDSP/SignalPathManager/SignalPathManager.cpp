@@ -31,11 +31,8 @@ void SignalPathManager::prepare (const juce::dsp::ProcessSpec& spec)
 
 void SignalPathManager::reset()
 {
+    // Iterate through the list and execute each reset function
 
-}
-
-void SignalPathManager::process (const juce::dsp::ProcessContextReplacing<float>& context)
-{
 }
 
 void SignalPathManager::setProcessingMode (ProcessingMode newMode)
@@ -120,14 +117,35 @@ void SignalPathManager::initializeLooperChain()
     }
 }
 
-void SignalPathManager::initializeParallelChain()
-{
-}
-
 void SignalPathManager::initializeSerialChain()
 {
+    if (!serialChain)
+    {
+        // Create the serial chain if it doesn't exist
+        serialChain = std::make_unique<juce::dsp::ProcessorChain<
+            LooperProcessor,
+            DelayProcessor,
+            GranularProcessor,
+            ReverbProcessor>>();
+        // add processors here as we create them, in the order that the effect should be applied
+    }
 }
 
 void SignalPathManager::cleanupUnusedChains()
 {
+    // Reset chains that are not required for the current mode
+    if (currentMode != DelayOnly && delayChain)
+        delayChain.reset();
+
+    if (currentMode != ReverbOnly && reverbChain)
+        reverbChain.reset();
+
+    if (currentMode != GranularOnly && granularChain)
+        granularChain.reset();
+
+    if (currentMode != LooperOnly && looperChain)
+        looperChain.reset();
+
+    if (currentMode != Serial && serialChain)
+        serialChain.reset();
 }

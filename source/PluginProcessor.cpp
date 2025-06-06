@@ -77,8 +77,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
             "Reverb Only",
             "Granular Only (test)",
             "Looper Only",
-            "Serial",
-            "Parallel"}, 0));
+            "Serial"}, 0));
 
     // push granular delay parameters into the vector
     params.push_back(std::make_unique<juce::AudioParameterFloat>("granularDelayTime",
@@ -312,54 +311,6 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
             granularChain.process(context);
             break;
 
-        case 4: // parallel (delay alongside reverb)
-        {
-            // For parallel processing, we need to:
-            // 1. Create a copy of the input
-            // 2. Process one copy through delay and one through reverb
-            // 3. Mix the results together
-
-            // Ensure our pre-allocated buffers have the right size
-            if (parallelDelayBuffer.getNumChannels() != buffer.getNumChannels() ||
-                parallelDelayBuffer.getNumSamples() != buffer.getNumSamples())
-            {
-                parallelDelayBuffer.setSize(buffer.getNumChannels(), buffer.getNumSamples(), false, false, true);
-                parallelReverbBuffer.setSize(buffer.getNumChannels(), buffer.getNumSamples(), false, false, true);
-            }
-
-            // Copy input to both buffers
-            for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
-            {
-                parallelDelayBuffer.copyFrom(channel, 0, buffer, channel, 0, buffer.getNumSamples());
-                parallelReverbBuffer.copyFrom(channel, 0, buffer, channel, 0, buffer.getNumSamples());
-            }
-
-            // Process delay buffer
-            juce::dsp::AudioBlock<float> delayBlock(parallelDelayBuffer);
-            juce::dsp::ProcessContextReplacing<float> delayContext(delayBlock);
-            delayChain.process(delayContext);
-
-            // Process reverb buffer
-            juce::dsp::AudioBlock<float> reverbBlock(parallelReverbBuffer);
-            juce::dsp::ProcessContextReplacing<float> reverbContext(reverbBlock);
-            reverbChain.process(reverbContext);
-
-            // Mix the processed signals back together (equal mix)
-            for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
-            {
-                auto* outPtr = buffer.getWritePointer(channel);
-                auto* delayPtr = parallelDelayBuffer.getReadPointer(channel);
-                auto* reverbPtr = parallelReverbBuffer.getReadPointer(channel);
-
-                for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
-                {
-                    // Simple 50/50 mix of delay and reverb signals
-                    outPtr[sample] = 0.5f * delayPtr[sample] + 0.5f * reverbPtr[sample];
-                }
-            }
-            break;
-        }
-
         default:
             serialChain.process(context);
             break;
@@ -441,4 +392,3 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new PluginProcessor();
 }
-

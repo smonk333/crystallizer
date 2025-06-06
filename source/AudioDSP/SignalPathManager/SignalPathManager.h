@@ -37,7 +37,6 @@ public:
         GranularOnly = 2,
         LooperOnly = 3,
         Serial = 4,
-        Parallel = 5,
         // add new modes here as needed
     };
 
@@ -85,18 +84,13 @@ private:
                                               GranularProcessor,
                                               ReverbProcessor>> serialChain;
 
-    // buffers for parallel processing
-    juce::AudioBuffer<float> parallelDelayBuffer;
-    juce::AudioBuffer<float> parallelReverbBuffer;
-
     // map processing modes to their corresponding initialization functions
     const std::unordered_map<ProcessingMode, std::function<void()>> modeInitializers = {
         { DelayOnly, [this]() { initializeDelayChain(); } },
         { ReverbOnly, [this]() { initializeReverbChain(); } },
         { GranularOnly, [this]() { initializeGranularChain(); } },
         { LooperOnly, [this]() { initializeLooperChain(); } },
-        { Serial, [this]() { initializeSerialChain(); } },
-        { Parallel, [this]() { initializeParallelChain(); } }
+        { Serial, [this]() { initializeSerialChain(); } }
     };
 
     // helper methods for initialization
@@ -105,7 +99,6 @@ private:
     void initializeGranularChain();
     void initializeLooperChain();
     void initializeSerialChain();
-    void initializeParallelChain();
     // clean up unused chains to free memory
     void cleanupUnusedChains();
 

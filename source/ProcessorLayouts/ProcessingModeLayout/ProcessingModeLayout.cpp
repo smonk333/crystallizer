@@ -18,7 +18,6 @@ ProcessingModeLayout::ProcessingModeLayout(juce::AudioProcessorValueTreeState& a
     modeSelector.addItem ("Granular Only (test)", 3);
     modeSelector.addItem("Looper Only", 4);
     modeSelector.addItem("Serial", 5);
-    modeSelector.addItem("Parallel", 6);
 
     // Add the label
     addAndMakeVisible(modeLabel);
