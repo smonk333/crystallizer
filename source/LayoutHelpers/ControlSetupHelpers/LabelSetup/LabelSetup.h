@@ -13,6 +13,8 @@ class LabelSetup {
 public:
     // sets up a standard label with centered text
     static void setupLabel(juce::Label& label, const juce::String& text, juce::Component* parent);
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LabelSetup)
 };
 
 #endif //LABELSETUP_H

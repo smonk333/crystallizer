@@ -61,6 +61,8 @@ private:
     float currentDryLevel = 0.4f;
     float currentWidth = 1.0f;
     float currentFreezeMode = 0.0f;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbProcessor)
 };
 
 #endif //REVERBPROCESSOR_H

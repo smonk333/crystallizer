@@ -28,6 +28,8 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>
         roomSizeAttach, dampingAttach, mixAttach, widthAttach;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> freezeAttach;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbLayout)
 };
 
 #endif //REVERBLAYOUT_H

@@ -96,6 +96,8 @@ private:
     float getDelayedSample(int channel, float position);
     float applyWindow(float phase); // hanning window function for grains (TODO: implement more window types)
     int samplesToDelayPosition(float delaySamples);
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GranularProcessor)
 };
 
 #endif //GRANULARPROCESSOR_H

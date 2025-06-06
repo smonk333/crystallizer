@@ -13,6 +13,8 @@ class SliderSetup {
 public:
     // sets up a rotary slider with standard appearance
     static void setupRotarySlider(juce::Slider& slider, juce::Component* parent);
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SliderSetup)
 };
 
 #endif //SLIDERSETUP_H

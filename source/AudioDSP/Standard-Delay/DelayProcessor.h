@@ -35,6 +35,8 @@ private:
     float currentFeedback = 0.5f;
     float currentWetLevel = 0.5f;
     double currentSampleRate = 44100.0;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DelayProcessor)
 };
 
 #endif //DELAYPROCESSOR_H

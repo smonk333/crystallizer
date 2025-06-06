@@ -29,6 +29,8 @@ public:
     createComboBoxAttachment(juce::AudioProcessorValueTreeState& apvts,
                             const juce::String& paramID,
                             juce::ComboBox& comboBox);
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AttachmentSetup)
 };
 
 #endif //ATTACHMENTSETUP_H
