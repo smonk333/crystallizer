@@ -16,6 +16,9 @@ PluginProcessor::PluginProcessor()
 {
     // constructing parameter pointers
 
+    // TODO: PROCESSOR_ADDITION_CHAIN(2): Assign apvts values for new parameters
+    //       here for each new processor
+
     // standard delay parameters
     delayTimeParam = apvts.getRawParameterValue("delayTime");
     feedbackParam = apvts.getRawParameterValue("feedback");
@@ -47,6 +50,10 @@ PluginProcessor::~PluginProcessor()
 
 juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParams()
 {
+
+    // TODO: PROCESSOR_ADDITION_CHAIN(3): Add new parameters to the layout here
+    //      for each new processor (ids are set in the processor's layout class)
+
     // create a vector of parameters
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
@@ -75,7 +82,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
         "Processing Mode", juce::StringArray{
             "Delay Only",
             "Reverb Only",
-            "Granular Only (test)",
+            "Granular Only",
             "Looper Only",
             "Serial"}, 0));
 
@@ -173,6 +180,9 @@ void PluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
 
+    // TODO: PROCESSOR_ADDITION_CHAIN(4): make sure the processor has been
+    //       prepared either in its setup or perform the preparation here
+
     // set up a ProcessSpec object to prepare the standard delay, reverb
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
@@ -264,6 +274,10 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         juce::ignoreUnused (channelData);
     }
 
+    // TODO: PROCESSOR_ADDITION_CHAIN(5): add the processor to the processBlock,
+    //       if necessary this will be refactored to use the new
+    //       SignalPathManager, so these instructions may change
+
     //=update delay processor parameters========================================
 
     updateDelayParameters(delayTimeParam->load(), feedbackParam->load(),
@@ -290,6 +304,9 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     juce::dsp::ProcessContextReplacing context(block);
 
     //=select chosen processing chain===========================================
+
+    // TODO: PROCESSOR_ADDITION_CHAIN(6) Add new options to this switch case to
+    //       allow them to be selected from the GUI
 
     int mode = static_cast<int>(processingModeParam->load());
 
@@ -369,6 +386,7 @@ void PluginProcessor::getStateInformation (juce::MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+    // TODO: Implement Looper content saving
     auto state = apvts.copyState();
     std::unique_ptr<juce::XmlElement> xml(state.createXml());
     copyXmlToBinary(*xml, destData);
@@ -378,6 +396,7 @@ void PluginProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+    // TODO: implement Looper content loading
     std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
     if (xmlState != nullptr && xmlState->hasTagName(apvts.state.getType()))
     {

@@ -27,15 +27,14 @@ private:
     std::unique_ptr<melatonin::Inspector> inspector;
     juce::TextButton inspectButton { "Inspect the UI" };
 
+    // TODO: PROCESSOR_ADDITION_CHAIN(7) add an instance of the processor's layout class here
+
     // use dedicated layout components for effect sections
     DelayLayout delayLayout;
     ReverbLayout reverbLayout;
     ProcessingModeLayout processingModeSelector;  // processing mode selector
     GranularLayout granularLayout;
     LooperLayout looperLayout;
-
-    // add fx controls, labels, and attachments here as we build the
-    // processor classes for them
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)
 };

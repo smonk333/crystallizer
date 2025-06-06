@@ -13,9 +13,13 @@ ProcessingModeLayout::ProcessingModeLayout(juce::AudioProcessorValueTreeState& a
     addAndMakeVisible(modeSelector);
 
     // Add the mode options - these must match the choices in AudioParameterChoice
+
+    // TODO: PROCESSOR_ADDITION_CHAIN(?): Add new routing options to this switch
+    //       case to allow them to show up in the GUI
+
     modeSelector.addItem("Delay Only", 1);
     modeSelector.addItem ("Reverb Only", 2);
-    modeSelector.addItem ("Granular Only (test)", 3);
+    modeSelector.addItem ("Granular Only", 3);
     modeSelector.addItem("Looper Only", 4);
     modeSelector.addItem("Serial", 5);
 

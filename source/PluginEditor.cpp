@@ -3,6 +3,7 @@
 #include "LayoutHelpers/ControlSetupHelpers/LabelSetup/LabelSetup.h"
 #include "LayoutHelpers/ControlSetupHelpers/ToggleSetup/ToggleSetup.h"
 
+// TODO: PROCESSOR_ADDITION_CHAIN(8)
 PluginEditor::PluginEditor (PluginProcessor& p)
     : AudioProcessorEditor (&p), processorRef (p),
       delayLayout(p.apvts), reverbLayout(p.apvts),

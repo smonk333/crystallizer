@@ -49,6 +49,8 @@ public:
 
     //==========================APVTS setup=====================================
 
+    // TODO: PROCESSOR_ADDITION_CHAIN(1): add an atomic pointer here for each new parameter in the new processor
+
     // standard delay parameters
     std::atomic<float>* delayTimeParam; // delay length in seconds
     std::atomic<float>* feedbackParam;  // feedback amount
