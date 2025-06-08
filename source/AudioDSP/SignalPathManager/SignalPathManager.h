@@ -37,7 +37,8 @@ public:
         GranularOnly = 2,
         LooperOnly = 3,
         Serial = 4,
-        // add new modes here as needed
+        // TODO: PROCESSOR_ADDITION_CHAIN(9): add a new processing mode for the
+        //       new processor here
     };
 
     // set the processing mode (this will initialize the necessary chains)
@@ -61,6 +62,8 @@ private:
         delay,
         granular,
         reverb
+        // TODO: PROCESSOR_ADDITION_CHAIN(10): add a new index for the new
+        //       processor here
     };
 
     // current processing mode
@@ -68,7 +71,8 @@ private:
 
     // process spec for lazily initializing processors
     juce::dsp::ProcessSpec currentSpec;
-    bool isPrepared = false;
+
+    // TODO: PROCESSOR_ADDITION_CHAIN(11): add new processor chain pointers here
 
     // processor chain pointers (only initialized when needed)
     std::unique_ptr<juce::dsp::ProcessorChain<DelayProcessor>> delayChain;
@@ -83,6 +87,9 @@ private:
                                               DelayProcessor,
                                               GranularProcessor,
                                               ReverbProcessor>> serialChain;
+
+    // TODO: PROCESSOR_ADDITION_CHAIN(12): add the processor to the map for
+    //       initialization
 
     // map processing modes to their corresponding initialization functions
     const std::unordered_map<ProcessingMode, std::function<void()>> modeInitializers = {
@@ -99,6 +106,7 @@ private:
     void initializeGranularChain();
     void initializeLooperChain();
     void initializeSerialChain();
+
     // clean up unused chains to free memory
     void cleanupUnusedChains();
 

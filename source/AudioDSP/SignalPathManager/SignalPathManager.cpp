@@ -26,12 +26,30 @@ void SignalPathManager::prepare (const juce::dsp::ProcessSpec& spec)
         it->second();
     }
 
-    isPrepared = true; // mark as prepared
 }
 
 void SignalPathManager::reset()
 {
+
+    // TODO: PROCESSOR_ADDITION_CHAIN(13): add reset logic for new chains here
+
     // Iterate through the list and execute each reset function
+
+    // Reset chains that are not required for the current mode
+    if (currentMode != DelayOnly && delayChain)
+        delayChain.reset();
+
+    if (currentMode != ReverbOnly && reverbChain)
+        reverbChain.reset();
+
+    if (currentMode != GranularOnly && granularChain)
+        granularChain.reset();
+
+    if (currentMode != LooperOnly && looperChain)
+        looperChain.reset();
+
+    if (currentMode != Serial && serialChain)
+        serialChain.reset();
 
 }
 
@@ -48,6 +66,8 @@ void SignalPathManager::setProcessingMode (ProcessingMode newMode)
         it->second();
     }
 }
+
+// TODO: PROCESSOR_ADDITION_CHAIN(14): add new processor chain getters here
 
 DelayProcessor* SignalPathManager::getDelayProcessor()
 {
@@ -80,6 +100,8 @@ LooperProcessor* SignalPathManager::getLooperProcessor()
         return &looperChain->get<0>();
     return nullptr;
 }
+
+// TODO: PROCESSOR_ADDITION_CHAIN(15): add new processor chain initializers here
 
 void SignalPathManager::initializeReverbChain()
 {
@@ -127,25 +149,30 @@ void SignalPathManager::initializeSerialChain()
             DelayProcessor,
             GranularProcessor,
             ReverbProcessor>>();
-        // add processors here as we create them, in the order that the effect should be applied
+        // TODO: PROCESSOR_ADDITION_CHAIN(16): add new processors to the serial
+        //       chain here
     }
 }
 
 void SignalPathManager::cleanupUnusedChains()
 {
-    // Reset chains that are not required for the current mode
+
+    // TODO: PROCESSOR_ADDITION_CHAIN(17): add cleanup logic for new chains here
+
+
+    // delete chains that are not required for the current mode
     if (currentMode != DelayOnly && delayChain)
-        delayChain.reset();
+        delayChain = nullptr;
 
     if (currentMode != ReverbOnly && reverbChain)
-        reverbChain.reset();
+        reverbChain = nullptr;
 
     if (currentMode != GranularOnly && granularChain)
-        granularChain.reset();
+        granularChain = nullptr;
 
     if (currentMode != LooperOnly && looperChain)
-        looperChain.reset();
+        looperChain = nullptr;
 
     if (currentMode != Serial && serialChain)
-        serialChain.reset();
+        serialChain = nullptr;
 }
