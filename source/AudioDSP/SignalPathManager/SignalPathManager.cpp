@@ -30,7 +30,6 @@ void SignalPathManager::prepare (const juce::dsp::ProcessSpec& spec)
 
 void SignalPathManager::reset()
 {
-
     // TODO: PROCESSOR_ADDITION_CHAIN(13): add reset logic for new chains here
 
     // Iterate through the list and execute each reset function
@@ -50,6 +49,10 @@ void SignalPathManager::reset()
 
     if (currentMode != Serial && serialChain)
         serialChain.reset();
+}
+
+void SignalPathManager::process (const juce::dsp::ProcessContextReplacing<float>& context)
+{
 
 }
 
@@ -66,6 +69,8 @@ void SignalPathManager::setProcessingMode (ProcessingMode newMode)
         it->second();
     }
 }
+
+
 
 // TODO: PROCESSOR_ADDITION_CHAIN(14): add new processor chain getters here
 

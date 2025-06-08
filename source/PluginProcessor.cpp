@@ -41,7 +41,7 @@ PluginProcessor::PluginProcessor()
     granularSpreadParam = apvts.getRawParameterValue("spread");
 
     // signal processing chain parameters
-    processingModeParam = apvts.getRawParameterValue("processingMode");
+    signalChainParam = apvts.getRawParameterValue("processingMode");
 
     // looper state management parameter
     looperStateParam = apvts.getRawParameterValue("looperState");
@@ -193,37 +193,52 @@ void PluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = getTotalNumOutputChannels();
 
-    //=prepare ProcessorChain objects===========================================
-    reverbChain.prepare(spec);
-    delayChain.prepare(spec);
-    serialChain.prepare(spec);
-    parallelChain.prepare(spec);
-    granularChain.prepare(spec);
+    // legacy processorChain calls and logic
+    // //=prepare ProcessorChain objects===========================================
+    // reverbChain.prepare(spec);
+    // delayChain.prepare(spec);
+    // serialChain.prepare(spec);
+    // parallelChain.prepare(spec);
+    // granularChain.prepare(spec);
+    //
+    // //=reset ProcessorChain objects=============================================
+    // reverbChain.reset();
+    // delayChain.reset();
+    // serialChain.reset();
+    // parallelChain.reset();
+    // granularChain.reset();
+    //
+    // // Allocate parallel processing buffers to avoid reallocating in the audio thread
+    // parallelDelayBuffer.setSize(getTotalNumOutputChannels(), samplesPerBlock);
+    // parallelReverbBuffer.setSize(getTotalNumOutputChannels(), samplesPerBlock);
 
-    //=reset ProcessorChain objects=============================================
-    reverbChain.reset();
-    delayChain.reset();
-    serialChain.reset();
-    parallelChain.reset();
-    granularChain.reset();
-
-    // Allocate parallel processing buffers to avoid reallocating in the audio thread
-    parallelDelayBuffer.setSize(getTotalNumOutputChannels(), samplesPerBlock);
-    parallelReverbBuffer.setSize(getTotalNumOutputChannels(), samplesPerBlock);
-
-    // Set up initial parameters for all processors
-    updateDelayParameters(delayTimeParam->load(), feedbackParam->load(), wetDryParam->load());
-    updateReverbParameters(reverbRoomSizeParam->load(), reverbDampingParam->load(),
-                         reverbMixParam->load(), 1.0f - reverbMixParam->load(),
-                         reverbWidthParam->load(), reverbFreezeParam->load());
+    // legacy parameter update logic
+    //
+    // // Set up initial parameters for all processors
+    // updateDelayParameters(delayTimeParam->load(), feedbackParam->load(), wetDryParam->load());
+    // updateReverbParameters(reverbRoomSizeParam->load(), reverbDampingParam->load(),
+    //                      reverbMixParam->load(), 1.0f - reverbMixParam->load(),
+    //                      reverbWidthParam->load(), reverbFreezeParam->load());
 
     // prepare more fx processors here as we add classes to handle processing
+
+    //=prepare the signal path manager===========================================
+
+    // prepare the signal path manager for the current processing mode
+    signalPathManager.setProcessingMode(
+        static_cast<SignalPathManager::ProcessingMode>(
+        static_cast<int>(signalChainParam->load())
+        )
+    );
+
+    signalPathManager.prepare(spec);
 }
 
 void PluginProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
+    signalPathManager.
 }
 
 bool PluginProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
@@ -282,23 +297,25 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     //       if necessary this will be refactored to use the new
     //       SignalPathManager, so these instructions may change
 
-    //=update delay processor parameters========================================
+    signalPathManager
 
-    updateDelayParameters(delayTimeParam->load(), feedbackParam->load(),
-        wetDryParam->load());
-
-    //=update reverb processor parameters=======================================
-
-    updateReverbParameters(reverbRoomSizeParam->load(), reverbDampingParam->load(),
-        reverbMixParam->load(), 1.0f - reverbMixParam->load(),
-        reverbWidthParam->load(), reverbFreezeParam->load());
-
-    //=update granular processor parameters=====================================
-
-    updateGranularParameters(granularDelayTimeParam->load(),
-        grainSizeParam->load(), grainDensityParam->load(),
-        granularPitchShiftParam->load(), granularFeedbackParam->load(),
-        granularWetDryParam->load(), granularSpreadParam->load());
+    //=LEGACY: update delay processor parameters========================================
+    //
+    // updateDelayParameters(delayTimeParam->load(), feedbackParam->load(),
+    //     wetDryParam->load());
+    //
+    // //=update reverb processor parameters=======================================
+    //
+    // updateReverbParameters(reverbRoomSizeParam->load(), reverbDampingParam->load(),
+    //     reverbMixParam->load(), 1.0f - reverbMixParam->load(),
+    //     reverbWidthParam->load(), reverbFreezeParam->load());
+    //
+    // //=update granular processor parameters=====================================
+    //
+    // updateGranularParameters(granularDelayTimeParam->load(),
+    //     grainSizeParam->load(), grainDensityParam->load(),
+    //     granularPitchShiftParam->load(), granularFeedbackParam->load(),
+    //     granularWetDryParam->load(), granularSpreadParam->load());
 
     //=REGISTER MORE UPDATE BLOCKS HERE AS WE ADD PROCESSORS====================
 
@@ -312,30 +329,33 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // TODO: PROCESSOR_ADDITION_CHAIN(6) Add new options to this switch case to
     //       allow them to be selected from the GUI
 
-    int mode = static_cast<int>(processingModeParam->load());
 
-    switch (mode)
-    {
-        case 0: // delay only
-            delayChain.process(context);
-            break;
 
-        case 1: // reverb only
-            reverbChain.process(context);
-            break;
-
-        case 2: // serial (delay -> reverb)
-            serialChain.process(context);
-            break;
-
-        case 3: // granular only (testing)
-            granularChain.process(context);
-            break;
-
-        default:
-            serialChain.process(context);
-            break;
-    }
+    // legacy mode selection logic
+    // int mode = static_cast<int>(processingModeParam->load());
+    //
+    // switch (mode)
+    // {
+    //     case 0: // delay only
+    //         delayChain.process(context);
+    //         break;
+    //
+    //     case 1: // reverb only
+    //         reverbChain.process(context);
+    //         break;
+    //
+    //     case 2: // serial (delay -> reverb)
+    //         serialChain.process(context);
+    //         break;
+    //
+    //     case 3: // granular only (testing)
+    //         granularChain.process(context);
+    //         break;
+    //
+    //     default:
+    //         serialChain.process(context);
+    //         break;
+    // }
 
 }
 

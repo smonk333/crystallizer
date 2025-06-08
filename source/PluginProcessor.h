@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AudioDSP/SignalPathManager/SignalPathManager.h"
 #include "AudioDSP/Granular-Delay/GranularProcessor.h"
 #include "AudioDSP/Reverb/ReverbProcessor.h"
 #include "AudioDSP/Standard-Delay/DelayProcessor.h"
@@ -41,11 +42,11 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    //=parameter update methods=================================================
+    //=legacy parameter update methods=================================================
 
-    void updateDelayParameters(float time, float feedback, float mix);
-    void updateReverbParameters (float roomSize, float damping, float wet, float dry, float width, float freeze);
-    void updateGranularParameters (float delayTime, float grainSize, float grainDensity, float pitchShift, float feedback, float wetDry, float spread);
+    // void updateDelayParameters(float time, float feedback, float mix);
+    // void updateReverbParameters (float roomSize, float damping, float wet, float dry, float width, float freeze);
+    // void updateGranularParameters (float delayTime, float grainSize, float grainDensity, float pitchShift, float feedback, float wetDry, float spread);
 
     //==========================APVTS setup=====================================
 
@@ -64,8 +65,7 @@ public:
     std::atomic<float>* reverbFreezeParam;      // sets the freeze mode of the reverb (now bool, but keep pointer for compatibility)
 
     // signal processing chain parameters
-    std::atomic<float>* processingModeParam; // 0 = delay only, 1 = reverb only,
-                                             // 2 = serial, 3 = parallel
+    std::atomic<float>* signalChainParam;
 
     // granular delay parameters
     std::atomic<float>* granularDelayTimeParam;     // delay time in seconds
@@ -95,18 +95,23 @@ private:
         parallelChainIndex
     };
 
-    //=ProcessorChains with the processors in different configurations
-    juce::dsp::ProcessorChain<DelayProcessor, ReverbProcessor> serialChain;
-    juce::dsp::ProcessorChain<DelayProcessor, ReverbProcessor> parallelChain;
-    juce::dsp::ProcessorChain<DelayProcessor> delayChain;
-    juce::dsp::ProcessorChain<ReverbProcessor> reverbChain;
-    juce::dsp::ProcessorChain<GranularProcessor> granularChain;
+    // legacy processorChain setup
+    // //=ProcessorChains with the processors in different configurations
+    // juce::dsp::ProcessorChain<DelayProcessor, ReverbProcessor> serialChain;
+    // juce::dsp::ProcessorChain<DelayProcessor, ReverbProcessor> parallelChain;
+    // juce::dsp::ProcessorChain<DelayProcessor> delayChain;
+    // juce::dsp::ProcessorChain<ReverbProcessor> reverbChain;
+    // juce::dsp::ProcessorChain<GranularProcessor> granularChain;
 
     // more fx processors below here as we add classes to handle processing
 
-    // Pre-allocated buffers for parallel processing to avoid allocating in audio thread
-    juce::AudioBuffer<float> parallelDelayBuffer;
-    juce::AudioBuffer<float> parallelReverbBuffer;
+    // TODO: remove the logic for parallel processing
+    // // Pre-allocated buffers for parallel processing to avoid allocating in audio thread
+    // juce::AudioBuffer<float> parallelDelayBuffer;
+    // juce::AudioBuffer<float> parallelReverbBuffer;
+
+    // set up a SignalPathManager to handle processing modes and chains
+    SignalPathManager signalPathManager;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginProcessor)
 };

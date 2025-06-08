@@ -188,6 +188,6 @@ void LooperProcessor::updateParameters(const juce::AudioProcessorValueTreeState&
     if (loopStateParam)
     {
         // this is probably wrong, TODO: check this if the looper buttons don't work
-        currentState = State<loopStateParam>;
+        currentState = static_cast<State>(static_cast<int>(*loopStateParam));
     }
 }
