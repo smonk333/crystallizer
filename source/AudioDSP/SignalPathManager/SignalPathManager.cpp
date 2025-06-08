@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <functional>
 
-SignalPathManager::SignalPathManager()
+SignalPathManager::SignalPathManager() : currentSpec()
 {
     // empty constructor
 }
@@ -145,6 +145,10 @@ void SignalPathManager::initializeReverbChain()
 {
     if (!reverbChain)
     {
+        jassert(currentSpec.sampleRate >= 0); // Ensure the sample rate is valid
+        if (currentSpec.sampleRate <= 0)
+            return; // Exit if the sample rate is invalid
+
         reverbChain = std::make_unique<juce::dsp::ProcessorChain<ReverbProcessor>>();
         reverbChain->get<0>().prepare(currentSpec);
     }

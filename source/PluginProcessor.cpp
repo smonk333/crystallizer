@@ -48,10 +48,16 @@ PluginProcessor::PluginProcessor()
 
     // signalPathManager parameter
     signalChainParam = apvts.getRawParameterValue("signalPath");
+
+    // Initialize the signalPathListener
+    signalPathListener = std::make_unique<SignalPathParameterListener>(*this);
+    apvts.addParameterListener("signalPath", signalPathListener.get());
 }
 
 PluginProcessor::~PluginProcessor()
 {
+    // Remove the signalPathListener
+    apvts.removeParameterListener("signalPath", signalPathListener.get());
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParams()
@@ -434,6 +440,13 @@ void PluginProcessor::setStateInformation (const void* data, int sizeInBytes)
     }
 }
 
+void PluginProcessor::updateSignalPathManager(int newMode)
+{
+    signalPathManager.setProcessingMode(
+        static_cast<SignalPathManager::ProcessingMode>(newMode)
+    );
+}
+
 
 //==============================================================================
 // This creates new instances of the plugin..
@@ -441,6 +454,3 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new PluginProcessor();
 }
-
-
-

@@ -53,7 +53,6 @@ void SignalPathManagerLayout::resized()
 
 void SignalPathManagerLayout::parameterChanged (const juce::String& parameterID, float newValue)
 {
-    // we don't need to do anything here as the attachment handles updates
+    // Removed logic to notify PluginProcessor directly.
     juce::ignoreUnused(parameterID, newValue);
 }
-

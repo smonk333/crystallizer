@@ -85,7 +85,30 @@ public:
     juce::AudioProcessorValueTreeState apvts;
     juce::AudioProcessorValueTreeState::ParameterLayout createParams();
 
+    void updateSignalPathManager(int newMode);
+
 private:
+    class SignalPathParameterListener : public juce::AudioProcessorValueTreeState::Listener
+    {
+    public:
+        explicit SignalPathParameterListener(PluginProcessor& processor) : processor(processor) {}
+
+        void parameterChanged(const juce::String& parameterID, float newValue) override
+        {
+            if (parameterID == "signalPath")
+            {
+                processor.signalPathManager.setProcessingMode(
+                    static_cast<SignalPathManager::ProcessingMode>(static_cast<int>(newValue))
+                );
+            }
+        }
+
+    private:
+        PluginProcessor& processor;
+    };
+
+    std::unique_ptr<SignalPathParameterListener> signalPathListener;
+
     //=define processor indices for the ProcessChain============================
     enum
     {

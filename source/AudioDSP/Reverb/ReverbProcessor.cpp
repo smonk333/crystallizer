@@ -130,17 +130,19 @@ void ReverbProcessor::setFreezeMode (float newFreezeMode)
 void ReverbProcessor::updateParameters(const juce::AudioProcessorValueTreeState& apvts)
 {
     // parameter retrieval from APVTS
-    auto roomSizeParam = apvts.getRawParameterValue("roomSize");
-    auto dampingParam = apvts.getRawParameterValue("damping");
-    auto wetLevelParam = apvts.getRawParameterValue("wetLevel");
-    auto dryLevelParam = apvts.getRawParameterValue("dryLevel");
-    auto widthParam = apvts.getRawParameterValue("width");
-    auto freezeModeParam = apvts.getRawParameterValue("freezeMode");
+    auto roomSizeParam = apvts.getRawParameterValue("reverbRoomSize");
+    auto dampingParam = apvts.getRawParameterValue("reverbDamping");
+    auto mixParam = apvts.getRawParameterValue("reverbMix"); // Combined wet/dry mix
+    auto widthParam = apvts.getRawParameterValue("reverbWidth");
+    auto freezeModeParam = apvts.getRawParameterValue("reverbFreeze");
 
     if (roomSizeParam) setRoomSize(*roomSizeParam);
     if (dampingParam) setDamping(*dampingParam);
-    if (wetLevelParam) setWetLevel(*wetLevelParam);
-    if (dryLevelParam) setDryLevel(*dryLevelParam);
+    if (mixParam)
+    {
+        setWetLevel(*mixParam); // Use reverbMix for wet level
+        setDryLevel(1.0f - *mixParam); // Complement for dry level
+    }
     if (widthParam) setWidth(*widthParam);
     if (freezeModeParam) setFreezeMode(*freezeModeParam);
 }
