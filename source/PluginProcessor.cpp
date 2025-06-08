@@ -42,6 +42,9 @@ PluginProcessor::PluginProcessor()
 
     // signal processing chain parameters
     processingModeParam = apvts.getRawParameterValue("processingMode");
+
+    // looper state management parameter
+    looperStateParam = apvts.getRawParameterValue("looperState");
 }
 
 PluginProcessor::~PluginProcessor()
@@ -411,3 +414,5 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new PluginProcessor();
 }
+
+

@@ -47,8 +47,6 @@ void LooperLayout::resized()
 
     // create a 3x2 grid (3 rows, 2 columns)
     juce::Grid grid;
-    grid.templateRows = { juce::Grid::TrackInfo(juce::Grid::Fr(1)), juce::Grid::TrackInfo(juce::Grid::Fr(1)), juce::Grid::TrackInfo(juce::Grid::Fr(1)) };
-    grid.templateColumns = { juce::Grid::TrackInfo(juce::Grid::Fr(1)), juce::Grid::TrackInfo(juce::Grid::Fr(1)) };
     grid.templateRows = { Track(Fr(1)), Track(Fr(1)), Track(Fr(1)) };
     grid.templateColumns = { Track(Fr(1)), Track(Fr(1)) };
 

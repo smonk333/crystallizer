@@ -76,6 +76,9 @@ public:
     std::atomic<float>* granularWetDryParam;        // wet/dry mix ratio (0.0 to 1.0)
     std::atomic<float>* granularSpreadParam;        // random position spread
 
+    // looper state management parameter
+    std::atomic<float>* looperStateParam; // 0 = stopped, 1 = recording, 2 = playing, 3 = overdubbing, 4 = clear
+
     // more fx parameters below here as we add classes to handle processing
 
     juce::AudioProcessorValueTreeState apvts;
