@@ -54,6 +54,9 @@ public:
     GranularProcessor* getGranularProcessor();
     LooperProcessor* getLooperProcessor();
 
+    // update processor chain parameters based on the current mode
+    void updateProcessorChainParameters (const juce::AudioProcessorValueTreeState& apvts);
+
 private:
     // define processor chain index constants
     enum
@@ -109,9 +112,6 @@ private:
 
     // clean up unused chains to free memory
     void cleanupUnusedChains();
-
-    // update processor chain parameters based on the current mode
-    void updateProcessorChainParameters (const juce::AudioProcessorValueTreeState& apvts);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SignalPathManager)
 };

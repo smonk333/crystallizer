@@ -45,6 +45,9 @@ PluginProcessor::PluginProcessor()
 
     // looper state management parameter
     looperStateParam = apvts.getRawParameterValue("looperState");
+
+    // signalPathManager parameter
+    signalChainParam = apvts.getRawParameterValue("signalPath");
 }
 
 PluginProcessor::~PluginProcessor()
@@ -82,7 +85,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
 
     // TODO: PROCESSOR_ADDITION_CHAIN(18): Add the new processing mode here
     // push processing mode parameter into the vector
-    params.push_back(std::make_unique<juce::AudioParameterChoice>("processingMode",
+    params.push_back(std::make_unique<juce::AudioParameterChoice>("signalPath",
         "Processing Mode", juce::StringArray{
             "Delay Only",
             "Reverb Only",
@@ -105,6 +108,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
         "Granular Wet/Dry Mix", 0.0f, 1.0f, 0.5f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("spread",
         "Spread", 0.0f, 1.0f, 0.5f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>("looperState",
+            "Looper State", 0.0f, 4.0f, 0.0f)); // 0 = stopped, 1 = recording, 2 = playing, 3 = overdubbing, 4 = clear)
 
     // push more fx parameters here as we add classes to handle processing
 
@@ -238,7 +244,6 @@ void PluginProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
-    signalPathManager.
 }
 
 bool PluginProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
@@ -297,7 +302,7 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     //       if necessary this will be refactored to use the new
     //       SignalPathManager, so these instructions may change
 
-    signalPathManager
+    signalPathManager.updateProcessorChainParameters(apvts);
 
     //=LEGACY: update delay processor parameters========================================
     //
@@ -329,7 +334,7 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     // TODO: PROCESSOR_ADDITION_CHAIN(6) Add new options to this switch case to
     //       allow them to be selected from the GUI
 
-
+    signalPathManager.process(context);
 
     // legacy mode selection logic
     // int mode = static_cast<int>(processingModeParam->load());

@@ -64,9 +64,6 @@ public:
     std::atomic<float>* reverbWidthParam;       // sets the stereo width of the reverb
     std::atomic<float>* reverbFreezeParam;      // sets the freeze mode of the reverb (now bool, but keep pointer for compatibility)
 
-    // signal processing chain parameters
-    std::atomic<float>* signalChainParam;
-
     // granular delay parameters
     std::atomic<float>* granularDelayTimeParam;     // delay time in seconds
     std::atomic<float>* grainSizeParam;             // grain size in seconds
@@ -78,6 +75,10 @@ public:
 
     // looper state management parameter
     std::atomic<float>* looperStateParam; // 0 = stopped, 1 = recording, 2 = playing, 3 = overdubbing, 4 = clear
+
+    // signal processing chain parameters
+    std::atomic<float>* signalChainParam;
+
 
     // more fx parameters below here as we add classes to handle processing
 

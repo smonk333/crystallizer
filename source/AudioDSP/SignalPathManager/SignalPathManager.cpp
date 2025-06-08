@@ -53,7 +53,40 @@ void SignalPathManager::reset()
 
 void SignalPathManager::process (const juce::dsp::ProcessContextReplacing<float>& context)
 {
+    switch (currentMode)
+    {
+        case DelayOnly:
+            if (delayChain)
+                delayChain->process(context);
+            break;
 
+        case ReverbOnly:
+            if (reverbChain)
+                reverbChain->process(context);
+            break;
+
+        case GranularOnly:
+            if (granularChain)
+                granularChain->process(context);
+            break;
+
+        case LooperOnly:
+            if (looperChain)
+                looperChain->process(context);
+            break;
+
+        case Serial:
+            if (serialChain)
+                serialChain->process(context);
+            break;
+
+        default:
+            // DelayOnly as a fallback, or just outright fail to do anything
+            if (delayChain)
+                delayChain->process(context);
+            jassertfalse; // unexpected mode, should never happen
+            break;
+    }
 }
 
 void SignalPathManager::setProcessingMode (ProcessingMode newMode)

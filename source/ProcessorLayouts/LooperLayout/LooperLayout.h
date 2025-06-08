@@ -22,9 +22,9 @@ private:
     juce::TextButton
         recordButton, playButton, overdubButton, stopButton, clearButton;
 
-    // attachments for buttons
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>
-        recordAttach, playAttach, overdubAttach, stopAttach, clearAttach;
+    // // attachments for buttons
+    // std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>
+    //     recordAttach, playAttach, overdubAttach, stopAttach, clearAttach;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LooperLayout)
 };

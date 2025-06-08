@@ -3,19 +3,24 @@
 #include "LayoutHelpers/ControlSetupHelpers/LabelSetup/LabelSetup.h"
 #include "LayoutHelpers/ControlSetupHelpers/ToggleSetup/ToggleSetup.h"
 
-// TODO: PROCESSOR_ADDITION_CHAIN(8)
+// TODO: PROCESSOR_ADDITION_CHAIN(8): add layouts for new processors here
 PluginEditor::PluginEditor (PluginProcessor& p)
-    : AudioProcessorEditor (&p), processorRef (p),
-      delayLayout(p.apvts), reverbLayout(p.apvts),
-      processingModeSelector(p.apvts), granularLayout (p.apvts),
-      looperLayout(p.apvts)
+    : AudioProcessorEditor (&p),
+    processorRef (p),
+    delayLayout(p.apvts),
+    reverbLayout(p.apvts),
+    //processingModeSelector(p.apvts), // legacy processing mode selector
+    granularLayout (p.apvts),
+    looperLayout(p.apvts),
+    spmLayout(p.apvts)
 {
     // Add the layout components to the editor
     addAndMakeVisible(delayLayout);
     addAndMakeVisible(reverbLayout);
-    addAndMakeVisible(processingModeSelector);
+    //addAndMakeVisible(processingModeSelector); // legacy processing mode selector
     addAndMakeVisible(granularLayout);
     addAndMakeVisible(looperLayout);
+    addAndMakeVisible(spmLayout);
 
     // Add a button to inspect the UI in the melatonin inspector
     addAndMakeVisible(inspectButton);
@@ -73,12 +78,20 @@ void PluginEditor::resized()
     //=position the ReverbLayout component in the reverb section================
     reverbLayout.setBounds(reverbSection);
 
-    //=processing mode selector section=========================================
-    auto processingSection = area.removeFromTop(100);
-    processingSection.removeFromTop(30); // space for section label
+    // legacy processing mode selector section
+    // //=processing mode selector section=========================================
+    // auto processingSection = area.removeFromTop(100);
+    // processingSection.removeFromTop(30); // space for section label
+    //
+    // //=position the ProcessingModeSelector component in the processing section==
+    // processingModeSelector.setBounds(processingSection);
 
-    //=position the ProcessingModeSelector component in the processing section==
-    processingModeSelector.setBounds(processingSection);
+    //=signal path manager section=============================================
+    auto signalPathSection = area.removeFromTop(200);
+    signalPathSection.removeFromTop(30); // space for section label
+
+    //=position the SignalPathManagerLayout component in the signal path section
+    spmLayout.setBounds(signalPathSection);
 
     //=granular section=========================================================
     auto granularSection = area.removeFromTop(200);

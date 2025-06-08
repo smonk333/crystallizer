@@ -21,20 +21,13 @@ LooperLayout::LooperLayout (juce::AudioProcessorValueTreeState& apvts)
         btn->setClickingTogglesState(false);
     }
 
-    // TODO: PROCESSOR_ADDITION_CHAIN(EXAMPLE): this is where the parameter names are set up
+    // TODO: PROCESSOR_ADDITION_CHAIN(EXAMPLE): this is where the parameter names are set up (?? maybe?? i think this might be a bad example)
     // set up button actions to update APVTS parameters
     recordButton.onClick = [&]() { apvts.getParameter("looperState")->setValueNotifyingHost(1.0f); }; // Recording
     playButton.onClick = [&]() { apvts.getParameter("looperState")->setValueNotifyingHost(2.0f); };   // Playing
     overdubButton.onClick = [&]() { apvts.getParameter("looperState")->setValueNotifyingHost(3.0f); }; // Overdubbing
     stopButton.onClick = [&]() { apvts.getParameter("looperState")->setValueNotifyingHost(0.0f); };    // Stopped
     clearButton.onClick = [&]() { apvts.getParameter("looperState")->setValueNotifyingHost(4.0f); };   // Clear
-
-    // set up attachments for looper controls using the AttachmentSetup helper
-    recordAttach = AttachmentSetup::createButtonAttachment(apvts, "looperRecord", recordButton);
-    playAttach = AttachmentSetup::createButtonAttachment(apvts, "looperPlay", playButton);
-    overdubAttach = AttachmentSetup::createButtonAttachment(apvts, "looperOverdub", overdubButton);
-    stopAttach = AttachmentSetup::createButtonAttachment(apvts, "looperStop", stopButton);
-    clearAttach = AttachmentSetup::createButtonAttachment(apvts, "looperClear", clearButton);
 }
 
 void LooperLayout::resized()

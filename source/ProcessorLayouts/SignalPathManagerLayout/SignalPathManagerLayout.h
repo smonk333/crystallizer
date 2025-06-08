@@ -19,6 +19,8 @@ public:
     ~SignalPathManagerLayout() override;
     void resized() override;
 
+    void parameterChanged(const juce::String& parameterID, float newValue) override;
+
 private:
     juce::AudioProcessorValueTreeState& processorState;
 
