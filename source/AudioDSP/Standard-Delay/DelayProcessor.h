@@ -5,6 +5,7 @@
 #pragma once
 
 #include <juce_dsp/juce_dsp.h>
+#include <juce_audio_processors/juce_audio_processors.h>
 
 #ifndef DELAYPROCESSOR_H
 #define DELAYPROCESSOR_H
@@ -24,7 +25,11 @@ public:
     void setDelayTime(float newDelayTime);
     void setFeedback(float newFeedback);
     void setWetLevel(float newWetLevel);
-    void updateParameters(float time, float feedback, float mix);
+
+    // legacy parameter update method
+    //void updateParameters(float time, float feedback, float mix);
+
+    void updateParameters(const juce::AudioProcessorValueTreeState& apvts);
 
 private:
     juce::dsp::DelayLine<float> leftDelay { 410000 };

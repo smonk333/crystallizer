@@ -110,7 +110,10 @@ private:
     // clean up unused chains to free memory
     void cleanupUnusedChains();
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SignalPathManager)
+    // update processor chain parameters based on the current mode
+    void updateProcessorChainParameters (const juce::AudioProcessorValueTreeState& apvts);
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SignalPathManager)
 };
 
 #endif //SIGNALPATHMANAGER_H

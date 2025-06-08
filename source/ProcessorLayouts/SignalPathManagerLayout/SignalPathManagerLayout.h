@@ -16,11 +16,8 @@ class SignalPathManagerLayout : public juce::Component,
 {
 public:
     explicit SignalPathManagerLayout (juce::AudioProcessorValueTreeState& apvts);
-    ~SignalPathManagerLayout() override = default;
+    ~SignalPathManagerLayout() override;
     void resized() override;
-
-    // AudioProcessorValueTreeState::Listener implementation
-    void parameterChanged(const juce::String& parameterID, float newValue) override;
 
 private:
     juce::AudioProcessorValueTreeState& processorState;

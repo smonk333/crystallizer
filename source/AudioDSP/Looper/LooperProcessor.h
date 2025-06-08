@@ -41,6 +41,8 @@ public:
     State getState() const noexcept { return currentState; }
     float getLoopPosition() const noexcept;
 
+    void updateParameters(const juce::AudioProcessorValueTreeState& apvts);
+
 private:
     juce::AudioBuffer<float> loopBuffer;
     int loopLength = 0;

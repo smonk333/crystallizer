@@ -7,8 +7,9 @@
 #ifndef GRANULARPROCESSOR_H
 #define GRANULARPROCESSOR_H
 
-    #include <juce_dsp/juce_dsp.h>
-    #include <random>
+#include <juce_dsp/juce_dsp.h>
+#include <juce_audio_processors/juce_audio_processors.h>
+#include <random>
 
 class GranularProcessor : public juce::dsp::ProcessorBase
 {
@@ -31,15 +32,18 @@ public:
     void setWetDryMix(float newWetDryMix);
     void setSpread(float newSpread);
 
-    void updateParameters(
-        float delayTime,
-        float grainSize,
-        float density,
-        float pitchShift,
-        float feedback,
-        float wetDryMix,
-        float spread
-    );
+    // legacy parameter update method
+    // void updateParameters(
+    //     float delayTime,
+    //     float grainSize,
+    //     float density,
+    //     float pitchShift,
+    //     float feedback,
+    //     float wetDryMix,
+    //     float spread
+    // );
+
+    void updateParameters(const juce::AudioProcessorValueTreeState& apvts);
 
 
 private:

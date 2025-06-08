@@ -93,9 +93,22 @@ void DelayProcessor::setWetLevel(float newWetLevel)
     currentWetLevel = newWetLevel;
 }
 
-void DelayProcessor::updateParameters(float time, float feedback, float mix)
+// legacy parameter update method
+// void DelayProcessor::updateParameters(float time, float feedback, float mix)
+// {
+//     setDelayTime(time);
+//     setFeedback(feedback);
+//     setWetLevel(mix);
+// }
+
+void DelayProcessor::updateParameters(const juce::AudioProcessorValueTreeState& apvts)
 {
-    setDelayTime(time);
-    setFeedback(feedback);
-    setWetLevel(mix);
+    // parameter retrieval from APVTS
+    auto delayTimeParam = apvts.getRawParameterValue("delayTime");
+    auto feedbackParam = apvts.getRawParameterValue("feedback");
+    auto wetLevelParam = apvts.getRawParameterValue("wetLevel");
+
+    if (delayTimeParam) setDelayTime(*delayTimeParam);
+    if (feedbackParam) setFeedback(*feedbackParam);
+    if (wetLevelParam) setWetLevel(*wetLevelParam);
 }

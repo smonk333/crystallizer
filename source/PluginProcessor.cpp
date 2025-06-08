@@ -340,39 +340,40 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 }
 
 //==============================================================================
-void PluginProcessor::updateDelayParameters(float time, float feedback, float mix)
-{
-    // Update parameters in each processing chain that contains the delay processor
-    serialChain.get<delayIndex>().updateParameters(time, feedback, mix);
-    parallelChain.get<delayIndex>().updateParameters(time, feedback, mix);
-    delayChain.get<0>().updateParameters(time, feedback, mix);
-}
-
-void PluginProcessor::updateReverbParameters(float roomSize, float damping, float wet,
-                                           float dry, float width, float freeze)
-{
-    // Update parameters in each processing chain that contains the reverb processor
-    serialChain.get<reverbIndex>().updateParameters(roomSize, damping, wet, dry, width, freeze);
-    parallelChain.get<reverbIndex>().updateParameters(roomSize, damping, wet, dry, width, freeze);
-    reverbChain.get<0>().updateParameters(roomSize, damping, wet, dry, width, freeze);
-}
-
-void PluginProcessor::updateGranularParameters(float delayTime, float grainSize,
-    float grainDensity, float pitchShift, float feedback, float wetDry,
-    float spread)
-{
-    // update parameters in the granular processor chain +
-    // other chains that implement the granular processor
-    granularChain.get<0>().updateParameters(
-        delayTime,
-        grainSize,
-        grainDensity,
-        pitchShift,
-        feedback,
-        wetDry,
-        spread
-    );
-}
+// legacy parameter update methods
+// void PluginProcessor::updateDelayParameters(float time, float feedback, float mix)
+// {
+//     // Update parameters in each processing chain that contains the delay processor
+//     serialChain.get<delayIndex>().updateParameters(time, feedback, mix);
+//     parallelChain.get<delayIndex>().updateParameters(time, feedback, mix);
+//     delayChain.get<0>().updateParameters(time, feedback, mix);
+// }
+//
+// void PluginProcessor::updateReverbParameters(float roomSize, float damping, float wet,
+//                                            float dry, float width, float freeze)
+// {
+//     // Update parameters in each processing chain that contains the reverb processor
+//     serialChain.get<reverbIndex>().updateParameters(roomSize, damping, wet, dry, width, freeze);
+//     parallelChain.get<reverbIndex>().updateParameters(roomSize, damping, wet, dry, width, freeze);
+//     reverbChain.get<0>().updateParameters(roomSize, damping, wet, dry, width, freeze);
+// }
+//
+// void PluginProcessor::updateGranularParameters(float delayTime, float grainSize,
+//     float grainDensity, float pitchShift, float feedback, float wetDry,
+//     float spread)
+// {
+//     // update parameters in the granular processor chain +
+//     // other chains that implement the granular processor
+//     granularChain.get<0>().updateParameters(
+//         delayTime,
+//         grainSize,
+//         grainDensity,
+//         pitchShift,
+//         feedback,
+//         wetDry,
+//         spread
+//     );
+// }
 //==============================================================================
 bool PluginProcessor::hasEditor() const
 {

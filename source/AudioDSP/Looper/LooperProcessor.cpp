@@ -179,3 +179,15 @@ float LooperProcessor::getLoopPosition() const noexcept
         return 0.0f;
     return static_cast<float>(position) / static_cast<float>(loopLength);
 }
+
+void LooperProcessor::updateParameters(const juce::AudioProcessorValueTreeState& apvts)
+{
+    // parameter retrieval from APVTS
+    auto loopStateParam = apvts.getRawParameterValue("loopState");
+
+    if (loopStateParam)
+    {
+        // this is probably wrong, TODO: check this if the looper buttons don't work
+        currentState = State<loopStateParam>;
+    }
+}

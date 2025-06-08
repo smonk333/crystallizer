@@ -5,6 +5,7 @@
 #pragma once
 
 #include <juce_dsp/juce_dsp.h>
+#include <juce_audio_processors/juce_audio_processors.h>
 
 #ifndef REVERBPROCESSOR_H
 #define REVERBPROCESSOR_H
@@ -40,9 +41,11 @@ public:
     void setWidth (float newWidth);
     void setFreezeMode (float newFreezeMode);
 
-    // unified method to update all parameters at once
-    void updateParameters (float roomSize, float damping, float wet,
-        float dry, float width, float freeze);
+    // legacy parameter update method
+    //void updateParameters (float roomSize, float damping, float wet,
+    //    float dry, float width, float freeze);
+
+    void updateParameters(const juce::AudioProcessorValueTreeState& apvts);
 
 private:
     juce::dsp::Reverb reverb;

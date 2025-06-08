@@ -176,3 +176,28 @@ void SignalPathManager::cleanupUnusedChains()
     if (currentMode != Serial && serialChain)
         serialChain = nullptr;
 }
+
+void SignalPathManager::updateProcessorChainParameters(const juce::AudioProcessorValueTreeState& apvts)
+{
+    if (reverbChain)
+        reverbChain->get<0>().updateParameters(apvts);
+
+    if (delayChain)
+        delayChain->get<0>().updateParameters(apvts);
+
+    if (granularChain)
+        granularChain->get<0>().updateParameters(apvts);
+
+    if (looperChain)
+        looperChain->get<0>().updateParameters(apvts);
+
+    if (serialChain)
+    {
+        serialChain->get<0>().updateParameters(apvts); // LooperProcessor
+        serialChain->get<1>().updateParameters(apvts); // DelayProcessor
+        serialChain->get<2>().updateParameters(apvts); // GranularProcessor
+        serialChain->get<3>().updateParameters(apvts); // ReverbProcessor
+    }
+
+    // TODO: PROCESSOR_ADDITION_CHAIN(15): add parameter updates for new processor chains here
+}
