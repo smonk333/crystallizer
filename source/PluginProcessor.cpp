@@ -80,6 +80,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
     params.push_back(std::make_unique<juce::AudioParameterBool>("reverbFreeze",
         "Reverb Freeze Mode", false)); // binary toggle
 
+    // TODO: PROCESSOR_ADDITION_CHAIN(18): Add the new processing mode here
     // push processing mode parameter into the vector
     params.push_back(std::make_unique<juce::AudioParameterChoice>("processingMode",
         "Processing Mode", juce::StringArray{
@@ -414,5 +415,6 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new PluginProcessor();
 }
+
 
 

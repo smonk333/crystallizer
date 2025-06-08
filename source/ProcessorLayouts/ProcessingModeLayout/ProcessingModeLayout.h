@@ -14,7 +14,7 @@ class ProcessingModeLayout : public juce::Component,
                             public juce::AudioProcessorValueTreeState::Listener
 {
 public:
-    ProcessingModeLayout(juce::AudioProcessorValueTreeState& apvts);
+    explicit ProcessingModeLayout(juce::AudioProcessorValueTreeState& apvts);
     ~ProcessingModeLayout() override;
     void resized() override;
 
