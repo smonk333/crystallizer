@@ -79,6 +79,13 @@ void DelayProcessor::setDelayTime(float newDelayTime)
 {
     currentDelayTime = newDelayTime;
     auto delayInSamples = static_cast<float>(currentDelayTime * currentSampleRate);
+
+    // Get the maximum delay in samples from the delay lines
+    auto maxDelaySamples = static_cast<float>(leftDelay.getMaximumDelayInSamples());
+
+    // Ensure delay doesn't exceed maximum
+    delayInSamples = juce::jmin(delayInSamples, maxDelaySamples);
+
     leftDelay.setDelay(delayInSamples);
     rightDelay.setDelay(delayInSamples);
 }

@@ -20,12 +20,12 @@ void SignalPathManager::prepare (const juce::dsp::ProcessSpec& spec)
 {
     currentSpec = spec; // store the spec for later use
 
-    // use the modeInitializers map to initialize the chain for the current mode
-    if (auto it = modeInitializers.find(currentMode); it != modeInitializers.end())
-    {
-        it->second();
-    }
-
+    // initialize all processor chains
+    initializeDelayChain();
+    initializeReverbChain();
+    initializeGranularChain();
+    initializeLooperChain();
+    initializeSerialChain();
 }
 
 void SignalPathManager::reset()
@@ -96,10 +96,34 @@ void SignalPathManager::setProcessingMode (ProcessingMode newMode)
 
     currentMode = newMode;
 
-    // Find and execute the initializer for the current mode
-    if (auto it = modeInitializers.find(currentMode); it != modeInitializers.end())
+    // Make sure each chain needed for the new mode is properly initialized
+    switch (currentMode)
     {
-        it->second();
+        case DelayOnly:
+            initializeDelayChain();
+            break;
+
+        case ReverbOnly:
+            initializeReverbChain();
+            break;
+
+        case GranularOnly:
+            initializeGranularChain();
+            break;
+
+        case LooperOnly:
+            initializeLooperChain();
+            break;
+
+        case Serial:
+            initializeSerialChain();
+            break;
+
+        default:
+            // Initialize DelayOnly as a fallback
+            initializeDelayChain();
+            jassertfalse; // unexpected mode, should never happen
+            break;
     }
 }
 
@@ -143,57 +167,64 @@ LooperProcessor* SignalPathManager::getLooperProcessor()
 
 void SignalPathManager::initializeReverbChain()
 {
-    if (!reverbChain)
-    {
-        jassert(currentSpec.sampleRate >= 0); // Ensure the sample rate is valid
-        if (currentSpec.sampleRate <= 0)
-            return; // Exit if the sample rate is invalid
+    jassert(currentSpec.sampleRate >= 0); // Ensure the sample rate is valid
+    if (currentSpec.sampleRate <= 0)
+        return; // Exit if the sample rate is invalid
 
-        reverbChain = std::make_unique<juce::dsp::ProcessorChain<ReverbProcessor>>();
-        reverbChain->get<0>().prepare(currentSpec);
-    }
+    reverbChain = std::make_unique<juce::dsp::ProcessorChain<ReverbProcessor>>();
+    reverbChain->get<0>().prepare(currentSpec);
 }
 
 void SignalPathManager::initializeDelayChain()
 {
-    if (!delayChain)
-    {
-        delayChain = std::make_unique<juce::dsp::ProcessorChain<DelayProcessor>>();
-        delayChain->get<0>().prepare(currentSpec);
-    }
+    jassert(currentSpec.sampleRate >= 0); // Ensure the sample rate is valid
+    if (currentSpec.sampleRate <= 0)
+        return; // Exit if the sample rate is invalid
+
+    delayChain = std::make_unique<juce::dsp::ProcessorChain<DelayProcessor>>();
+    delayChain->get<0>().prepare(currentSpec);
 }
 
 void SignalPathManager::initializeGranularChain()
 {
-    if (!granularChain)
-    {
-        granularChain = std::make_unique<juce::dsp::ProcessorChain<GranularProcessor>>();
-        granularChain->get<0>().prepare(currentSpec);
-    }
+    jassert(currentSpec.sampleRate >= 0); // Ensure the sample rate is valid
+    if (currentSpec.sampleRate <= 0)
+        return; // Exit if the sample rate is invalid
+
+    granularChain = std::make_unique<juce::dsp::ProcessorChain<GranularProcessor>>();
+    granularChain->get<0>().prepare(currentSpec);
 }
 
 void SignalPathManager::initializeLooperChain()
 {
-    if (!looperChain)
-    {
-        looperChain = std::make_unique<juce::dsp::ProcessorChain<LooperProcessor>>();
-        looperChain->get<0>().prepare(currentSpec);
-    }
+    jassert(currentSpec.sampleRate >= 0); // Ensure the sample rate is valid
+    if (currentSpec.sampleRate <= 0)
+        return; // Exit if the sample rate is invalid
+
+    looperChain = std::make_unique<juce::dsp::ProcessorChain<LooperProcessor>>();
+    looperChain->get<0>().prepare(currentSpec);
 }
 
 void SignalPathManager::initializeSerialChain()
 {
-    if (!serialChain)
-    {
-        // Create the serial chain if it doesn't exist
-        serialChain = std::make_unique<juce::dsp::ProcessorChain<
-            LooperProcessor,
-            DelayProcessor,
-            GranularProcessor,
-            ReverbProcessor>>();
-        // TODO: PROCESSOR_ADDITION_CHAIN(16): add new processors to the serial
-        //       chain here
-    }
+    jassert(currentSpec.sampleRate >= 0); // Ensure the sample rate is valid
+    if (currentSpec.sampleRate <= 0)
+        return; // Exit if the sample rate is invalid
+
+    // Create the serial chain if it doesn't exist
+    serialChain = std::make_unique<juce::dsp::ProcessorChain<
+        LooperProcessor,
+        DelayProcessor,
+        GranularProcessor,
+        ReverbProcessor>>();
+
+    // Explicitly prepare each processor in the chain
+    serialChain->get<0>().prepare(currentSpec); // LooperProcessor
+    serialChain->get<1>().prepare(currentSpec); // DelayProcessor
+    serialChain->get<2>().prepare(currentSpec); // GranularProcessor
+    serialChain->get<3>().prepare(currentSpec); // ReverbProcessor
+    // TODO: PROCESSOR_ADDITION_CHAIN(16): add new processors to the serial
+    //       chain here
 }
 
 void SignalPathManager::cleanupUnusedChains()
@@ -221,6 +252,7 @@ void SignalPathManager::cleanupUnusedChains()
 
 void SignalPathManager::updateProcessorChainParameters(const juce::AudioProcessorValueTreeState& apvts)
 {
+
     if (reverbChain)
         reverbChain->get<0>().updateParameters(apvts);
 
@@ -243,3 +275,4 @@ void SignalPathManager::updateProcessorChainParameters(const juce::AudioProcesso
 
     // TODO: PROCESSOR_ADDITION_CHAIN(15): add parameter updates for new processor chains here
 }
+

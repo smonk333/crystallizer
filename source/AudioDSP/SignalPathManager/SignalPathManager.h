@@ -91,17 +91,7 @@ private:
                                               GranularProcessor,
                                               ReverbProcessor>> serialChain;
 
-    // TODO: PROCESSOR_ADDITION_CHAIN(12): add the processor to the map for
-    //       initialization
-
-    // map processing modes to their corresponding initialization functions
-    const std::unordered_map<ProcessingMode, std::function<void()>> modeInitializers = {
-        { DelayOnly, [this]() { initializeDelayChain(); } },
-        { ReverbOnly, [this]() { initializeReverbChain(); } },
-        { GranularOnly, [this]() { initializeGranularChain(); } },
-        { LooperOnly, [this]() { initializeLooperChain(); } },
-        { Serial, [this]() { initializeSerialChain(); } }
-    };
+    // TODO: PROCESSOR_ADDITION_CHAIN(12): add the processor to the initialization logic
 
     // helper methods for initialization
     void initializeDelayChain();
@@ -117,3 +107,4 @@ private:
 };
 
 #endif //SIGNALPATHMANAGER_H
+

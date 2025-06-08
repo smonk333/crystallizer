@@ -32,8 +32,8 @@ public:
     void updateParameters(const juce::AudioProcessorValueTreeState& apvts);
 
 private:
-    juce::dsp::DelayLine<float> leftDelay { 410000 };
-    juce::dsp::DelayLine<float> rightDelay { 410000 };
+    juce::dsp::DelayLine<float> leftDelay;
+    juce::dsp::DelayLine<float> rightDelay;
 
     // Parameters for ProcessorChain compatibility
     float currentDelayTime = 0.5f;
