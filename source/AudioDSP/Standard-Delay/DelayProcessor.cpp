@@ -51,6 +51,10 @@ void DelayProcessor::process(const juce::dsp::ProcessContextReplacing<float>& co
     // Handle mono case by duplicating single channel
     const auto numChannels = juce::jmin(inputBlock.getNumChannels(), outputBlock.getNumChannels(), size_t(2));
 
+    // Ensure we have valid data before processing
+    if (inputBlock.getNumSamples() == 0 || numChannels == 0)
+        return;
+
     // Process samples using our current parameter values
     for (int i = 0; i < static_cast<int>(inputBlock.getNumSamples()); ++i)
     {
