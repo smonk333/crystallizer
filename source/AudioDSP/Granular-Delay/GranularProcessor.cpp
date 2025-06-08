@@ -308,3 +308,4 @@ int GranularProcessor::samplesToDelayPosition(float delaySamples)
         delayPos += bufferSize;
     return delayPos % bufferSize;
 }
+
