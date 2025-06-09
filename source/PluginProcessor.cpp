@@ -56,7 +56,7 @@ PluginProcessor::PluginProcessor()
 
 PluginProcessor::~PluginProcessor()
 {
-    // Remove the signalPathListener
+    // remove the signalPathListener
     apvts.removeParameterListener("signalPath", signalPathListener.get());
 }
 
@@ -205,37 +205,6 @@ void PluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = getTotalNumOutputChannels();
 
-    // legacy processorChain calls and logic
-    // //=prepare ProcessorChain objects===========================================
-    // reverbChain.prepare(spec);
-    // delayChain.prepare(spec);
-    // serialChain.prepare(spec);
-    // parallelChain.prepare(spec);
-    // granularChain.prepare(spec);
-    //
-    // //=reset ProcessorChain objects=============================================
-    // reverbChain.reset();
-    // delayChain.reset();
-    // serialChain.reset();
-    // parallelChain.reset();
-    // granularChain.reset();
-    //
-    // // Allocate parallel processing buffers to avoid reallocating in the audio thread
-    // parallelDelayBuffer.setSize(getTotalNumOutputChannels(), samplesPerBlock);
-    // parallelReverbBuffer.setSize(getTotalNumOutputChannels(), samplesPerBlock);
-
-    // legacy parameter update logic
-    //
-    // // Set up initial parameters for all processors
-    // updateDelayParameters(delayTimeParam->load(), feedbackParam->load(), wetDryParam->load());
-    // updateReverbParameters(reverbRoomSizeParam->load(), reverbDampingParam->load(),
-    //                      reverbMixParam->load(), 1.0f - reverbMixParam->load(),
-    //                      reverbWidthParam->load(), reverbFreezeParam->load());
-
-    // prepare more fx processors here as we add classes to handle processing
-
-    //=prepare the signal path manager===========================================
-
     // prepare the signal path manager for the current processing mode
     signalPathManager.setProcessingMode(
         static_cast<SignalPathManager::ProcessingMode>(
@@ -308,28 +277,6 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     //       if necessary this will be refactored to use the new
     //       SignalPathManager, so these instructions may change
 
-    signalPathManager.updateProcessorChainParameters(apvts);
-
-    //=LEGACY: update delay processor parameters========================================
-    //
-    // updateDelayParameters(delayTimeParam->load(), feedbackParam->load(),
-    //     wetDryParam->load());
-    //
-    // //=update reverb processor parameters=======================================
-    //
-    // updateReverbParameters(reverbRoomSizeParam->load(), reverbDampingParam->load(),
-    //     reverbMixParam->load(), 1.0f - reverbMixParam->load(),
-    //     reverbWidthParam->load(), reverbFreezeParam->load());
-    //
-    // //=update granular processor parameters=====================================
-    //
-    // updateGranularParameters(granularDelayTimeParam->load(),
-    //     grainSizeParam->load(), grainDensityParam->load(),
-    //     granularPitchShiftParam->load(), granularFeedbackParam->load(),
-    //     granularWetDryParam->load(), granularSpreadParam->load());
-
-    //=REGISTER MORE UPDATE BLOCKS HERE AS WE ADD PROCESSORS====================
-
     //=create audio block and context===========================================
 
     juce::dsp::AudioBlock<float> block(buffer);
@@ -342,69 +289,7 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 
     signalPathManager.process(context);
 
-    // legacy mode selection logic
-    // int mode = static_cast<int>(processingModeParam->load());
-    //
-    // switch (mode)
-    // {
-    //     case 0: // delay only
-    //         delayChain.process(context);
-    //         break;
-    //
-    //     case 1: // reverb only
-    //         reverbChain.process(context);
-    //         break;
-    //
-    //     case 2: // serial (delay -> reverb)
-    //         serialChain.process(context);
-    //         break;
-    //
-    //     case 3: // granular only (testing)
-    //         granularChain.process(context);
-    //         break;
-    //
-    //     default:
-    //         serialChain.process(context);
-    //         break;
-    // }
-
 }
-
-//==============================================================================
-// legacy parameter update methods
-// void PluginProcessor::updateDelayParameters(float time, float feedback, float mix)
-// {
-//     // Update parameters in each processing chain that contains the delay processor
-//     serialChain.get<delayIndex>().updateParameters(time, feedback, mix);
-//     parallelChain.get<delayIndex>().updateParameters(time, feedback, mix);
-//     delayChain.get<0>().updateParameters(time, feedback, mix);
-// }
-//
-// void PluginProcessor::updateReverbParameters(float roomSize, float damping, float wet,
-//                                            float dry, float width, float freeze)
-// {
-//     // Update parameters in each processing chain that contains the reverb processor
-//     serialChain.get<reverbIndex>().updateParameters(roomSize, damping, wet, dry, width, freeze);
-//     parallelChain.get<reverbIndex>().updateParameters(roomSize, damping, wet, dry, width, freeze);
-//     reverbChain.get<0>().updateParameters(roomSize, damping, wet, dry, width, freeze);
-// }
-//
-// void PluginProcessor::updateGranularParameters(float delayTime, float grainSize,
-//     float grainDensity, float pitchShift, float feedback, float wetDry,
-//     float spread)
-// {
-//     // update parameters in the granular processor chain +
-//     // other chains that implement the granular processor
-//     granularChain.get<0>().updateParameters(
-//         delayTime,
-//         grainSize,
-//         grainDensity,
-//         pitchShift,
-//         feedback,
-//         wetDry,
-//         spread
-//     );
-// }
 //==============================================================================
 bool PluginProcessor::hasEditor() const
 {
