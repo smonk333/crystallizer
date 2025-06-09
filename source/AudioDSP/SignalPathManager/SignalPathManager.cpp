@@ -54,10 +54,10 @@ void SignalPathManager::process(const juce::dsp::ProcessContextReplacing<float>&
     {
         // TODO: PROCESSOR_ADDITION_CHAIN(21): add a new bypass handler for the
         //       new processor here
-        processorChain->setBypassed<looper>(looperActive);
-        processorChain->setBypassed<delay>(delayActive);
-        processorChain->setBypassed<granular>(granularActive);
-        processorChain->setBypassed<reverb>(reverbActive);
+        processorChain->setBypassed<looper>(!looperActive);
+        processorChain->setBypassed<delay>(!delayActive);
+        processorChain->setBypassed<granular>(!granularActive);
+        processorChain->setBypassed<reverb>(!reverbActive);
 
         processorChain->process(context);
     }
