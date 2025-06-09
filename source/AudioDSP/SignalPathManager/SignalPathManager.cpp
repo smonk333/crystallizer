@@ -16,263 +16,208 @@ SignalPathManager::~SignalPathManager()
     // empty destructor
 }
 
-void SignalPathManager::prepare (const juce::dsp::ProcessSpec& spec)
+void SignalPathManager::prepare(const juce::dsp::ProcessSpec& spec)
 {
-    currentSpec = spec; // store the spec for later use
+    // store the spec for later use
+    currentSpec = spec;
 
-    // initialize all processor chains
-    initializeDelayChain();
-    initializeReverbChain();
-    initializeGranularChain();
-    initializeLooperChain();
-    initializeSerialChain();
+    // initialize the processor chain
+    if (!processorChain)
+    {
+        processorChain = std::make_unique<MainChainType>();
+        // initializeProcessorChain();
+    }
+
+    // make sure all processors in the chain are properly prepared
+    processorChain->prepare(spec);
+
+    // set up active processors based on current mode
+    updateActiveProcessors();
 }
 
 void SignalPathManager::reset()
 {
-    // TODO: PROCESSOR_ADDITION_CHAIN(13): add reset logic for new chains here
+    // reset the main processor chain if it exists
+    if (processorChain)
+        processorChain->reset();
 
-    // Iterate through the list and execute each reset function
-
-    // Reset chains that are not required for the current mode
-    if (currentMode != DelayOnly && delayChain)
-        delayChain.reset();
-
-    if (currentMode != ReverbOnly && reverbChain)
-        reverbChain.reset();
-
-    if (currentMode != GranularOnly && granularChain)
-        granularChain.reset();
-
-    if (currentMode != LooperOnly && looperChain)
-        looperChain.reset();
-
-    if (currentMode != Serial && serialChain)
-        serialChain.reset();
+    // TODO: PROCESSOR_ADDITION_CHAIN(13): add reset logic for any new chains
+    //       here. remember that we are using one main chain to handle all of
+    //       the processors, so calling reset on the main chain should be fine
+    //       unless you're adding a whole new chain that needs separate logic
+    //       to reset it.
 }
 
-void SignalPathManager::process (const juce::dsp::ProcessContextReplacing<float>& context)
+void SignalPathManager::process(const juce::dsp::ProcessContextReplacing<float>& context)
 {
-    switch (currentMode)
+    if (processorChain)
     {
-        case DelayOnly:
-            if (delayChain)
-                delayChain->process(context);
-            break;
+        // TODO: PROCESSOR_ADDITION_CHAIN(21): add a new bypass handler for the
+        //       new processor here
+        processorChain->setBypassed<looper>(looperActive);
+        processorChain->setBypassed<delay>(delayActive);
+        processorChain->setBypassed<granular>(granularActive);
+        processorChain->setBypassed<reverb>(reverbActive);
 
-        case ReverbOnly:
-            if (reverbChain)
-                reverbChain->process(context);
-            break;
-
-        case GranularOnly:
-            if (granularChain)
-                granularChain->process(context);
-            break;
-
-        case LooperOnly:
-            if (looperChain)
-                looperChain->process(context);
-            break;
-
-        case Serial:
-            if (serialChain)
-                serialChain->process(context);
-            break;
-
-        default:
-            // DelayOnly as a fallback, or just outright fail to do anything
-            if (delayChain)
-                delayChain->process(context);
-            jassertfalse; // unexpected mode, should never happen
-            break;
+        processorChain->process(context);
     }
+    else
+        jassertfalse; // no processor chain initialized, should never happen
 }
 
-void SignalPathManager::setProcessingMode (ProcessingMode newMode)
+void SignalPathManager::setProcessingMode(ProcessingMode newMode)
 {
     if (currentMode == newMode)
         return; // avoid reinitializing if the mode hasn't changed
 
     currentMode = newMode;
 
-    // Make sure each chain needed for the new mode is properly initialized
-    switch (currentMode)
-    {
-        case DelayOnly:
-            initializeDelayChain();
-            break;
-
-        case ReverbOnly:
-            initializeReverbChain();
-            break;
-
-        case GranularOnly:
-            initializeGranularChain();
-            break;
-
-        case LooperOnly:
-            initializeLooperChain();
-            break;
-
-        case Serial:
-            initializeSerialChain();
-            break;
-
-        default:
-            // Initialize DelayOnly as a fallback
-            initializeDelayChain();
-            jassertfalse; // unexpected mode, should never happen
-            break;
-    }
+    // update which processors are active based on the new mode
+    updateActiveProcessors();
 }
 
+// TODO: PROCESSOR_ADDITION_CHAIN(14): add new processor *chain* getters here
+// helper methods to get processor references from the main chain
+DelayProcessor& SignalPathManager::getDelayFromChain()
+{
+    jassert(processorChain != nullptr);
+    return processorChain->get<delay>();
+}
 
+ReverbProcessor& SignalPathManager::getReverbFromChain()
+{
+    jassert(processorChain != nullptr);
+    return processorChain->get<reverb>();
+}
 
-// TODO: PROCESSOR_ADDITION_CHAIN(14): add new processor chain getters here
+GranularProcessor& SignalPathManager::getGranularFromChain()
+{
+    jassert(processorChain != nullptr);
+    return processorChain->get<granular>();
+}
 
+LooperProcessor& SignalPathManager::getLooperFromChain()
+{
+    jassert(processorChain != nullptr);
+    return processorChain->get<looper>();
+}
+
+// TODO: PROCESSOR_ADDITION_CHAIN(20): add new *direct* processor getters here
 DelayProcessor* SignalPathManager::getDelayProcessor()
 {
-    if (delayChain)
-        // return the first processor (delay) in the delay chain
-        return &delayChain->get<0>();
+    if (processorChain && delayActive)
+        return &getDelayFromChain();
     return nullptr;
 }
 
 ReverbProcessor* SignalPathManager::getReverbProcessor()
 {
-    if (reverbChain)
-        // return the first processor (reverb) in the reverb chain
-        return &reverbChain->get<0>();
+    if (processorChain && reverbActive)
+        return &getReverbFromChain();
     return nullptr;
 }
 
 GranularProcessor* SignalPathManager::getGranularProcessor()
 {
-    if (granularChain)
-        // return the first processor (granular) in the granular chain
-        return &granularChain->get<0>();
+    if (processorChain && granularActive)
+        return &getGranularFromChain();
     return nullptr;
 }
 
 LooperProcessor* SignalPathManager::getLooperProcessor()
 {
-    if (looperChain)
-        // return the first processor (looper) in the looper chain
-        return &looperChain->get<0>();
+    if (processorChain && looperActive)
+        return &getLooperFromChain();
     return nullptr;
 }
 
-// TODO: PROCESSOR_ADDITION_CHAIN(15): add new processor chain initializers here
 
-void SignalPathManager::initializeReverbChain()
+void SignalPathManager::initializeProcessorChain()
 {
     jassert(currentSpec.sampleRate >= 0); // Ensure the sample rate is valid
     if (currentSpec.sampleRate <= 0)
         return; // Exit if the sample rate is invalid
 
-    reverbChain = std::make_unique<juce::dsp::ProcessorChain<ReverbProcessor>>();
-    reverbChain->get<0>().prepare(currentSpec);
+    // // Initialize all processors in the chain
+    // getLooperFromChain().prepare(currentSpec);
+    // getDelayFromChain().prepare(currentSpec);
+    // getGranularFromChain().prepare(currentSpec);
+    // getReverbFromChain().prepare(currentSpec);
+
+    // initialize the entire processorChain
+    if (processorChain)
+        processorChain->prepare(currentSpec);
+
+    // TODO: PROCESSOR_ADDITION_CHAIN(12): add the processor to the initialization logic
 }
 
-void SignalPathManager::initializeDelayChain()
+void SignalPathManager::updateActiveProcessors()
 {
-    jassert(currentSpec.sampleRate >= 0); // Ensure the sample rate is valid
-    if (currentSpec.sampleRate <= 0)
-        return; // Exit if the sample rate is invalid
+    // TODO: PROCESSOR_ADDITION_CHAIN(22): set up a new processor active flag,
+    //       and add it to the switch statement below + default to false
+    // reset all flags to inactive
+    looperActive = false;
+    delayActive = false;
+    granularActive = false;
+    reverbActive = false;
 
-    delayChain = std::make_unique<juce::dsp::ProcessorChain<DelayProcessor>>();
-    delayChain->get<0>().prepare(currentSpec);
-}
+    // set active flags based on current mode
+    switch (currentMode)
+    {
+        case DelayOnly:
+            delayActive = true;
+            break;
 
-void SignalPathManager::initializeGranularChain()
-{
-    jassert(currentSpec.sampleRate >= 0); // Ensure the sample rate is valid
-    if (currentSpec.sampleRate <= 0)
-        return; // Exit if the sample rate is invalid
+        case ReverbOnly:
+            reverbActive = true;
+            break;
 
-    granularChain = std::make_unique<juce::dsp::ProcessorChain<GranularProcessor>>();
-    granularChain->get<0>().prepare(currentSpec);
-}
+        case GranularOnly:
+            granularActive = true;
+            break;
 
-void SignalPathManager::initializeLooperChain()
-{
-    jassert(currentSpec.sampleRate >= 0); // Ensure the sample rate is valid
-    if (currentSpec.sampleRate <= 0)
-        return; // Exit if the sample rate is invalid
+        case LooperOnly:
+            looperActive = true;
+            break;
 
-    looperChain = std::make_unique<juce::dsp::ProcessorChain<LooperProcessor>>();
-    looperChain->get<0>().prepare(currentSpec);
-}
+        case Serial:
+            // all processors are active in serial mode, except for the standard
+            // delay, because it's not necessary with the granular delay
+            // processor
+            looperActive = true;
+            delayActive = false;
+            granularActive = true;
+            reverbActive = true;
+            break;
 
-void SignalPathManager::initializeSerialChain()
-{
-    jassert(currentSpec.sampleRate >= 0); // Ensure the sample rate is valid
-    if (currentSpec.sampleRate <= 0)
-        return; // Exit if the sample rate is invalid
+        default:
+            // use DelayOnly as a fallback
+            delayActive = true;
+            jassertfalse; // unexpected mode, should never happen
+            break;
+    }
 
-    // Create the serial chain if it doesn't exist
-    serialChain = std::make_unique<juce::dsp::ProcessorChain<
-        LooperProcessor,
-        DelayProcessor,
-        GranularProcessor,
-        ReverbProcessor>>();
-
-    // Explicitly prepare each processor in the chain
-    serialChain->get<0>().prepare(currentSpec); // LooperProcessor
-    serialChain->get<1>().prepare(currentSpec); // DelayProcessor
-    serialChain->get<2>().prepare(currentSpec); // GranularProcessor
-    serialChain->get<3>().prepare(currentSpec); // ReverbProcessor
-    // TODO: PROCESSOR_ADDITION_CHAIN(16): add new processors to the serial
-    //       chain here
-}
-
-void SignalPathManager::cleanupUnusedChains()
-{
-
-    // TODO: PROCESSOR_ADDITION_CHAIN(17): add cleanup logic for new chains here
-
-
-    // delete chains that are not required for the current mode
-    if (currentMode != DelayOnly && delayChain)
-        delayChain = nullptr;
-
-    if (currentMode != ReverbOnly && reverbChain)
-        reverbChain = nullptr;
-
-    if (currentMode != GranularOnly && granularChain)
-        granularChain = nullptr;
-
-    if (currentMode != LooperOnly && looperChain)
-        looperChain = nullptr;
-
-    if (currentMode != Serial && serialChain)
-        serialChain = nullptr;
+    // TODO: PROCESSOR_ADDITION_CHAIN(15): add new processor active flags here
 }
 
 void SignalPathManager::updateProcessorChainParameters(const juce::AudioProcessorValueTreeState& apvts)
 {
+    if (!processorChain)
+        return;
 
-    if (reverbChain)
-        reverbChain->get<0>().updateParameters(apvts);
+    // only update parameters for active processors to avoid unnecessary processing
+    if (looperActive)
+        getLooperFromChain().updateParameters(apvts);
 
-    if (delayChain)
-        delayChain->get<0>().updateParameters(apvts);
+    if (delayActive)
+        getDelayFromChain().updateParameters(apvts);
 
-    if (granularChain)
-        granularChain->get<0>().updateParameters(apvts);
+    if (granularActive)
+        getGranularFromChain().updateParameters(apvts);
 
-    if (looperChain)
-        looperChain->get<0>().updateParameters(apvts);
+    if (reverbActive)
+        getReverbFromChain().updateParameters(apvts);
 
-    if (serialChain)
-    {
-        serialChain->get<0>().updateParameters(apvts); // LooperProcessor
-        serialChain->get<1>().updateParameters(apvts); // DelayProcessor
-        serialChain->get<2>().updateParameters(apvts); // GranularProcessor
-        serialChain->get<3>().updateParameters(apvts); // ReverbProcessor
-    }
-
-    // TODO: PROCESSOR_ADDITION_CHAIN(15): add parameter updates for new processor chains here
+    // TODO: PROCESSOR_ADDITION_CHAIN(?): add parameter updates for new processors here
 }
 

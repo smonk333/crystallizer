@@ -45,7 +45,7 @@ public:
     void setProcessingMode(ProcessingMode newMode);
 
     // get the current processing mode
-    ProcessingMode getCurrentMode() const { return currentMode; }
+    [[nodiscard]] ProcessingMode getCurrentMode() const { return currentMode; }
 
     // get processor references for parameter updates
     // this is more efficient than having separate parameter update methods
@@ -72,39 +72,45 @@ private:
     // current processing mode
     ProcessingMode currentMode = DelayOnly;
 
-    // process spec for lazily initializing processors
+    // process spec for initializing processors
     juce::dsp::ProcessSpec currentSpec;
 
+    // Serial chain type definition (used for all chains)
+    using MainChainType = juce::dsp::ProcessorChain<
+        LooperProcessor,
+        DelayProcessor,
+        GranularProcessor,
+        ReverbProcessor>;
+
     // TODO: PROCESSOR_ADDITION_CHAIN(11): add new processor chain pointers here
+    //       + add a flag for it to track whether or not it's enabled
 
-    // processor chain pointers (only initialized when needed)
-    std::unique_ptr<juce::dsp::ProcessorChain<DelayProcessor>> delayChain;
-    std::unique_ptr<juce::dsp::ProcessorChain<ReverbProcessor>> reverbChain;
-    std::unique_ptr<juce::dsp::ProcessorChain<GranularProcessor>> granularChain;
-    std::unique_ptr<juce::dsp::ProcessorChain<LooperProcessor>> looperChain;
+    // single processor chain instance
+    std::unique_ptr<MainChainType> processorChain;
 
-    // serial chain setup:
-    // add more processors as we create them and put them in the order that the
-    // effects need to be processed in.
-    std::unique_ptr<juce::dsp::ProcessorChain<LooperProcessor,
-                                              DelayProcessor,
-                                              GranularProcessor,
-                                              ReverbProcessor>> serialChain;
+    // Active processor flags - track which processors are active in the current mode
+    bool looperActive = false;
+    bool delayActive = false;
+    bool granularActive = false;
+    bool reverbActive = false;
 
     // TODO: PROCESSOR_ADDITION_CHAIN(12): add the processor to the initialization logic
 
-    // helper methods for initialization
-    void initializeDelayChain();
-    void initializeReverbChain();
-    void initializeGranularChain();
-    void initializeLooperChain();
-    void initializeSerialChain();
+    // Initialize and configure the processor chain for the current mode
+    void initializeProcessorChain();
 
-    // clean up unused chains to free memory
-    void cleanupUnusedChains();
+    // Helper methods to get processor references from the main chain
+    DelayProcessor& getDelayFromChain();
+    ReverbProcessor& getReverbFromChain();
+    GranularProcessor& getGranularFromChain();
+    LooperProcessor& getLooperFromChain();
+
+    // Configure which processors are active in the current chain
+    void updateActiveProcessors();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SignalPathManager)
 };
 
 #endif //SIGNALPATHMANAGER_H
+
 
