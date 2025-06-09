@@ -32,11 +32,11 @@ public:
     // processing mode enum
     enum ProcessingMode
     {
-        DelayOnly,
-        ReverbOnly,
-        GranularOnly,
-        LooperOnly,
-        Serial,
+        DelayOnly = 0,
+        ReverbOnly = 1,
+        GranularOnly = 2,
+        LooperOnly = 3,
+        Serial = 4
         // TODO: PROCESSOR_ADDITION_CHAIN(9): add a new processing mode for the
         //       new processor here
     };
@@ -64,7 +64,8 @@ private:
         looper,
         delay,
         granular,
-        reverb
+        reverb,
+        serial
         // TODO: PROCESSOR_ADDITION_CHAIN(10): add a new index for the new
         //       processor here
     };
@@ -75,7 +76,8 @@ private:
         {looper, false},
         {delay, false},
         {granular, false},
-        {reverb, false}
+        {reverb, false},
+        {serial, false} // this is a placeholder for the serial chain, not a processor
         // When adding a new processor, add it here too
     };
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "BinaryData.h"
-#include "ProcessorLayouts/ProcessingModeLayout/ProcessingModeLayout.h"
 #include "PluginProcessor.h"
 #include "ProcessorLayouts/DelayLayout/DelayLayout.h"
 #include "ProcessorLayouts/GranularLayout/GranularLayout.h"
