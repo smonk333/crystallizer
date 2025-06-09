@@ -56,7 +56,7 @@ PluginProcessor::PluginProcessor()
 
 PluginProcessor::~PluginProcessor()
 {
-    // remove the signalPathListener
+    // Remove the signalPathListener
     apvts.removeParameterListener("signalPath", signalPathListener.get());
 }
 
@@ -277,6 +277,8 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     //       if necessary this will be refactored to use the new
     //       SignalPathManager, so these instructions may change
 
+    signalPathManager.updateProcessorChainParameters(apvts);
+
     //=create audio block and context===========================================
 
     juce::dsp::AudioBlock<float> block(buffer);
@@ -290,6 +292,7 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     signalPathManager.process(context);
 
 }
+
 //==============================================================================
 bool PluginProcessor::hasEditor() const
 {
