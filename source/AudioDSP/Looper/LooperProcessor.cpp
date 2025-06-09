@@ -187,11 +187,43 @@ float LooperProcessor::getLoopPosition() const noexcept
 void LooperProcessor::updateParameters(const juce::AudioProcessorValueTreeState& apvts)
 {
     // parameter retrieval from APVTS
-    auto loopStateParam = apvts.getRawParameterValue("loopState");
+    auto looperStateParam = apvts.getRawParameterValue("looperState");  // Changed from "loopState" to "looperState"
 
-    if (loopStateParam)
+    if (looperStateParam)
     {
-        // this is probably wrong, TODO: check this if the looper buttons don't work
-        currentState = static_cast<State>(static_cast<int>(*loopStateParam));
+        int stateValue = static_cast<int>(*looperStateParam);
+
+        // Only change state if it's different from current state
+        if (stateValue != static_cast<int>(currentState))
+        {
+            // Call the appropriate state management method based on parameter value
+            switch (stateValue)
+            {
+                case Stopped:
+                    stop();
+                    break;
+
+                case Recording:
+                    startRecording();
+                    break;
+
+                case Playing:
+                    startPlayback();
+                    break;
+
+                case Overdubbing:
+                    startOverdubbing();
+                    break;
+
+                case 4: // Clear
+                    clear();
+                    break;
+
+                default:
+                    // Handle unexpected state value
+                    jassertfalse;
+                    break;
+            }
+        }
     }
 }
