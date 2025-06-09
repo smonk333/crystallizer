@@ -3,8 +3,6 @@
 //
 
 #include "SignalPathManager.h"
-#include <unordered_map>
-#include <functional>
 
 SignalPathManager::SignalPathManager() : currentSpec()
 {
@@ -52,12 +50,8 @@ void SignalPathManager::process(const juce::dsp::ProcessContextReplacing<float>&
 {
     if (processorChain)
     {
-        // TODO: PROCESSOR_ADDITION_CHAIN(21): add a new bypass handler for the
-        //       new processor here
-        processorChain->setBypassed<looper>(!looperActive);
-        processorChain->setBypassed<delay>(!delayActive);
-        processorChain->setBypassed<granular>(!granularActive);
-        processorChain->setBypassed<reverb>(!reverbActive);
+        // Apply bypass states for all processors using our helper function
+        setProcessorBypassStates(*processorChain);
 
         processorChain->process(context);
     }
@@ -105,28 +99,28 @@ LooperProcessor& SignalPathManager::getLooperFromChain()
 // TODO: PROCESSOR_ADDITION_CHAIN(20): add new *direct* processor getters here
 DelayProcessor* SignalPathManager::getDelayProcessor()
 {
-    if (processorChain && delayActive)
+    if (processorChain && processorActiveStates[delay])
         return &getDelayFromChain();
     return nullptr;
 }
 
 ReverbProcessor* SignalPathManager::getReverbProcessor()
 {
-    if (processorChain && reverbActive)
+    if (processorChain && processorActiveStates[reverb])
         return &getReverbFromChain();
     return nullptr;
 }
 
 GranularProcessor* SignalPathManager::getGranularProcessor()
 {
-    if (processorChain && granularActive)
+    if (processorChain && processorActiveStates[granular])
         return &getGranularFromChain();
     return nullptr;
 }
 
 LooperProcessor* SignalPathManager::getLooperProcessor()
 {
-    if (processorChain && looperActive)
+    if (processorChain && processorActiveStates[looper])
         return &getLooperFromChain();
     return nullptr;
 }
@@ -155,44 +149,44 @@ void SignalPathManager::updateActiveProcessors()
 {
     // TODO: PROCESSOR_ADDITION_CHAIN(22): set up a new processor active flag,
     //       and add it to the switch statement below + default to false
-    // reset all flags to inactive
-    looperActive = false;
-    delayActive = false;
-    granularActive = false;
-    reverbActive = false;
+
+    // reset all processor states to inactive
+    for (auto& [processor, active] : processorActiveStates) {
+        active = false;
+    }
 
     // set active flags based on current mode
     switch (currentMode)
     {
         case DelayOnly:
-            delayActive = true;
+            processorActiveStates[delay] = true;
             break;
 
         case ReverbOnly:
-            reverbActive = true;
+            processorActiveStates[reverb] = true;
             break;
 
         case GranularOnly:
-            granularActive = true;
+            processorActiveStates[granular] = true;
             break;
 
         case LooperOnly:
-            looperActive = true;
+            processorActiveStates[looper] = true;
             break;
 
         case Serial:
             // all processors are active in serial mode, except for the standard
             // delay, because it's not necessary with the granular delay
             // processor
-            looperActive = true;
-            delayActive = false;
-            granularActive = true;
-            reverbActive = true;
+            processorActiveStates[looper] = true;
+            processorActiveStates[delay] = false;
+            processorActiveStates[granular] = true;
+            processorActiveStates[reverb] = true;
             break;
 
         default:
             // use DelayOnly as a fallback
-            delayActive = true;
+            processorActiveStates[delay] = true;
             jassertfalse; // unexpected mode, should never happen
             break;
     }
@@ -206,18 +200,17 @@ void SignalPathManager::updateProcessorChainParameters(const juce::AudioProcesso
         return;
 
     // only update parameters for active processors to avoid unnecessary processing
-    if (looperActive)
+    if (processorActiveStates[looper])
         getLooperFromChain().updateParameters(apvts);
 
-    if (delayActive)
+    if (processorActiveStates[delay])
         getDelayFromChain().updateParameters(apvts);
 
-    if (granularActive)
+    if (processorActiveStates[granular])
         getGranularFromChain().updateParameters(apvts);
 
-    if (reverbActive)
+    if (processorActiveStates[reverb])
         getReverbFromChain().updateParameters(apvts);
 
     // TODO: PROCESSOR_ADDITION_CHAIN(?): add parameter updates for new processors here
 }
-

@@ -32,11 +32,11 @@ public:
     // processing mode enum
     enum ProcessingMode
     {
-        DelayOnly = 0,
-        ReverbOnly = 1,
-        GranularOnly = 2,
-        LooperOnly = 3,
-        Serial = 4,
+        DelayOnly,
+        ReverbOnly,
+        GranularOnly,
+        LooperOnly,
+        Serial,
         // TODO: PROCESSOR_ADDITION_CHAIN(9): add a new processing mode for the
         //       new processor here
     };
@@ -59,7 +59,7 @@ public:
 
 private:
     // define processor chain index constants
-    enum
+    enum ProcessorIndex
     {
         looper,
         delay,
@@ -69,8 +69,33 @@ private:
         //       processor here
     };
 
+    // Map of processor indices to their active states
+    // TODO: PROCESSOR_ADDITION_CHAIN(23): add a new flag to set the new processor's active state
+    std::unordered_map<ProcessorIndex, bool> processorActiveStates = {
+        {looper, false},
+        {delay, false},
+        {granular, false},
+        {reverb, false}
+        // When adding a new processor, add it here too
+    };
+
+    // Helper function to set processor bypass states
+    template<typename ChainType>
+    void setProcessorBypassStates(ChainType& chain)
+    {
+        // Template specializations to handle each processor type
+        if constexpr (std::is_same_v<ChainType, MainChainType>) {
+            // TODO: PROCESSOR_ADDITION_CHAIN(21): add a new bypass handler for the
+            //       new processor here
+            chain.setBypassed<looper>(!processorActiveStates[looper]);
+            chain.setBypassed<delay>(!processorActiveStates[delay]);
+            chain.setBypassed<granular>(!processorActiveStates[granular]);
+            chain.setBypassed<reverb>(!processorActiveStates[reverb]);
+        }
+    }
+
     // current processing mode
-    ProcessingMode currentMode = DelayOnly;
+    ProcessingMode currentMode;
 
     // process spec for initializing processors
     juce::dsp::ProcessSpec currentSpec;
@@ -88,14 +113,6 @@ private:
     // single processor chain instance
     std::unique_ptr<MainChainType> processorChain;
 
-    // Active processor flags - track which processors are active in the current mode
-    bool looperActive = false;
-    bool delayActive = false;
-    bool granularActive = false;
-    bool reverbActive = false;
-
-    // TODO: PROCESSOR_ADDITION_CHAIN(12): add the processor to the initialization logic
-
     // Initialize and configure the processor chain for the current mode
     void initializeProcessorChain();
 
@@ -112,5 +129,3 @@ private:
 };
 
 #endif //SIGNALPATHMANAGER_H
-
-
