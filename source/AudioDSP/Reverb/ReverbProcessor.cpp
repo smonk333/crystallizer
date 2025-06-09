@@ -37,33 +37,33 @@ void ReverbProcessor::reset()
     lowPassFilter.reset();
 }
 
-// Required implementation for ProcessorBase inheritance
+// required implementation for ProcessorBase inheritance
 void ReverbProcessor::process(const juce::dsp::ProcessContextReplacing<float>& context)
 {
-    auto& inputBlock = context.getInputBlock();
-    auto& outputBlock = context.getOutputBlock();
-
-    // make sure we have right number of channels
-    jassert (inputBlock.getNumChannels() >= 1);
-    jassert (outputBlock.getNumChannels() >= 1);
-
-    // create an AudioBlock to work with
-    juce::dsp::AudioBlock<float> block (outputBlock);
-
-    // copy input to output if they're not already the same
     if (!context.isBypassed)
     {
-        if (context.usesSeparateInputAndOutputBlocks())
-            block.copyFrom (inputBlock);
+        auto& inputBlock = context.getInputBlock();
+        auto& outputBlock = context.getOutputBlock();
+
+        // make sure we have right number of channels
+        jassert (inputBlock.getNumChannels() >= 1);
+        jassert (outputBlock.getNumChannels() >= 1);
+
+        // // create an AudioBlock to work with
+        // juce::dsp::AudioBlock<float> block (outputBlock);
+
+        // // copy input to output if they're not already the same
+        // if (context.usesSeparateInputAndOutputBlocks())
+        //     outputBlock.copyFrom (inputBlock);
 
         // store clean signal for dry/wet mixing
-        juce::HeapBlock<float> cleanSignalL (block.getNumSamples());
-        juce::HeapBlock<float> cleanSignalR (block.getNumSamples());
+        juce::HeapBlock<float> cleanSignalL (outputBlock.getNumSamples());
+        juce::HeapBlock<float> cleanSignalR (outputBlock.getNumSamples());
 
-        for (int i = 0; i < block.getNumSamples(); ++i)
+        for (int i = 0; i < outputBlock.getNumSamples(); ++i)
         {
-            cleanSignalL[i] = block.getSample (0, i);
-            cleanSignalR[i] = block.getNumChannels() > 1 ? block.getSample (1, i) : block.getSample (0, i);
+            cleanSignalL[i] = outputBlock.getSample (0, i);
+            cleanSignalR[i] = outputBlock.getNumChannels() > 1 ? outputBlock.getSample (1, i) : outputBlock.getSample (0, i);
         }
 
         // apply reverb parameters
@@ -76,13 +76,13 @@ void ReverbProcessor::process(const juce::dsp::ProcessContextReplacing<float>& c
         reverb.setParameters (reverbParams);
 
         // process through reverb
-        juce::dsp::ProcessContextReplacing<float> reverbContext (block);
-        reverb.process (reverbContext);
+        juce::dsp::ProcessContextReplacing<float> reverbContext (outputBlock);
+        reverb.process(reverbContext);
 
         // apply low-pass filter for damping enhancement
         *lowPassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeLowPass (
             sampleRate, 12000.0f, 0.707f);
-        lowPassFilter.process (reverbContext);
+        lowPassFilter.process(reverbContext);
     }
 }
 

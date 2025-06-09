@@ -36,98 +36,102 @@ void LooperProcessor::reset()
 
 void LooperProcessor::process (const juce::dsp::ProcessContextReplacing<float>& context)
 {
-    auto& inputBlock = context.getInputBlock();
-    auto& outputBlock = context.getOutputBlock();
-
-    // set up mix variables for overdubbing
-    float mixL = 0.0f, mixR = 0.0f;
-
-    const auto numChannels = juce::jmin(
-        inputBlock.getNumChannels(),
-        outputBlock.getNumChannels(),
-        size_t(2)
-    );
-    const auto numSamples = inputBlock.getNumSamples();
-
-    for (int sample = 0; sample < numSamples; ++sample)
+    if (!context.isBypassed)
     {
-        // read input samples
-        float inputL = inputBlock.getSample(0, sample);
-        float inputR;
-        if (numChannels > 1)
-            inputR = inputBlock.getSample (1, sample);
-        else
-            inputR = inputL;
+        auto& inputBlock = context.getInputBlock();
+        auto& outputBlock = context.getOutputBlock();
 
-        // handle looper states
-        switch (currentState)
+        // set up mix variables for overdubbing
+        float mixL = 0.0f, mixR = 0.0f;
+
+        const auto numChannels = juce::jmin(
+            inputBlock.getNumChannels(),
+            outputBlock.getNumChannels(),
+            static_cast<size_t> (2)
+        );
+        const auto numSamples = inputBlock.getNumSamples();
+
+        for (int sample = 0; sample < numSamples; ++sample)
         {
-            case Recording:
-                // store input samples in loop buffer and increment position
-                loopBuffer.setSample(0, position, inputL);
-                loopBuffer.setSample(1, position, inputR);
-                position++;
+            // read input samples
+            float inputL = inputBlock.getSample(0, sample);
+            float inputR;
+            if (numChannels > 1)
+                inputR = inputBlock.getSample (1, sample);
+            else
+                inputR = inputL;
 
-                // check if buffer is full
-                if (position >= maxBufferSize)
-                {
-                    loopLength = maxBufferSize;
+            // handle looper states
+            switch (currentState)
+            {
+                case Recording:
+                    // store input samples in loop buffer and increment position
+                    loopBuffer.setSample(0, position, inputL);
+                    loopBuffer.setSample(1, position, inputR);
+                    position++;
 
-                    // reset position to start of loop
-                    position = 0;
+                    // check if buffer is full
+                    if (position >= maxBufferSize)
+                    {
+                        loopLength = maxBufferSize;
 
-                    // switch to playing state because we hit the end of the buffer
-                    currentState = Playing;
-                }
-                break;
+                        // reset position to start of loop
+                        position = 0;
 
-            case Playing:
-                // read samples from loop buffer and write to output
-                inputL = loopBuffer.getSample(0, position);
-                inputR = loopBuffer.getSample(1, position);
+                        // switch to playing state because we hit the end of the buffer
+                        currentState = Playing;
+                    }
+                    break;
 
-                // wrap to the start of the loop if we reach the end
-                position = (position + 1) % juce::jmax(1, loopLength);
-                break;
+                case Playing:
+                    // read samples from loop buffer and write to output
+                    inputL = loopBuffer.getSample(0, position);
+                    inputR = loopBuffer.getSample(1, position);
 
-            case Overdubbing:
-                // mix input with existing loop samples
-                mixL = loopBuffer.getSample(0, position) + inputL;
-                mixR = loopBuffer.getSample(1, position) + inputR;
+                    // wrap to the start of the loop if we reach the end
+                    position = (position + 1) % juce::jmax(1, loopLength);
+                    break;
 
-                // store mixed result
-                loopBuffer.setSample(0, position, mixL);
-                loopBuffer.setSample(1, position, mixR);
+                case Overdubbing:
+                    // mix input with existing loop samples
+                    mixL = loopBuffer.getSample(0, position) + inputL;
+                    mixR = loopBuffer.getSample(1, position) + inputR;
 
-                // output mixed samples
-                inputL = mixL;
-                inputR = mixR;
+                    // store mixed result
+                    loopBuffer.setSample(0, position, mixL);
+                    loopBuffer.setSample(1, position, mixR);
 
-                // wrap to the start of the loop if we reach the end
-                position = (position + 1) % juce::jmax(1, loopLength);
-                break;
+                    // output mixed samples
+                    inputL = mixL;
+                    inputR = mixR;
 
-            case Stopped:
-                // pass input directly to output, no processing needed
-                break;
+                    // wrap to the start of the loop if we reach the end
+                    position = (position + 1) % juce::jmax(1, loopLength);
+                    break;
 
-            default:
-                // handle unexpected state (*should* never happen, but just to be safe)
-                jassertfalse; // debug break if we hit this case
-                break;
-        }
+                case Stopped:
+                    // pass input directly to output, no processing needed
+                    break;
 
-        // write to output block
-        outputBlock.setSample(0, sample, inputL);
-        if (numChannels > 1)
-        {
-            outputBlock.setSample(1, sample, inputR);
-        }
-        else
-        {
-            outputBlock.setSample(1, sample, inputL); // mono case
+                default:
+                    // handle unexpected state (*should* never happen, but just to be safe)
+                    jassertfalse; // debug break if we hit this case
+                    break;
+            }
+
+            // write to output block
+            outputBlock.setSample(0, sample, inputL);
+            if (numChannels > 1)
+            {
+                outputBlock.setSample(1, sample, inputR);
+            }
+            else
+            {
+                outputBlock.setSample(1, sample, inputL); // mono case
+            }
         }
     }
+
 }
 
 // state management methods

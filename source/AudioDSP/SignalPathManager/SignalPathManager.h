@@ -64,8 +64,7 @@ private:
         looper,
         delay,
         granular,
-        reverb,
-        serial
+        reverb
         // TODO: PROCESSOR_ADDITION_CHAIN(10): add a new index for the new
         //       processor here
     };
@@ -76,8 +75,7 @@ private:
         {looper, false},
         {delay, false},
         {granular, false},
-        {reverb, false},
-        {serial, false} // this is a placeholder for the serial chain, not a processor
+        {reverb, false} // this is a placeholder for the serial chain, not a processor
         // When adding a new processor, add it here too
     };
 
@@ -97,7 +95,7 @@ private:
     }
 
     // current processing mode
-    ProcessingMode currentMode;
+    ProcessingMode currentMode = DelayOnly;
 
     // process spec for initializing processors
     juce::dsp::ProcessSpec currentSpec;
@@ -131,3 +129,6 @@ private:
 };
 
 #endif //SIGNALPATHMANAGER_H
+
+
+

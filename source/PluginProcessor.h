@@ -109,32 +109,6 @@ private:
 
     std::unique_ptr<SignalPathParameterListener> signalPathListener;
 
-    //=define processor indices for the ProcessChain============================
-    enum
-    {
-        delayIndex,
-        reverbIndex,
-        granularIndex,
-        serialChainIndex,
-        parallelChainIndex
-    };
-
-    // legacy processorChain setup
-    // //=ProcessorChains with the processors in different configurations
-    // juce::dsp::ProcessorChain<DelayProcessor, ReverbProcessor> serialChain;
-    // juce::dsp::ProcessorChain<DelayProcessor, ReverbProcessor> parallelChain;
-    // juce::dsp::ProcessorChain<DelayProcessor> delayChain;
-    // juce::dsp::ProcessorChain<ReverbProcessor> reverbChain;
-    // juce::dsp::ProcessorChain<GranularProcessor> granularChain;
-
-    // more fx processors below here as we add classes to handle processing
-
-    // TODO: remove the logic for parallel processing
-    // // Pre-allocated buffers for parallel processing to avoid allocating in audio thread
-    // juce::AudioBuffer<float> parallelDelayBuffer;
-    // juce::AudioBuffer<float> parallelReverbBuffer;
-
-    // set up a SignalPathManager to handle processing modes and chains
     SignalPathManager signalPathManager;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginProcessor)

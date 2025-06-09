@@ -18,10 +18,10 @@ public:
     void prepare(const juce::dsp::ProcessSpec& spec) override;
     void reset() override;
 
-    // Required implementation of ProcessorBase::process
+    // required implementation of ProcessorBase::process
     void process(const juce::dsp::ProcessContextReplacing<float>& context) override;
 
-    // Parameter setters for ProcessorChain use
+    // parameter setters for ProcessorChain use
     void setDelayTime(float newDelayTime);
     void setFeedback(float newFeedback);
     void setWetLevel(float newWetLevel);
@@ -35,7 +35,7 @@ private:
     juce::dsp::DelayLine<float> leftDelay;
     juce::dsp::DelayLine<float> rightDelay;
 
-    // Parameters for ProcessorChain compatibility
+    // parameters for ProcessorChain compatibility
     float currentDelayTime = 0.5f;
     float currentFeedback = 0.5f;
     float currentWetLevel = 0.5f;

@@ -45,86 +45,91 @@ void GranularProcessor::reset()
 
 void GranularProcessor::process(const juce::dsp::ProcessContextReplacing<float>& context)
 {
-    auto& inputBlock = context.getInputBlock();
-    auto& outputBlock = context.getOutputBlock();
-
-    const auto numChannels = juce::jmin(
-        inputBlock.getNumChannels(),
-        outputBlock.getNumChannels(),
-        size_t(2)
-    );
-
-    const auto numSamples = inputBlock.getNumSamples();
-
-    for (int i = 0; i < static_cast<int>(numSamples); ++i)
+    if (!context.isBypassed)
     {
-        // read clean signal
-        float inputL = inputBlock.getSample(0, i);
-        float inputR;
+        auto& inputBlock = context.getInputBlock();
+        auto& outputBlock = context.getOutputBlock();
 
-        // handle mono and stereo signals
-        if (numChannels > 1)
-            inputR = inputBlock.getSample (1, i);
-        else
-            inputR = inputL;
-
-        // store clean signal for mixing later
-        float cleanL = inputL;
-        float cleanR = inputR;
-
-        // check if we should trigger new grains
-        grainTriggerTimer += 1.0f;
-        if (grainTriggerTimer >= samplesPerGrainTrigger)
-        {
-            triggerNewGrain();
-            grainTriggerTimer = 0.0f;
-        }
-
-        // process all active grains to get delayed signal
-        // also handle stereo channels
-        float delayedL = processActiveGrains(0);
-        float delayedR;
-        if (numChannels > 1)
-            delayedR = processActiveGrains (1);
-        else
-            delayedR = processActiveGrains (0);
-
-        // write input + feedback to delay buffer
-        delayBuffer.setSample(0,
-            writePos,
-            inputL + (delayedL * currentFeedback)
+        const auto numChannels = juce::jmin(
+            inputBlock.getNumChannels(),
+            outputBlock.getNumChannels(),
+            static_cast<size_t> (2)
         );
 
-        if (numChannels > 1)
-        {
-            delayBuffer.setSample(1,
-                writePos,
-                inputR + (delayedR * currentFeedback)
-            );
-        }
 
-        else
+        const auto numSamples = inputBlock.getNumSamples();
+
+        for (int i = 0; i < static_cast<int>(numSamples); ++i)
         {
-            delayBuffer.setSample(1,
+            // read clean signal
+            float inputL = inputBlock.getSample(0, i);
+            float inputR;
+
+            // handle mono and stereo signals
+            if (numChannels > 1)
+                inputR = inputBlock.getSample (1, i);
+            else
+                inputR = inputL;
+
+            // store clean signal for mixing later
+            float cleanL = inputL;
+            float cleanR = inputR;
+
+            // check if we should trigger new grains
+            grainTriggerTimer += 1.0f;
+            if (grainTriggerTimer >= samplesPerGrainTrigger)
+            {
+                triggerNewGrain();
+                grainTriggerTimer = 0.0f;
+            }
+
+            // process all active grains to get delayed signal
+            // also handle stereo channels
+            float delayedL = processActiveGrains(0);
+            float delayedR;
+            if (numChannels > 1)
+                delayedR = processActiveGrains (1);
+            else
+                delayedR = processActiveGrains (0);
+
+            // write input + feedback to delay buffer
+            delayBuffer.setSample(0,
                 writePos,
                 inputL + (delayedL * currentFeedback)
             );
+
+            if (numChannels > 1)
+            {
+                delayBuffer.setSample(1,
+                    writePos,
+                    inputR + (delayedR * currentFeedback)
+                );
+            }
+
+            else
+            {
+                delayBuffer.setSample(1,
+                    writePos,
+                    inputL + (delayedL * currentFeedback)
+                );
+            }
+
+            // mix clean and delayed signals
+            float outputL = (delayedL * currentWetDryMix) + (cleanL * (1.0f - currentWetDryMix));
+            float outputR = (delayedR * currentWetDryMix) + (cleanR * (1.0f - currentWetDryMix));
+
+            // write output to the output block
+            outputBlock.setSample(0, i, outputL);
+            if (numChannels > 1)
+            {
+                outputBlock.setSample(1, i, outputR);
+            }
+
+            // advance write position in the delay buffer
+            writePos = (writePos + 1) % bufferSize;
         }
-
-        // mix clean and delayed signals
-        float outputL = (delayedL * currentWetDryMix) + (cleanL * (1.0f - currentWetDryMix));
-        float outputR = (delayedR * currentWetDryMix) + (cleanR * (1.0f - currentWetDryMix));
-
-        // write output to the output block
-        outputBlock.setSample(0, i, outputL);
-        if (numChannels > 1)
-        {
-            outputBlock.setSample(1, i, outputR);
-        }
-
-        // advance write position in the delay buffer
-        writePos = (writePos + 1) % bufferSize;
     }
+
 }
 
 void GranularProcessor::setDelayTime(float newDelayTime)
