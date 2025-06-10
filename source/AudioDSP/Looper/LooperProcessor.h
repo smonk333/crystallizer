@@ -13,6 +13,9 @@
 class LooperProcessor : public juce::dsp::ProcessorBase
 {
 public:
+    struct LooperParams {
+        int looperState = 0; // Use int for enum State
+    };
 
     LooperProcessor();
     ~LooperProcessor() override;
@@ -31,17 +34,18 @@ public:
     // enum for State
     enum State
     {
-        Stopped,        // looper is not active
-        Recording,      // capturing new audio
-        Playing,        // replaying the captured audio
-        Overdubbing     // adding new audio to the existing loop
+        Recording = 0,      // capturing new audio
+        Playing = 1,        // replaying the captured audio
+        Overdubbing = 2,    // adding new audio to the existing loop
+        Stopped = 3,        // looper is not active
+        Clear = 4           // special command to clear the loop
     };
 
     // parameter getters
     State getState() const noexcept { return currentState; }
     float getLoopPosition() const noexcept;
 
-    void updateParameters(const juce::AudioProcessorValueTreeState& apvts);
+    void updateParameters(const LooperParams& params);
 
 private:
     juce::AudioBuffer<float> loopBuffer;

@@ -68,7 +68,7 @@ public:
     std::atomic<float>* granularSpreadParam;        // random position spread
 
     // looper state management parameter
-    std::atomic<float>* looperStateParam; // 0 = stopped, 1 = recording, 2 = playing, 3 = overdubbing, 4 = clear
+    std::atomic<float>* looperStateParam; // 0 = recording, 1 = playing, 2 = overdubbing, 3 = stopped, 4 = clear
 
     // signal processing chain parameters
     std::atomic<float>* signalChainParam;

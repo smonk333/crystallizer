@@ -223,7 +223,9 @@ void SignalPathManager::updateProcessorChainParameters(const juce::AudioProcesso
     }
     if (auto* looper = getLooperProcessor()) {
         LooperProcessor::LooperParams params;
-        if (auto* v = apvts.getRawParameterValue("looperState")) params.looperState = static_cast<int>(*v);
+        if (auto* v = apvts.getRawParameterValue("looperState"))
+            params.looperState = static_cast<int>(*v); // AudioParameterChoice is always int
+        DBG("Looper parameter set to: " << params.looperState);
         looper->updateParameters(params);
     }
     // TODO: PROCESSOR_ADDITION_CHAIN(?): Add similar blocks for other processors as you decouple them from JUCE

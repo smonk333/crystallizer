@@ -113,9 +113,13 @@ void LooperProcessor::process (const juce::dsp::ProcessContextReplacing<float>& 
                     // pass input directly to output, no processing needed
                     break;
 
+                case Clear:
+                    clear();
+                    currentState = Stopped; // reset state to Stopped after clearing
+
                 default:
                     // handle unexpected state (*should* never happen, but just to be safe)
-                    jassertfalse; // debug break if we hit this case
+                    // jassertfalse; // debug break if we hit this case
                     break;
             }
 
@@ -184,46 +188,72 @@ float LooperProcessor::getLoopPosition() const noexcept
     return static_cast<float>(position) / static_cast<float>(loopLength);
 }
 
-void LooperProcessor::updateParameters(const juce::AudioProcessorValueTreeState& apvts)
+// void LooperProcessor::updateParameters(const juce::AudioProcessorValueTreeState& apvts)
+// {
+//     // parameter retrieval from APVTS
+//     auto looperStateParam = apvts.getRawParameterValue("looperState");
+//
+//     if (looperStateParam)
+//     {
+//         int stateValue = static_cast<int>(*looperStateParam);
+//
+//         // Only change state if it's different from current state
+//         if (stateValue != static_cast<int>(currentState))
+//         {
+//             // Call the appropriate state management method based on parameter value
+//             switch (stateValue)
+//             {
+//                 case Stopped:
+//                     stop();
+//                     break;
+//
+//                 case Recording:
+//                     startRecording();
+//                     break;
+//
+//                 case Playing:
+//                     startPlayback();
+//                     break;
+//
+//                 case Overdubbing:
+//                     startOverdubbing();
+//                     break;
+//
+//                 case 4: // Clear
+//                     clear();
+//                     break;
+//
+//                 default:
+//                     // Handle unexpected state value
+//                     jassertfalse;
+//                     break;
+//             }
+//         }
+//     }
+// }
+
+void LooperProcessor::updateParameters(const LooperParams& params)
 {
-    // parameter retrieval from APVTS
-    auto looperStateParam = apvts.getRawParameterValue("looperState");
-
-    if (looperStateParam)
-    {
-        int stateValue = static_cast<int>(*looperStateParam);
-
-        // Only change state if it's different from current state
-        if (stateValue != static_cast<int>(currentState))
-        {
-            // Call the appropriate state management method based on parameter value
-            switch (stateValue)
-            {
-                case Stopped:
-                    stop();
-                    break;
-
-                case Recording:
-                    startRecording();
-                    break;
-
-                case Playing:
-                    startPlayback();
-                    break;
-
-                case Overdubbing:
-                    startOverdubbing();
-                    break;
-
-                case 4: // Clear
-                    clear();
-                    break;
-
-                default:
-                    // Handle unexpected state value
-                    jassertfalse;
-                    break;
-            }
-        }
-    }
+    //static int lastPrintedState = -1;
+    int state = params.looperState;
+    //DBG("State set to: " << state);
+    // if (state == 4) // Special case for 'Clear' command
+    // {
+    //     if (lastPrintedState != 4) {
+    //         DBG("LooperProcessor: Received 'Clear' command (state 4)");
+    //         lastPrintedState = 4;
+    //     }
+    //     clear();
+    //     currentState = Stopped;
+    //     return;
+    // }
+    // if (state != Stopped && state != Overdubbing && state != Playing && state != Recording && state != Clear) {
+    //     DBG("LooperProcessor: Invalid state received, defaulting to Stopped, state:" << state);
+    //     lastPrintedState = -2;
+    //     //state = Stopped;
+    // } else if (lastPrintedState != state) {
+    //     DBG("LooperProcessor: State set to " << state);
+    //     lastPrintedState = state;
+    // }
+    currentState = static_cast<State>(state);
 }
