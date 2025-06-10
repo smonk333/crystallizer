@@ -42,12 +42,6 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    //=legacy parameter update methods=================================================
-
-    // void updateDelayParameters(float time, float feedback, float mix);
-    // void updateReverbParameters (float roomSize, float damping, float wet, float dry, float width, float freeze);
-    // void updateGranularParameters (float delayTime, float grainSize, float grainDensity, float pitchShift, float feedback, float wetDry, float spread);
-
     //==========================APVTS setup=====================================
 
     // TODO: PROCESSOR_ADDITION_CHAIN(1): add an atomic pointer here for each new parameter in the new processor

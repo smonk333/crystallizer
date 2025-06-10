@@ -32,17 +32,6 @@ public:
     void setWetDryMix(float newWetDryMix);
     void setSpread(float newSpread);
 
-    // legacy parameter update method
-    // void updateParameters(
-    //     float delayTime,
-    //     float grainSize,
-    //     float density,
-    //     float pitchShift,
-    //     float feedback,
-    //     float wetDryMix,
-    //     float spread
-    // );
-
     void updateParameters(const juce::AudioProcessorValueTreeState& apvts);
 
 

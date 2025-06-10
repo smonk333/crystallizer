@@ -41,10 +41,6 @@ public:
     void setWidth (float newWidth);
     void setFreezeMode (float newFreezeMode);
 
-    // legacy parameter update method
-    //void updateParameters (float roomSize, float damping, float wet,
-    //    float dry, float width, float freeze);
-
     void updateParameters(const juce::AudioProcessorValueTreeState& apvts);
 
 private:

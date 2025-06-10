@@ -26,9 +26,6 @@ public:
     void setFeedback(float newFeedback);
     void setWetLevel(float newWetLevel);
 
-    // legacy parameter update method
-    //void updateParameters(float time, float feedback, float mix);
-
     void updateParameters(const juce::AudioProcessorValueTreeState& apvts);
 
 private:

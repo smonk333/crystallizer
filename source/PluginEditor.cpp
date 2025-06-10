@@ -9,7 +9,6 @@ PluginEditor::PluginEditor (PluginProcessor& p)
     processorRef (p),
     delayLayout(p.apvts),
     reverbLayout(p.apvts),
-    //processingModeSelector(p.apvts), // legacy processing mode selector
     granularLayout (p.apvts),
     looperLayout(p.apvts),
     spmLayout(p.apvts)
@@ -17,7 +16,6 @@ PluginEditor::PluginEditor (PluginProcessor& p)
     // Add the layout components to the editor
     addAndMakeVisible(delayLayout);
     addAndMakeVisible(reverbLayout);
-    //addAndMakeVisible(processingModeSelector); // legacy processing mode selector
     addAndMakeVisible(granularLayout);
     addAndMakeVisible(looperLayout);
     addAndMakeVisible(spmLayout);
@@ -76,14 +74,6 @@ void PluginEditor::resized()
 
     //=position the ReverbLayout component in the reverb section================
     reverbLayout.setBounds(reverbSection);
-
-    // legacy processing mode selector section
-    // //=processing mode selector section=========================================
-    // auto processingSection = area.removeFromTop(100);
-    // processingSection.removeFromTop(30); // space for section label
-    //
-    // //=position the ProcessingModeSelector component in the processing section==
-    // processingModeSelector.setBounds(processingSection);
 
     //=signal path manager section=============================================
     auto signalPathSection = area.removeFromTop(100);

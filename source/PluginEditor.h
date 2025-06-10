@@ -36,9 +36,6 @@ private:
     LooperLayout looperLayout;
     SignalPathManagerLayout spmLayout;
 
-    // legacy processing mode selector
-    // ProcessingModeLayout processingModeSelector;  // processing mode selector
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginEditor)
 };
 
