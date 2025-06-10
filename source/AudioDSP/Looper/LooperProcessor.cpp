@@ -19,10 +19,10 @@ void LooperProcessor::prepare (const juce::dsp::ProcessSpec& spec)
     sampleRate = spec.sampleRate;
 
     // calculate buffer size for maximum buffer length in samples
-    const int bufferSize = static_cast<int>(60 * sampleRate); // 60 seconds of looper memory
+    maxBufferSize = static_cast<int>(60 * sampleRate); // 60 seconds of looper memory
 
     // prepare AudioBuffer for loop
-    loopBuffer.setSize(2, bufferSize);
+    loopBuffer.setSize(2, maxBufferSize);
     reset();
 }
 
@@ -187,7 +187,7 @@ float LooperProcessor::getLoopPosition() const noexcept
 void LooperProcessor::updateParameters(const juce::AudioProcessorValueTreeState& apvts)
 {
     // parameter retrieval from APVTS
-    auto looperStateParam = apvts.getRawParameterValue("looperState");  // Changed from "loopState" to "looperState"
+    auto looperStateParam = apvts.getRawParameterValue("looperState");
 
     if (looperStateParam)
     {

@@ -50,7 +50,7 @@ void SignalPathManager::process(const juce::dsp::ProcessContextReplacing<float>&
 {
     if (processorChain)
     {
-        // Apply bypass states for all processors using our helper function
+        // apply bypass states for all processors using our helper function
         setProcessorBypassStates(*processorChain);
 
         processorChain->process(context);
@@ -131,12 +131,6 @@ void SignalPathManager::initializeProcessorChain()
     jassert(currentSpec.sampleRate >= 0); // Ensure the sample rate is valid
     if (currentSpec.sampleRate <= 0)
         return; // Exit if the sample rate is invalid
-
-    // // Initialize all processors in the chain
-    // getLooperFromChain().prepare(currentSpec);
-    // getDelayFromChain().prepare(currentSpec);
-    // getGranularFromChain().prepare(currentSpec);
-    // getReverbFromChain().prepare(currentSpec);
 
     // initialize the entire processorChain
     if (processorChain)

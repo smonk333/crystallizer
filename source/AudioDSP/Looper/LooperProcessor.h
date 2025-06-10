@@ -49,7 +49,7 @@ private:
     int position = 0;
     State currentState = Stopped;
     double sampleRate = 44100.0f;
-    const int maxBufferSize = 0; // set in prepare() based on sampleRate
+    int maxBufferSize = 0; // Will be set in prepare() based on sampleRate
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LooperProcessor)
 };
