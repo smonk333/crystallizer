@@ -12,6 +12,12 @@
 
 class DelayProcessor : public juce::dsp::ProcessorBase {
 public:
+    struct DelayParams {
+        float delayTime = 0.5f;
+        float feedback = 0.5f;
+        float wetLevel = 0.5f;
+    };
+
     DelayProcessor();
     ~DelayProcessor() override;
 
@@ -21,18 +27,18 @@ public:
     // required implementation of ProcessorBase::process
     void process(const juce::dsp::ProcessContextReplacing<float>& context) override;
 
-    // parameter setters for ProcessorChain use
+    // Set all parameters at once using a struct of raw types
+    void updateParameters(const DelayParams& params);
+
+    // Optionally, keep the individual setters for flexibility
     void setDelayTime(float newDelayTime);
     void setFeedback(float newFeedback);
     void setWetLevel(float newWetLevel);
-
-    void updateParameters(const juce::AudioProcessorValueTreeState& apvts);
 
 private:
     juce::dsp::DelayLine<float> leftDelay;
     juce::dsp::DelayLine<float> rightDelay;
 
-    // parameters for ProcessorChain compatibility
     float currentDelayTime = 0.5f;
     float currentFeedback = 0.5f;
     float currentWetLevel = 0.5f;

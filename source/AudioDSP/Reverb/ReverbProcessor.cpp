@@ -116,22 +116,32 @@ void ReverbProcessor::setFreezeMode (float newFreezeMode)
     currentFreezeMode = newFreezeMode;
 }
 
-void ReverbProcessor::updateParameters(const juce::AudioProcessorValueTreeState& apvts)
-{
-    // parameter retrieval from APVTS
-    auto roomSizeParam = apvts.getRawParameterValue("reverbRoomSize");
-    auto dampingParam = apvts.getRawParameterValue("reverbDamping");
-    auto mixParam = apvts.getRawParameterValue("reverbMix");
-    auto widthParam = apvts.getRawParameterValue("reverbWidth");
-    auto freezeModeParam = apvts.getRawParameterValue("reverbFreeze");
+// void ReverbProcessor::updateParameters(const juce::AudioProcessorValueTreeState& apvts)
+// {
+//     // parameter retrieval from APVTS
+//     auto roomSizeParam = apvts.getRawParameterValue("reverbRoomSize");
+//     auto dampingParam = apvts.getRawParameterValue("reverbDamping");
+//     auto mixParam = apvts.getRawParameterValue("reverbMix");
+//     auto widthParam = apvts.getRawParameterValue("reverbWidth");
+//     auto freezeModeParam = apvts.getRawParameterValue("reverbFreeze");
+//
+//     if (roomSizeParam) setRoomSize(*roomSizeParam);
+//     if (dampingParam) setDamping(*dampingParam);
+//     if (mixParam)
+//     {
+//         setWetLevel(*mixParam); // use reverbMix for wet level
+//         setDryLevel(1.0f - *mixParam); // complement for dry level
+//     }
+//     if (widthParam) setWidth(*widthParam);
+//     if (freezeModeParam) setFreezeMode(*freezeModeParam);
+// }
 
-    if (roomSizeParam) setRoomSize(*roomSizeParam);
-    if (dampingParam) setDamping(*dampingParam);
-    if (mixParam)
-    {
-        setWetLevel(*mixParam); // use reverbMix for wet level
-        setDryLevel(1.0f - *mixParam); // complement for dry level
-    }
-    if (widthParam) setWidth(*widthParam);
-    if (freezeModeParam) setFreezeMode(*freezeModeParam);
+void ReverbProcessor::updateParameters(const ReverbParams& params)
+{
+    setRoomSize(params.roomSize);
+    setDamping(params.damping);
+    setWetLevel(params.wetLevel);
+    setDryLevel(params.dryLevel);
+    setWidth(params.width);
+    setFreezeMode(params.freezeMode);
 }

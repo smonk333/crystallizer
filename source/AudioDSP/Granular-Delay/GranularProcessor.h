@@ -14,6 +14,16 @@
 class GranularProcessor : public juce::dsp::ProcessorBase
 {
 public:
+    struct GranularParams {
+        float delayTime = 0.5f;
+        float grainSize = 0.1f;
+        float grainDensity = 0.5f;
+        float pitchShift = 0.0f;
+        float feedback = 0.5f;
+        float wetDryMix = 0.5f;
+        float spread = 0.0f;
+    };
+
     GranularProcessor();
     ~GranularProcessor() override;
 
@@ -32,7 +42,7 @@ public:
     void setWetDryMix(float newWetDryMix);
     void setSpread(float newSpread);
 
-    void updateParameters(const juce::AudioProcessorValueTreeState& apvts);
+    void updateParameters(const GranularParams& params);
 
 
 private:

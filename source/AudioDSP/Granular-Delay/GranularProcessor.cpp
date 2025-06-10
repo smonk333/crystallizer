@@ -168,23 +168,34 @@ void GranularProcessor::setSpread(float newSpread)
     currentSpread = juce::jlimit(0.0f, 1.0f, newSpread);
 }
 
-void GranularProcessor::updateParameters(const juce::AudioProcessorValueTreeState& apvts)
-{
-    auto delayTimeParam = apvts.getRawParameterValue("granularDelayTime");
-    auto grainSizeParam = apvts.getRawParameterValue("grainSize");
-    auto densityParam = apvts.getRawParameterValue("grainDensity");
-    auto pitchShiftParam = apvts.getRawParameterValue("pitchShift");
-    auto feedbackParam = apvts.getRawParameterValue("granularFeedback");
-    auto wetDryMixParam = apvts.getRawParameterValue("wetDryMix");
-    auto spreadParam = apvts.getRawParameterValue("spread");
+// void GranularProcessor::updateParameters(const juce::AudioProcessorValueTreeState& apvts)
+// {
+//     auto delayTimeParam = apvts.getRawParameterValue("granularDelayTime");
+//     auto grainSizeParam = apvts.getRawParameterValue("grainSize");
+//     auto densityParam = apvts.getRawParameterValue("grainDensity");
+//     auto pitchShiftParam = apvts.getRawParameterValue("pitchShift");
+//     auto feedbackParam = apvts.getRawParameterValue("granularFeedback");
+//     auto wetDryMixParam = apvts.getRawParameterValue("wetDryMix");
+//     auto spreadParam = apvts.getRawParameterValue("spread");
+//
+//     if (delayTimeParam) setDelayTime(*delayTimeParam);
+//     if (grainSizeParam) setGrainSize(*grainSizeParam);
+//     if (densityParam) setGrainDensity(*densityParam);
+//     if (pitchShiftParam) setPitchShift(*pitchShiftParam);
+//     if (feedbackParam) setFeedback(*feedbackParam);
+//     if (wetDryMixParam) setWetDryMix(*wetDryMixParam);
+//     if (spreadParam) setSpread(*spreadParam);
+// }
 
-    if (delayTimeParam) setDelayTime(*delayTimeParam);
-    if (grainSizeParam) setGrainSize(*grainSizeParam);
-    if (densityParam) setGrainDensity(*densityParam);
-    if (pitchShiftParam) setPitchShift(*pitchShiftParam);
-    if (feedbackParam) setFeedback(*feedbackParam);
-    if (wetDryMixParam) setWetDryMix(*wetDryMixParam);
-    if (spreadParam) setSpread(*spreadParam);
+void GranularProcessor::updateParameters(const GranularParams& params)
+{
+    setDelayTime(params.delayTime);
+    setGrainSize(params.grainSize);
+    setGrainDensity(params.grainDensity);
+    setPitchShift(params.pitchShift);
+    setFeedback(params.feedback);
+    setWetDryMix(params.wetDryMix);
+    setSpread(params.spread);
 }
 
 void GranularProcessor::triggerNewGrain()
@@ -298,4 +309,3 @@ int GranularProcessor::samplesToDelayPosition(float delaySamples)
         delayPos += bufferSize;
     return delayPos % bufferSize;
 }
-

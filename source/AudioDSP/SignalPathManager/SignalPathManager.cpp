@@ -191,13 +191,40 @@ void SignalPathManager::updateActiveProcessors()
 
 void SignalPathManager::updateProcessorChainParameters(const juce::AudioProcessorValueTreeState& apvts)
 {
-    if (!processorChain)
-        return;
-
-    getLooperFromChain().updateParameters(apvts);
-    getDelayFromChain().updateParameters(apvts);
-    getGranularFromChain().updateParameters(apvts);
-    getReverbFromChain().updateParameters(apvts);
-
-    // TODO: PROCESSOR_ADDITION_CHAIN(?): add parameter updates for new processors here
+    if (auto* delay = getDelayProcessor()) {
+        DelayProcessor::DelayParams params;
+        if (auto* v = apvts.getRawParameterValue("delayTime")) params.delayTime = *v;
+        if (auto* v = apvts.getRawParameterValue("feedback")) params.feedback = *v;
+        if (auto* v = apvts.getRawParameterValue("wetDry")) params.wetLevel = *v;
+        delay->updateParameters(params);
+    }
+    if (auto* reverb = getReverbProcessor()) {
+        ReverbProcessor::ReverbParams params;
+        if (auto* v = apvts.getRawParameterValue("reverbRoomSize")) params.roomSize = *v;
+        if (auto* v = apvts.getRawParameterValue("reverbDamping")) params.damping = *v;
+        if (auto* v = apvts.getRawParameterValue("reverbMix")) {
+            params.wetLevel = *v;
+            params.dryLevel = 1.0f - *v;
+        }
+        if (auto* v = apvts.getRawParameterValue("reverbWidth")) params.width = *v;
+        if (auto* v = apvts.getRawParameterValue("reverbFreeze")) params.freezeMode = *v;
+        reverb->updateParameters(params);
+    }
+    if (auto* granular = getGranularProcessor()) {
+        GranularProcessor::GranularParams params;
+        if (auto* v = apvts.getRawParameterValue("granularDelayTime")) params.delayTime = *v;
+        if (auto* v = apvts.getRawParameterValue("grainSize")) params.grainSize = *v;
+        if (auto* v = apvts.getRawParameterValue("grainDensity")) params.grainDensity = *v;
+        if (auto* v = apvts.getRawParameterValue("pitchShift")) params.pitchShift = *v;
+        if (auto* v = apvts.getRawParameterValue("granularFeedback")) params.feedback = *v;
+        if (auto* v = apvts.getRawParameterValue("granularWetDry")) params.wetDryMix = *v;
+        if (auto* v = apvts.getRawParameterValue("spread")) params.spread = *v;
+        granular->updateParameters(params);
+    }
+    if (auto* looper = getLooperProcessor()) {
+        LooperProcessor::LooperParams params;
+        if (auto* v = apvts.getRawParameterValue("looperState")) params.looperState = static_cast<int>(*v);
+        looper->updateParameters(params);
+    }
+    // TODO: PROCESSOR_ADDITION_CHAIN(?): Add similar blocks for other processors as you decouple them from JUCE
 }

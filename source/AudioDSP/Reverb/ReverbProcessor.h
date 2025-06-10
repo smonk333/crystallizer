@@ -12,6 +12,15 @@
 
 class ReverbProcessor : public juce::dsp::ProcessorBase {
 public:
+    struct ReverbParams {
+        float roomSize = 0.5f;
+        float damping = 0.5f;
+        float wetLevel = 0.33f;
+        float dryLevel = 0.4f;
+        float width = 1.0f;
+        float freezeMode = 0.0f;
+    };
+
     ReverbProcessor();
     ~ReverbProcessor() override;
 
@@ -41,7 +50,7 @@ public:
     void setWidth (float newWidth);
     void setFreezeMode (float newFreezeMode);
 
-    void updateParameters(const juce::AudioProcessorValueTreeState& apvts);
+    void updateParameters(const ReverbParams& params);
 
 private:
     juce::dsp::Reverb reverb;

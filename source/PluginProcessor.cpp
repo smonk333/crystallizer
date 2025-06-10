@@ -116,7 +116,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
         "Spread", 0.0f, 1.0f, 0.5f));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>("looperState",
-            "Looper State", 0.0f, 4.0f, 0.0f)); // 0 = stopped, 1 = recording, 2 = playing, 3 = overdubbing, 4 = clear)
+            "Looper State", 0.0f, 4.0f, 3.0f)); // 0 = recording, 1 = playing, 2 = overdubbing, 3 = stopped, 4 = clear)
 
     // push more fx parameters here as we add classes to handle processing
 
