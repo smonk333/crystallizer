@@ -172,6 +172,7 @@ void SignalPathManager::updateActiveProcessors()
             // all processors are active in serial mode, except for the standard
             // delay, because it's not necessary with the granular delay
             // processor
+            // TODO: PROCESSOR_ADDITION_CHAIN(24): add new processor active flags here
             processorActiveStates[looper] = true;
             processorActiveStates[delay] = false;
             processorActiveStates[granular] = true;
@@ -193,18 +194,10 @@ void SignalPathManager::updateProcessorChainParameters(const juce::AudioProcesso
     if (!processorChain)
         return;
 
-    // only update parameters for active processors to avoid unnecessary processing
-    if (processorActiveStates[looper])
-        getLooperFromChain().updateParameters(apvts);
-
-    if (processorActiveStates[delay])
-        getDelayFromChain().updateParameters(apvts);
-
-    if (processorActiveStates[granular])
-        getGranularFromChain().updateParameters(apvts);
-
-    if (processorActiveStates[reverb])
-        getReverbFromChain().updateParameters(apvts);
+    getLooperFromChain().updateParameters(apvts);
+    getDelayFromChain().updateParameters(apvts);
+    getGranularFromChain().updateParameters(apvts);
+    getReverbFromChain().updateParameters(apvts);
 
     // TODO: PROCESSOR_ADDITION_CHAIN(?): add parameter updates for new processors here
 }

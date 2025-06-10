@@ -200,7 +200,7 @@ void PluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     //       prepared either in its setup or perform the preparation here
 
     // set up a ProcessSpec object to prepare the standard delay, reverb
-    juce::dsp::ProcessSpec spec;
+    juce::dsp::ProcessSpec spec{};
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = getTotalNumOutputChannels();
@@ -273,9 +273,7 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
         juce::ignoreUnused (channelData);
     }
 
-    // TODO: PROCESSOR_ADDITION_CHAIN(5): add the processor to the processBlock,
-    //       if necessary this will be refactored to use the new
-    //       SignalPathManager, so these instructions may change
+    //=update the processor chain parameters====================================
 
     signalPathManager.updateProcessorChainParameters(apvts);
 
@@ -284,10 +282,7 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     juce::dsp::AudioBlock<float> block(buffer);
     juce::dsp::ProcessContextReplacing context(block);
 
-    //=select chosen processing chain===========================================
-
-    // TODO: PROCESSOR_ADDITION_CHAIN(6) Add new options to this switch case to
-    //       allow them to be selected from the GUI
+    //=process the signal through the signal path manager=======================
 
     signalPathManager.process(context);
 
