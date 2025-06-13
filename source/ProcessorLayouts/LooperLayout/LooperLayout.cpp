@@ -28,7 +28,7 @@ private:
 };
 
 LooperLayout::LooperLayout(juce::AudioProcessorValueTreeState& apvts)
-    : audioTree(apvts)
+    : apvts(apvts)
 {
     // Set up looper control buttons
     ToggleSetup::setupToggleButton(recordButton, "Record", this);
@@ -59,7 +59,7 @@ LooperLayout::LooperLayout(juce::AudioProcessorValueTreeState& apvts)
 
     // Set up parameter listener for external changes
     parameterListener = std::make_unique<LooperStateListener>(*this);
-    audioTree.addParameterListener("looperState", dynamic_cast<juce::AudioProcessorValueTreeState::Listener*>(parameterListener.get()));
+    apvts.addParameterListener("looperState", dynamic_cast<juce::AudioProcessorValueTreeState::Listener*>(parameterListener.get()));
 
     DBG("LooperLayout: Created with single parameter state control");
 }
@@ -67,7 +67,7 @@ LooperLayout::LooperLayout(juce::AudioProcessorValueTreeState& apvts)
 LooperLayout::~LooperLayout()
 {
     // Remove parameter listener
-    audioTree.removeParameterListener("looperState",
+    apvts.removeParameterListener("looperState",
         dynamic_cast<LooperStateListener*>(parameterListener.get()));
 
     // Remove button listeners
@@ -96,7 +96,7 @@ void LooperLayout::buttonClicked(juce::Button* button)
     if (newState >= 0)
     {
         // Set the parameter value
-        audioTree.getParameterAsValue("looperState").setValue(newState);
+        apvts.getParameterAsValue("looperState").setValue(newState);
         DBG("LooperLayout: Button clicked, setting looperState to " << newState);
     }
 }

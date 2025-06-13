@@ -32,7 +32,7 @@ private:
     juce::TextButton recordButton, playButton, overdubButton, stopButton, clearButton;
 
     // Reference to the APVTS for setting parameter values
-    juce::AudioProcessorValueTreeState& audioTree;
+    juce::AudioProcessorValueTreeState& apvts;
 
     // Parameter pointer for updating UI state from parameter changes
     std::atomic<float>* looperStateParam = nullptr;
