@@ -50,8 +50,12 @@ void DelayLayout::resized()
     labelBox.items.add(juce::FlexItem(feedbackLabel).withFlex(1));
     labelBox.items.add(juce::FlexItem(wetDryLabel).withFlex(1));
 
+    // remove 20px from the top for spacing
+    bounds.removeFromTop(20);
+
     // perform layout
     sliderBox.performLayout(bounds.removeFromTop(80));
     labelBox.performLayout(bounds.removeFromTop(20));
+    this->setText("Standard Delay");
 }
 

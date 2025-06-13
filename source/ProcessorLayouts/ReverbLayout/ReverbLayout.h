@@ -10,7 +10,7 @@
     #include <juce_audio_processors/juce_audio_processors.h>
     #include <juce_gui_basics/juce_gui_basics.h>
 
-class ReverbLayout : public juce::Component
+class ReverbLayout : public juce::GroupComponent
 {
 public:
     ReverbLayout(juce::AudioProcessorValueTreeState& apvts);

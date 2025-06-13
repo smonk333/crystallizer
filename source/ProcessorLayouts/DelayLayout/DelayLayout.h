@@ -10,7 +10,7 @@
     #include <juce_audio_processors/juce_audio_processors.h>
     #include <juce_gui_basics/juce_gui_basics.h>
 
-class DelayLayout : public juce::Component
+class DelayLayout : public juce::GroupComponent
 {
 public:
     DelayLayout(juce::AudioProcessorValueTreeState& apvts);

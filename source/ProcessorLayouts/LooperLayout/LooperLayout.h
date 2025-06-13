@@ -10,7 +10,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_gui_basics/juce_gui_basics.h>
 
-class LooperLayout : public juce::Component
+class LooperLayout : public juce::GroupComponent
 {
 public:
     LooperLayout(juce::AudioProcessorValueTreeState& apvts);

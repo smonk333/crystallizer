@@ -77,9 +77,13 @@ void ReverbLayout::resized()
     bottomLabels.items.add(juce::FlexItem(freezeLabel).withFlex(1));
     bottomLabels.items.add(juce::FlexItem().withFlex(1)); // empty space for balance
 
+    // add spacing for label
+    bounds.removeFromTop(20);
+
     // perform layouts
     topControls.performLayout(bounds.removeFromTop(60));
     topLabels.performLayout(bounds.removeFromTop(20));
     bottomControls.performLayout(bounds.removeFromTop(60));
     bottomLabels.performLayout(bounds.removeFromTop(20));
+    this->setText("Reverb");
 }

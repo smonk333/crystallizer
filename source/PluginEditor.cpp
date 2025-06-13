@@ -51,9 +51,9 @@ void PluginEditor::paint (juce::Graphics& g)
 
     g.setColour(juce::Colours::white);
     g.setFont(16.0f);
-    g.drawText("DELAY", 20, 10, 560, 20, juce::Justification::left);
-    g.drawText("REVERB", 20, 160, 560, 20, juce::Justification::left);
-    g.drawText("GRANULAR DELAY", 20, 470, 560, 20, juce::Justification::left);
+    //g.drawText("DELAY", 20, 10, 560, 20, juce::Justification::left);
+    //g.drawText("REVERB", 20, 160, 560, 20, juce::Justification::left);
+    //g.drawText("GRANULAR DELAY", 20, 470, 560, 20, juce::Justification::left);
 }
 
 void PluginEditor::resized()
@@ -63,14 +63,14 @@ void PluginEditor::resized()
 
     //=standard delay section===================================================
     auto delaySection = area.removeFromTop(140);
-    delaySection.removeFromTop(30); // space for section label
+    //delaySection.removeFromTop(30); // space for section label
 
     //=position the DelayLayout component in the delay section==================
     delayLayout.setBounds(delaySection);
 
     //=reverb section ==========================================================
     auto reverbSection = area.removeFromTop(200);
-    reverbSection.removeFromTop(30); // space for section label
+    //reverbSection.removeFromTop(30); // space for section label
 
     //=position the ReverbLayout component in the reverb section================
     reverbLayout.setBounds(reverbSection);
@@ -84,7 +84,7 @@ void PluginEditor::resized()
 
     //=granular section=========================================================
     auto granularSection = area.removeFromTop(200);
-    granularSection.removeFromTop(30); // space for section label
+    //granularSection.removeFromTop(30); // space for section label
 
     //=position the GranularLayout component in the granular section============
     granularLayout.setBounds(granularSection);

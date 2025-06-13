@@ -41,6 +41,9 @@ void GranularLayout::resized()
 {
     auto bounds = getLocalBounds();
 
+    // add vertical space at the top to move controls down
+    bounds.removeFromTop(20); // adjust this value as needed
+
     // upper row controls
     juce::FlexBox topControls;
     topControls.flexDirection = juce::FlexBox::Direction::row;
@@ -84,5 +87,5 @@ void GranularLayout::resized()
     topLabels.performLayout(bounds.removeFromTop(20));
     bottomControls.performLayout(bounds.removeFromTop(60));
     bottomLabels.performLayout(bounds.removeFromTop(20));
+    this->setText("Granular Delay");
 }
-

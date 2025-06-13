@@ -54,6 +54,13 @@ void LooperLayout::resized()
         juce::GridItem(clearButton).withMargin(margin).withArea(3, 1, 4, 3)  // row 3, span both columns
     });
 
+    // add spacing
+    bounds.removeFromTop(20);
+    bounds.removeFromLeft(20);
+    bounds.removeFromRight(20);
+    bounds.removeFromBottom(10);
+
     // perform the layout
     grid.performLayout(bounds);
+    this->setText("Looper");
 }

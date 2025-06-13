@@ -41,7 +41,7 @@ PluginProcessor::PluginProcessor()
     granularSpreadParam = apvts.getRawParameterValue("spread");
 
     // signal processing chain parameters
-    signalChainParam = apvts.getRawParameterValue("processingMode");
+    // signalChainParam = apvts.getRawParameterValue("processingMode");
 
     // looper state management parameter
     looperStateParam = apvts.getRawParameterValue("looperState");
@@ -97,7 +97,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
             "Reverb Only",
             "Granular Only",
             "Looper Only",
-            "Serial"}, 0));
+            "Serial"},
+            0
+        )
+    );
 
     // push granular delay parameters into the vector
     params.push_back(std::make_unique<juce::AudioParameterFloat>("granularDelayTime",
