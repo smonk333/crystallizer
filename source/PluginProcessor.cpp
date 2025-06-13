@@ -118,11 +118,17 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
     params.push_back(std::make_unique<juce::AudioParameterFloat>("spread",
         "Spread", 0.0f, 1.0f, 0.5f));
 
-    params.push_back(std::make_unique<juce::AudioParameterChoice>(
-        "looperState",
-        "Looper State",
-        juce::StringArray { "Recording", "Playing", "Overdubbing", "Stopped", "Clear" },
-        3)); // default to Stopped
+    // params.push_back(std::make_unique<juce::AudioParameterChoice>(
+    //     "looperState",
+    //     "Looper State",
+    //     juce::StringArray { "Recording", "Playing", "Overdubbing", "Stopped", "Clear" },
+    //     3)); // default to Stopped
+
+    params.push_back(std::make_unique<juce::AudioParameterBool>("looperRecord", "Looper Record", false));
+    params.push_back(std::make_unique<juce::AudioParameterBool>("looperPlay", "Looper Play", false));
+    params.push_back(std::make_unique<juce::AudioParameterBool>("looperOverdub", "Looper Overdub", false));
+    params.push_back(std::make_unique<juce::AudioParameterBool>("looperStop", "Looper Stop", true));  // Default to stopped
+    params.push_back(std::make_unique<juce::AudioParameterBool>("looperClear", "Looper Clear", false));
 
     // push more fx parameters here as we add classes to handle processing
 

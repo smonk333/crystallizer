@@ -14,7 +14,12 @@ class LooperProcessor : public juce::dsp::ProcessorBase
 {
 public:
     struct LooperParams {
-        int looperState = 0; // Use int for enum State
+        bool record = false;
+        bool play = false;
+        bool overdub = false;
+        bool stop = true;    // Default to stopped
+        bool clear = false;
+        int looperState = 3; // Default to Stopped (matches enum State::Stopped)
     };
 
     LooperProcessor();
@@ -24,14 +29,14 @@ public:
     void reset() override;
     void process(const juce::dsp::ProcessContextReplacing<float>& context) override;
 
-    // looper state management
+    // Looper state management
     void startRecording();
     void startPlayback();
     void startOverdubbing();
     void stop();
     void clear();
 
-    // enum for State
+    // Enum for State
     enum State
     {
         Recording = 0,      // capturing new audio
@@ -41,7 +46,7 @@ public:
         Clear = 4           // special command to clear the loop
     };
 
-    // parameter getters
+    // Parameter getters
     State getState() const noexcept { return currentState; }
     float getLoopPosition() const noexcept;
 
@@ -55,9 +60,10 @@ private:
     double sampleRate = 44100.0f;
     int maxBufferSize = 0; // Will be set in prepare() based on sampleRate
 
+    // Keep track of previous button states to detect changes
+    LooperParams previousParams;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LooperProcessor)
 };
 
-
-
-#endif //LOOPERPROCESSOR_H
+#endif // LOOPERPROCESSOR_H

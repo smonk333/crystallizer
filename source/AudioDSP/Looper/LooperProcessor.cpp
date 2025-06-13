@@ -143,6 +143,7 @@ void LooperProcessor::startRecording()
 {
     clear();
     currentState = Recording;
+    DBG("RECORDING");
 }
 
 void LooperProcessor::startPlayback()
@@ -152,6 +153,7 @@ void LooperProcessor::startPlayback()
         // go to the start of the loop to play
         position = 0;
         currentState = Playing;
+        DBG("PLAYING");
     }
 }
 
@@ -160,6 +162,7 @@ void LooperProcessor::startOverdubbing()
     if (loopLength > 0)
     {
         currentState = Overdubbing;
+        DBG("OVERDUBBING");
     }
 }
 
@@ -168,6 +171,7 @@ void LooperProcessor::stop()
     if (currentState == Recording)
     {
         loopLength = position;
+        DBG("STOPPED RECORDING, LOOP LENGTH = " << loopLength / sampleRate << " seconds");
     }
     position = 0;
     currentState = Stopped;
@@ -178,7 +182,9 @@ void LooperProcessor::clear()
     loopBuffer.clear();
     position = 0;
     loopLength = 0;
+    DBG("LOOP CLEARED");
     currentState = Stopped;
+    DBG("current state: " << currentState);
 }
 
 float LooperProcessor::getLoopPosition() const noexcept
@@ -234,26 +240,43 @@ float LooperProcessor::getLoopPosition() const noexcept
 
 void LooperProcessor::updateParameters(const LooperParams& params)
 {
-    //static int lastPrintedState = -1;
-    int state = params.looperState;
-    //DBG("State set to: " << state);
-    // if (state == 4) // Special case for 'Clear' command
-    // {
-    //     if (lastPrintedState != 4) {
-    //         DBG("LooperProcessor: Received 'Clear' command (state 4)");
-    //         lastPrintedState = 4;
-    //     }
-    //     clear();
-    //     currentState = Stopped;
-    //     return;
-    // }
-    // if (state != Stopped && state != Overdubbing && state != Playing && state != Recording && state != Clear) {
-    //     DBG("LooperProcessor: Invalid state received, defaulting to Stopped, state:" << state);
-    //     lastPrintedState = -2;
-    //     //state = Stopped;
-    // } else if (lastPrintedState != state) {
-    //     DBG("LooperProcessor: State set to " << state);
-    //     lastPrintedState = state;
-    // }
-    currentState = static_cast<State>(state);
+    // Check for button state changes and act accordingly
+    // Only process changes when a button goes from false to true
+
+    if (params.clear && !previousParams.clear)
+    {
+        DBG("LooperProcessor: Clear button pressed");
+        clear();
+    }
+    else if (params.record && !previousParams.record)
+    {
+        DBG("LooperProcessor: Record button pressed - starting recording");
+        startRecording();
+    }
+    else if (params.play && !previousParams.play)
+    {
+        DBG("LooperProcessor: Play button pressed - starting playback");
+        startPlayback();
+    }
+    else if (params.overdub && !previousParams.overdub)
+    {
+        DBG("LooperProcessor: Overdub button pressed - starting overdub");
+        startOverdubbing();
+    }
+    else if (params.stop && !previousParams.stop)
+    {
+        DBG("LooperProcessor: Stop button pressed - stopping");
+        stop();
+    }
+
+    // Store current params for next comparison
+    previousParams = params;
+
+    // // Debug current state
+    // DBG("LooperProcessor: Current state = " << currentState
+    //     << " (Record:" << params.record
+    //     << " Play:" << params.play
+    //     << " Overdub:" << params.overdub
+    //     << " Stop:" << params.stop
+    //     << " Clear:" << params.clear << ")");
 }

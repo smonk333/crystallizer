@@ -18,18 +18,14 @@ public:
     void resized() override;
 
 private:
-    // button setup
-    juce::TextButton
-        recordButton, playButton, overdubButton, stopButton, clearButton;
+    // Button setup
+    juce::TextButton recordButton, playButton, overdubButton, stopButton, clearButton;
 
-    // // attachments for buttons
-    // std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>
-    //     recordAttach, playAttach, overdubAttach, stopAttach, clearAttach;
+    // Simple button attachments - one parameter per button
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>
+        recordAttachment, playAttachment, overdubAttachment, stopAttachment, clearAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LooperLayout)
 };
 
-
-
 #endif //LOOPERLAYOUT_H
-
