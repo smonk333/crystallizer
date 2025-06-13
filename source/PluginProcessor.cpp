@@ -20,31 +20,31 @@ PluginProcessor::PluginProcessor()
     //       here for each new processor
 
     // standard delay parameters
-    delayTimeParam = apvts.getRawParameterValue("delayTime");
-    feedbackParam = apvts.getRawParameterValue("feedback");
-    wetDryParam = apvts.getRawParameterValue("wetDry");
+    std::atomic<float>* delayTimeParam = apvts.getRawParameterValue("delayTime");
+    std::atomic<float>* feedbackParam = apvts.getRawParameterValue("feedback");
+    std::atomic<float>* wetDryParam = apvts.getRawParameterValue("wetDry");
 
-    // reverb parameters
-    reverbRoomSizeParam = apvts.getRawParameterValue("reverbRoomSize");
-    reverbDampingParam = apvts.getRawParameterValue("reverbDamping");
-    reverbMixParam = apvts.getRawParameterValue("reverbMix");
-    reverbWidthParam = apvts.getRawParameterValue("reverbWidth");
-    reverbFreezeParam = apvts.getRawParameterValue("reverbFreeze");
-
-    // granular delay parameters
-    granularDelayTimeParam = apvts.getRawParameterValue("granularDelayTime");
-    grainSizeParam = apvts.getRawParameterValue ("grainSize");
-    grainDensityParam = apvts.getRawParameterValue ("grainDensity");
-    granularPitchShiftParam = apvts.getRawParameterValue("pitchShift");
-    granularFeedbackParam = apvts.getRawParameterValue("granularFeedback");
-    granularWetDryParam = apvts.getRawParameterValue("granularWetDry");
-    granularSpreadParam = apvts.getRawParameterValue("spread");
-
-    // signal processing chain parameters
-    // signalChainParam = apvts.getRawParameterValue("processingMode");
-
-    // looper state management parameter
-    looperStateParam = apvts.getRawParameterValue("looperState");
+    // // reverb parameters
+    // reverbRoomSizeParam = apvts.getRawParameterValue("reverbRoomSize");
+    // reverbDampingParam = apvts.getRawParameterValue("reverbDamping");
+    // reverbMixParam = apvts.getRawParameterValue("reverbMix");
+    // reverbWidthParam = apvts.getRawParameterValue("reverbWidth");
+    // reverbFreezeParam = apvts.getRawParameterValue("reverbFreeze");
+    //
+    // // granular delay parameters
+    // granularDelayTimeParam = apvts.getRawParameterValue("granularDelayTime");
+    // grainSizeParam = apvts.getRawParameterValue ("grainSize");
+    // grainDensityParam = apvts.getRawParameterValue ("grainDensity");
+    // granularPitchShiftParam = apvts.getRawParameterValue("pitchShift");
+    // granularFeedbackParam = apvts.getRawParameterValue("granularFeedback");
+    // granularWetDryParam = apvts.getRawParameterValue("granularWetDry");
+    // granularSpreadParam = apvts.getRawParameterValue("spread");
+    //
+    // // signal processing chain parameters
+    // // signalChainParam = apvts.getRawParameterValue("processingMode");
+    //
+    // // looper state management parameter
+    // looperStateParam = apvts.getRawParameterValue("looperState");
 
     // signalPathManager parameter
     signalChainParam = apvts.getRawParameterValue("signalPath");
@@ -118,17 +118,19 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
     params.push_back(std::make_unique<juce::AudioParameterFloat>("spread",
         "Spread", 0.0f, 1.0f, 0.5f));
 
-    // params.push_back(std::make_unique<juce::AudioParameterChoice>(
-    //     "looperState",
-    //     "Looper State",
-    //     juce::StringArray { "Recording", "Playing", "Overdubbing", "Stopped", "Clear" },
-    //     3)); // default to Stopped
+    // Replace the five boolean parameters with a single choice parameter
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(
+        "looperState",
+        "Looper State",
+        juce::StringArray { "Recording", "Playing", "Overdubbing", "Stopped", "Clear" },
+        3)); // default to Stopped (index 3)
 
-    params.push_back(std::make_unique<juce::AudioParameterBool>("looperRecord", "Looper Record", false));
-    params.push_back(std::make_unique<juce::AudioParameterBool>("looperPlay", "Looper Play", false));
-    params.push_back(std::make_unique<juce::AudioParameterBool>("looperOverdub", "Looper Overdub", false));
-    params.push_back(std::make_unique<juce::AudioParameterBool>("looperStop", "Looper Stop", true));  // Default to stopped
-    params.push_back(std::make_unique<juce::AudioParameterBool>("looperClear", "Looper Clear", false));
+    // Comment out or remove the old boolean parameters
+    // params.push_back(std::make_unique<juce::AudioParameterBool>("looperRecord", "Looper Record", false));
+    // params.push_back(std::make_unique<juce::AudioParameterBool>("looperPlay", "Looper Play", false));
+    // params.push_back(std::make_unique<juce::AudioParameterBool>("looperOverdub", "Looper Overdub", false));
+    // params.push_back(std::make_unique<juce::AudioParameterBool>("looperStop", "Looper Stop", true));  // Default to stopped
+    // params.push_back(std::make_unique<juce::AudioParameterBool>("looperClear", "Looper Clear", false));
 
     // push more fx parameters here as we add classes to handle processing
 

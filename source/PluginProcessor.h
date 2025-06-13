@@ -46,32 +46,32 @@ public:
 
     // TODO: PROCESSOR_ADDITION_CHAIN(1): add an atomic pointer here for each new parameter in the new processor
 
-    // standard delay parameters
-    std::atomic<float>* delayTimeParam; // delay length in seconds
-    std::atomic<float>* feedbackParam;  // feedback amount
-    std::atomic<float>* wetDryParam;    // wet/dry mix
-
-    // reverb parameters
-    std::atomic<float>* reverbRoomSizeParam;    // sets the size of the "room"
-    std::atomic<float>* reverbDampingParam;     // sets the damping of high frequencies
-    std::atomic<float>* reverbMixParam;         // sets the wet/dry mix of the reverb
-    std::atomic<float>* reverbWidthParam;       // sets the stereo width of the reverb
-    std::atomic<float>* reverbFreezeParam;      // sets the freeze mode of the reverb (now bool, but keep pointer for compatibility)
-
-    // granular delay parameters
-    std::atomic<float>* granularDelayTimeParam;     // delay time in seconds
-    std::atomic<float>* grainSizeParam;             // grain size in seconds
-    std::atomic<float>* grainDensityParam;          // grains per second
-    std::atomic<float>* granularPitchShiftParam;    // pitch shift ratio (1.0 = no shift)
-    std::atomic<float>* granularFeedbackParam;      // feedback level (0.0 to 1.0)
-    std::atomic<float>* granularWetDryParam;        // wet/dry mix ratio (0.0 to 1.0)
-    std::atomic<float>* granularSpreadParam;        // random position spread
-
-    // looper state management parameter
-    std::atomic<float>* looperStateParam; // 0 = recording, 1 = playing, 2 = overdubbing, 3 = stopped, 4 = clear
-
-    // signal processing chain parameters
-    std::atomic<float>* signalChainParam;
+    // // standard delay parameters
+    // std::atomic<float>* delayTimeParam; // delay length in seconds
+    // std::atomic<float>* feedbackParam;  // feedback amount
+    // std::atomic<float>* wetDryParam;    // wet/dry mix
+    //
+    // // reverb parameters
+    // std::atomic<float>* reverbRoomSizeParam;    // sets the size of the "room"
+    // std::atomic<float>* reverbDampingParam;     // sets the damping of high frequencies
+    // std::atomic<float>* reverbMixParam;         // sets the wet/dry mix of the reverb
+    // std::atomic<float>* reverbWidthParam;       // sets the stereo width of the reverb
+    // std::atomic<float>* reverbFreezeParam;      // sets the freeze mode of the reverb (now bool, but keep pointer for compatibility)
+    //
+    // // granular delay parameters
+    // std::atomic<float>* granularDelayTimeParam;     // delay time in seconds
+    // std::atomic<float>* grainSizeParam;             // grain size in seconds
+    // std::atomic<float>* grainDensityParam;          // grains per second
+    // std::atomic<float>* granularPitchShiftParam;    // pitch shift ratio (1.0 = no shift)
+    // std::atomic<float>* granularFeedbackParam;      // feedback level (0.0 to 1.0)
+    // std::atomic<float>* granularWetDryParam;        // wet/dry mix ratio (0.0 to 1.0)
+    // std::atomic<float>* granularSpreadParam;        // random position spread
+    //
+    // // looper state management parameter
+    // std::atomic<float>* looperStateParam; // 0 = recording, 1 = playing, 2 = overdubbing, 3 = stopped, 4 = clear
+    //
+    // // signal processing chain parameters
+     std::atomic<float>* signalChainParam;
 
 
     // more fx parameters below here as we add classes to handle processing

@@ -14,12 +14,7 @@ class LooperProcessor : public juce::dsp::ProcessorBase
 {
 public:
     struct LooperParams {
-        bool record = false;
-        bool play = false;
-        bool overdub = false;
-        bool stop = true;    // Default to stopped
-        bool clear = false;
-        int looperState = 3; // Default to Stopped (matches enum State::Stopped)
+        mutable int looperState = 3; // Default to Stopped (matches enum State::Stopped)
     };
 
     LooperProcessor();

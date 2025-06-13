@@ -240,43 +240,39 @@ float LooperProcessor::getLoopPosition() const noexcept
 
 void LooperProcessor::updateParameters(const LooperParams& params)
 {
-    // Check for button state changes and act accordingly
-    // Only process changes when a button goes from false to true
+    // Handle looperState parameter changes
+    if (static_cast<int>(currentState) != params.looperState)
+    {
+        DBG("LooperProcessor: State changing from " << currentState << " to " << params.looperState);
 
-    if (params.clear && !previousParams.clear)
-    {
-        DBG("LooperProcessor: Clear button pressed");
-        clear();
-    }
-    else if (params.record && !previousParams.record)
-    {
-        DBG("LooperProcessor: Record button pressed - starting recording");
-        startRecording();
-    }
-    else if (params.play && !previousParams.play)
-    {
-        DBG("LooperProcessor: Play button pressed - starting playback");
-        startPlayback();
-    }
-    else if (params.overdub && !previousParams.overdub)
-    {
-        DBG("LooperProcessor: Overdub button pressed - starting overdub");
-        startOverdubbing();
-    }
-    else if (params.stop && !previousParams.stop)
-    {
-        DBG("LooperProcessor: Stop button pressed - stopping");
-        stop();
+        switch (params.looperState)
+        {
+            case Recording:
+                startRecording();
+                break;
+            case Playing:
+                startPlayback();
+                break;
+            case Overdubbing:
+                startOverdubbing();
+                break;
+            case Stopped:
+                stop();
+                break;
+            case Clear:
+                clear();
+                // After clearing, automatically set back to Stopped
+                // This prevents Clear from being a persistent state
+                previousParams.looperState = Stopped;
+                currentState = Stopped; // Ensure state is set to Stopped after Clear
+                params.looperState = Stopped;
+                return; // Skip updating previousParams with Clear
+            default:
+                DBG("LooperProcessor: Unknown state requested: " << params.looperState);
+                break;
+        }
     }
 
     // Store current params for next comparison
     previousParams = params;
-
-    // // Debug current state
-    // DBG("LooperProcessor: Current state = " << currentState
-    //     << " (Record:" << params.record
-    //     << " Play:" << params.play
-    //     << " Overdub:" << params.overdub
-    //     << " Stop:" << params.stop
-    //     << " Clear:" << params.clear << ")");
 }

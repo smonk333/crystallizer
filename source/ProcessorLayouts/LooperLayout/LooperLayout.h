@@ -10,20 +10,35 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_gui_basics/juce_gui_basics.h>
 
-class LooperLayout : public juce::GroupComponent
+// Forward declaration for friendship
+class LooperStateListener;
+
+class LooperLayout : public juce::GroupComponent,
+                     public juce::Button::Listener
 {
 public:
     LooperLayout(juce::AudioProcessorValueTreeState& apvts);
-    ~LooperLayout() override = default;
+    ~LooperLayout() override;
     void resized() override;
+
+    // Button listener callback
+    void buttonClicked(juce::Button* button) override;
+
+    // Made public so the listener can access it
+    void updateButtonStates(int looperState);
 
 private:
     // Button setup
     juce::TextButton recordButton, playButton, overdubButton, stopButton, clearButton;
 
-    // Simple button attachments - one parameter per button
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>
-        recordAttachment, playAttachment, overdubAttachment, stopAttachment, clearAttachment;
+    // Reference to the APVTS for setting parameter values
+    juce::AudioProcessorValueTreeState& audioTree;
+
+    // Parameter pointer for updating UI state from parameter changes
+    std::atomic<float>* looperStateParam = nullptr;
+
+    // For updating UI when parameter changes
+    std::unique_ptr<LooperStateListener> parameterListener;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LooperLayout)
 };
