@@ -11,7 +11,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 
 
-class SignalPathManagerLayout : public juce::Component,
+class SignalPathManagerLayout : public juce::GroupComponent,
                                 public juce::AudioProcessorValueTreeState::Listener
 {
 public:

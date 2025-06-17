@@ -20,9 +20,9 @@ PluginProcessor::PluginProcessor()
     //       here for each new processor
 
     // standard delay parameters
-    std::atomic<float>* delayTimeParam = apvts.getRawParameterValue("delayTime");
-    std::atomic<float>* feedbackParam = apvts.getRawParameterValue("feedback");
-    std::atomic<float>* wetDryParam = apvts.getRawParameterValue("wetDry");
+    // std::atomic<float>* delayTimeParam = apvts.getRawParameterValue("delayTime");
+    // std::atomic<float>* feedbackParam = apvts.getRawParameterValue("feedback");
+    // std::atomic<float>* wetDryParam = apvts.getRawParameterValue("wetDry");
 
     // // reverb parameters
     // reverbRoomSizeParam = apvts.getRawParameterValue("reverbRoomSize");

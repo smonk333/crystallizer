@@ -9,6 +9,7 @@
 
 #include <juce_dsp/juce_dsp.h>
 #include <juce_audio_processors/juce_audio_processors.h>
+#include <functional>
 
 class LooperProcessor : public juce::dsp::ProcessorBase
 {
@@ -22,7 +23,10 @@ public:
 
     void prepare(const juce::dsp::ProcessSpec& spec) override;
     void reset() override;
-    void process(const juce::dsp::ProcessContextReplacing<float>& context) override;
+    void process (const juce::dsp::ProcessContextReplacing<float>& context) override;
+    void handleRecording (float inputL, float inputR, float& outL, float& outR);
+    void handlePlaying (float& outL, float& outR);
+    void handleOverdubbing (float inputL, float inputR, float& outL, float& outR);
 
     // Looper state management
     void startRecording();
@@ -57,6 +61,10 @@ private:
 
     // Keep track of previous button states to detect changes
     LooperParams previousParams;
+
+    // Function pointer for per-sample processing
+    std::function<void(float, float, float&, float&)> processSample = nullptr;
+    void setState(State newState);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LooperProcessor)
 };

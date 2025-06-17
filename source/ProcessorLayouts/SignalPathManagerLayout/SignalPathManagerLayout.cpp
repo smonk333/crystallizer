@@ -44,11 +44,25 @@ SignalPathManagerLayout::~SignalPathManagerLayout()
 
 void SignalPathManagerLayout::resized()
 {
-    auto area = getLocalBounds();
+    auto bounds = getLocalBounds();
+
+    bounds.removeFromTop(10); // add some space at the top
+
+    // create a flexbox to hold the combo box
+    juce::FlexBox comboBox;
+    comboBox.flexDirection = juce::FlexBox::Direction::row;
+    comboBox.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
+
+    comboBox.items.add(juce::FlexItem(pathSelector).withFlex(1));
+
+    comboBox.performLayout(bounds.reduced(10));
 
     // position the combo box to take up available space
     // label will automatically position itself attached to the combo box
-    pathSelector.setBounds (area.withTrimmedLeft (100));
+    // pathSelector.setBounds(bounds.reduced(10));
+
+
+    this->setText("Signal Path Selector");
 }
 
 void SignalPathManagerLayout::parameterChanged (const juce::String& parameterID, float newValue)
@@ -56,3 +70,4 @@ void SignalPathManagerLayout::parameterChanged (const juce::String& parameterID,
     // Removed logic to notify PluginProcessor directly.
     juce::ignoreUnused(parameterID, newValue);
 }
+

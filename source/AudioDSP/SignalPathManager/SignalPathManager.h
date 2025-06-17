@@ -54,6 +54,14 @@ public:
     GranularProcessor* getGranularProcessor();
     LooperProcessor* getLooperProcessor();
 
+    // template getter for processors in the main chain
+    template<typename ProcessorType, int Index>
+    ProcessorType& getProcessorFromChain()
+    {
+        jassert(processorChain != nullptr);
+        return processorChain->template get<Index>();
+    }
+
     // update processor chain parameters based on the current mode
     void updateProcessorChainParameters (const juce::AudioProcessorValueTreeState& apvts);
 
@@ -129,6 +137,4 @@ private:
 };
 
 #endif //SIGNALPATHMANAGER_H
-
-
 

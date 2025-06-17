@@ -23,7 +23,7 @@ void SignalPathManager::prepare(const juce::dsp::ProcessSpec& spec)
     if (!processorChain)
     {
         processorChain = std::make_unique<MainChainType>();
-        // initializeProcessorChain();
+        initializeProcessorChain();
     }
 
     // make sure all processors in the chain are properly prepared
@@ -61,8 +61,9 @@ void SignalPathManager::process(const juce::dsp::ProcessContextReplacing<float>&
 
 void SignalPathManager::setProcessingMode(ProcessingMode newMode)
 {
+    // avoid reinitializing if the mode hasn't changed
     if (currentMode == newMode)
-        return; // avoid reinitializing if the mode hasn't changed
+        return;
 
     currentMode = newMode;
 
@@ -72,28 +73,25 @@ void SignalPathManager::setProcessingMode(ProcessingMode newMode)
 
 // TODO: PROCESSOR_ADDITION_CHAIN(14): add new processor *chain* getters here
 // helper methods to get processor references from the main chain
+// Template-based processor getter usage examples
 DelayProcessor& SignalPathManager::getDelayFromChain()
 {
-    jassert(processorChain != nullptr);
-    return processorChain->get<delay>();
+    return getProcessorFromChain<DelayProcessor, delay>();
 }
 
 ReverbProcessor& SignalPathManager::getReverbFromChain()
 {
-    jassert(processorChain != nullptr);
-    return processorChain->get<reverb>();
+    return getProcessorFromChain<ReverbProcessor, reverb>();
 }
 
 GranularProcessor& SignalPathManager::getGranularFromChain()
 {
-    jassert(processorChain != nullptr);
-    return processorChain->get<granular>();
+    return getProcessorFromChain<GranularProcessor, granular>();
 }
 
 LooperProcessor& SignalPathManager::getLooperFromChain()
 {
-    jassert(processorChain != nullptr);
-    return processorChain->get<looper>();
+    return getProcessorFromChain<LooperProcessor, looper>();
 }
 
 // TODO: PROCESSOR_ADDITION_CHAIN(20): add new *direct* processor getters here
@@ -223,10 +221,10 @@ void SignalPathManager::updateProcessorChainParameters(const juce::AudioProcesso
     }
     if (auto* looper = getLooperProcessor()) {
         LooperProcessor::LooperParams params;
-        // Just read the looperState parameter
+        // read the looperState parameter
         if (auto* v = apvts.getRawParameterValue("looperState"))
             params.looperState = static_cast<int>(*v);
         looper->updateParameters(params);
     }
-    // TODO: PROCESSOR_ADDITION_CHAIN(?): Add similar blocks for other processors as you decouple them from JUCE
+    // TODO: PROCESSOR_ADDITION_CHAIN(?): Add similar blocks for other processor parameters here
 }

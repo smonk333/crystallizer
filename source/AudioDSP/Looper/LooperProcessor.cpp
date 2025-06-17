@@ -34,126 +34,126 @@ void LooperProcessor::reset()
     currentState = Stopped;
 }
 
+void LooperProcessor::setState(State newState)
+{
+    // DBG("setState: " << currentState << " -> " << newState);
+    currentState = newState;
+    switch (currentState)
+    {
+        case Recording:
+            processSample = [this](float inL, float inR, float& outL, float& outR) { handleRecording(inL, inR, outL, outR); };
+            break;
+        case Playing:
+            processSample = [this](float, float, float& outL, float& outR) { handlePlaying(outL, outR); };
+            break;
+        case Overdubbing:
+            processSample = [this](float inL, float inR, float& outL, float& outR) { handleOverdubbing(inL, inR, outL, outR); };
+            break;
+        case Stopped:
+            processSample = [this](float inL, float inR, float& outL, float& outR) { outL = inL; outR = inR; };
+            break;
+        case Clear:
+            processSample = [this](float, float, float&, float&) { clear(); currentState = Stopped; };
+            break;
+        default:
+            processSample = nullptr;
+            break;
+    }
+}
+
 void LooperProcessor::process (const juce::dsp::ProcessContextReplacing<float>& context)
 {
-    if (!context.isBypassed)
+    if (context.isBypassed) return;
+
+    auto& inputBlock = context.getInputBlock();
+    auto& outputBlock = context.getOutputBlock();
+    const auto numChannels = juce::jmin(
+        inputBlock.getNumChannels(),
+        outputBlock.getNumChannels(),
+        static_cast<size_t> (2)
+    );
+    const auto numSamples = inputBlock.getNumSamples();
+
+    for (int sample = 0; sample < numSamples; ++sample)
     {
-        auto& inputBlock = context.getInputBlock();
-        auto& outputBlock = context.getOutputBlock();
+        float inputL = inputBlock.getSample(0, sample);
+        float inputR = (numChannels > 1) ? inputBlock.getSample(1, sample) : inputL;
+        float outL = 0.0f, outR = 0.0f;
 
-        // set up mix variables for overdubbing
-        float mixL = 0.0f, mixR = 0.0f;
+        if (processSample)
+            processSample(inputL, inputR, outL, outR);
 
-        const auto numChannels = juce::jmin(
-            inputBlock.getNumChannels(),
-            outputBlock.getNumChannels(),
-            static_cast<size_t> (2)
-        );
-        const auto numSamples = inputBlock.getNumSamples();
-
-        for (int sample = 0; sample < numSamples; ++sample)
-        {
-            // read input samples
-            float inputL = inputBlock.getSample(0, sample);
-            float inputR;
-            if (numChannels > 1)
-                inputR = inputBlock.getSample (1, sample);
-            else
-                inputR = inputL;
-
-            // handle looper states
-            switch (currentState)
-            {
-                case Recording:
-                    // store input samples in loop buffer and increment position
-                    loopBuffer.setSample(0, position, inputL);
-                    loopBuffer.setSample(1, position, inputR);
-                    position++;
-
-                    // check if buffer is full
-                    if (position >= maxBufferSize)
-                    {
-                        loopLength = maxBufferSize;
-
-                        // reset position to start of loop
-                        position = 0;
-
-                        // switch to playing state because we hit the end of the buffer
-                        currentState = Playing;
-                    }
-                    break;
-
-                case Playing:
-                    // read samples from loop buffer and write to output
-                    inputL = loopBuffer.getSample(0, position);
-                    inputR = loopBuffer.getSample(1, position);
-
-                    // wrap to the start of the loop if we reach the end
-                    position = (position + 1) % juce::jmax(1, loopLength);
-                    break;
-
-                case Overdubbing:
-                    // mix input with existing loop samples
-                    mixL = loopBuffer.getSample(0, position) + inputL;
-                    mixR = loopBuffer.getSample(1, position) + inputR;
-
-                    // store mixed result
-                    loopBuffer.setSample(0, position, mixL);
-                    loopBuffer.setSample(1, position, mixR);
-
-                    // output mixed samples
-                    inputL = mixL;
-                    inputR = mixR;
-
-                    // wrap to the start of the loop if we reach the end
-                    position = (position + 1) % juce::jmax(1, loopLength);
-                    break;
-
-                case Stopped:
-                    // pass input directly to output, no processing needed
-                    break;
-
-                case Clear:
-                    clear();
-                    currentState = Stopped; // reset state to Stopped after clearing
-
-                default:
-                    // handle unexpected state (*should* never happen, but just to be safe)
-                    // jassertfalse; // debug break if we hit this case
-                    break;
-            }
-
-            // write to output block
-            outputBlock.setSample(0, sample, inputL);
-            if (numChannels > 1)
-            {
-                outputBlock.setSample(1, sample, inputR);
-            }
-            else
-            {
-                outputBlock.setSample(1, sample, inputL); // mono case
-            }
-        }
+        outputBlock.setSample(0, sample, outL);
+        if (numChannels > 1)
+            outputBlock.setSample(1, sample, outR);
+        else
+            outputBlock.setSample(1, sample, outL); // mono case
     }
+}
 
+// Helper methods for each state
+void LooperProcessor::handleRecording(float inputL, float inputR, float& outL, float& outR)
+{
+    loopBuffer.setSample(0, position, inputL);
+    loopBuffer.setSample(1, position, inputR);
+    position++;
+    // Always update loopLength to the current position while recording
+    loopLength = position;
+    // DBG("Recording: pos=" << position << ", inL=" << inputL << ", inR=" << inputR << ", loopLength=" << loopLength);
+    outL = inputL;
+    outR = inputR;
+    if (position >= maxBufferSize)
+    {
+        // If we hit max buffer, set loopLength and switch to playing
+        loopLength = maxBufferSize;
+        position = 0;
+        setState(Playing);
+    }
+}
+
+void LooperProcessor::handlePlaying(float& outL, float& outR)
+{
+    outL = loopBuffer.getSample(0, position);
+    outR = loopBuffer.getSample(1, position);
+    // DBG("Playing: pos=" << position << ", outL=" << outL << ", outR=" << outR << ", loopLength=" << loopLength);
+    position = (position + 1) % juce::jmax(1, loopLength);
+}
+
+void LooperProcessor::handleOverdubbing(float inputL, float inputR, float& outL, float& outR)
+{
+    // Simple overdub: add input to buffer sample
+    float mixL = loopBuffer.getSample(0, position) + inputL;
+    float mixR = loopBuffer.getSample(1, position) + inputR;
+    loopBuffer.setSample(0, position, mixL);
+    loopBuffer.setSample(1, position, mixR);
+    outL = mixL;
+    outR = mixR;
+    position = (position + 1) % juce::jmax(1, loopLength);
 }
 
 // state management methods
 void LooperProcessor::startRecording()
 {
-    clear();
-    currentState = Recording;
-    DBG("RECORDING");
+    // Optionally clear previous loop (uncomment if you want this behavior)
+    // clear();
+    setState(Recording);
+    // DBG("RECORDING");
+    position = 0;
+    // Optionally clear loopLength to avoid confusion
+    // loopLength = 0;
 }
 
 void LooperProcessor::startPlayback()
 {
     if (loopLength > 0)
     {
-        // go to the start of the loop to play
         position = 0;
-        currentState = Playing;
-        DBG("PLAYING");
+        setState(Playing);
+        // DBG("PLAYING");
+    }
+    else
+    {
+        // DBG("Cannot start playback: loopLength is 0");
     }
 }
 
@@ -161,8 +161,8 @@ void LooperProcessor::startOverdubbing()
 {
     if (loopLength > 0)
     {
-        currentState = Overdubbing;
-        DBG("OVERDUBBING");
+        setState(Overdubbing);
+        // DBG("OVERDUBBING");
     }
 }
 
@@ -170,11 +170,11 @@ void LooperProcessor::stop()
 {
     if (currentState == Recording)
     {
-        loopLength = position;
-        DBG("STOPPED RECORDING, LOOP LENGTH = " << loopLength / sampleRate << " seconds");
+        loopLength = position; // Always set loopLength to number of recorded samples
+        // DBG("STOPPED RECORDING, LOOP LENGTH = " << loopLength << " samples (" << (loopLength / sampleRate) << " seconds)");
     }
     position = 0;
-    currentState = Stopped;
+    setState(Stopped);
 }
 
 void LooperProcessor::clear()
@@ -182,9 +182,9 @@ void LooperProcessor::clear()
     loopBuffer.clear();
     position = 0;
     loopLength = 0;
-    DBG("LOOP CLEARED");
-    currentState = Stopped;
-    DBG("current state: " << currentState);
+    // DBG("LOOP CLEARED");
+    setState(Stopped);
+    // DBG("current state: " << currentState);
 }
 
 float LooperProcessor::getLoopPosition() const noexcept
@@ -194,85 +194,12 @@ float LooperProcessor::getLoopPosition() const noexcept
     return static_cast<float>(position) / static_cast<float>(loopLength);
 }
 
-// void LooperProcessor::updateParameters(const juce::AudioProcessorValueTreeState& apvts)
-// {
-//     // parameter retrieval from APVTS
-//     auto looperStateParam = apvts.getRawParameterValue("looperState");
-//
-//     if (looperStateParam)
-//     {
-//         int stateValue = static_cast<int>(*looperStateParam);
-//
-//         // Only change state if it's different from current state
-//         if (stateValue != static_cast<int>(currentState))
-//         {
-//             // Call the appropriate state management method based on parameter value
-//             switch (stateValue)
-//             {
-//                 case Stopped:
-//                     stop();
-//                     break;
-//
-//                 case Recording:
-//                     startRecording();
-//                     break;
-//
-//                 case Playing:
-//                     startPlayback();
-//                     break;
-//
-//                 case Overdubbing:
-//                     startOverdubbing();
-//                     break;
-//
-//                 case 4: // Clear
-//                     clear();
-//                     break;
-//
-//                 default:
-//                     // Handle unexpected state value
-//                     jassertfalse;
-//                     break;
-//             }
-//         }
-//     }
-// }
-
 void LooperProcessor::updateParameters(const LooperParams& params)
 {
-    // Handle looperState parameter changes
     if (static_cast<int>(currentState) != params.looperState)
     {
-        DBG("LooperProcessor: State changing from " << currentState << " to " << params.looperState);
-
-        switch (params.looperState)
-        {
-            case Recording:
-                startRecording();
-                break;
-            case Playing:
-                startPlayback();
-                break;
-            case Overdubbing:
-                startOverdubbing();
-                break;
-            case Stopped:
-                stop();
-                break;
-            case Clear:
-                clear();
-                // After clearing, automatically set back to Stopped
-                // This prevents Clear from being a persistent state
-                previousParams.looperState = Stopped;
-                currentState = Stopped; // Ensure state is set to Stopped after Clear
-                params.looperState = Stopped;
-                return; // Skip updating previousParams with Clear
-            default:
-                DBG("LooperProcessor: Unknown state requested: " << params.looperState);
-                break;
-        }
+        // DBG("LooperProcessor: State changing from " << currentState << " to " << params.looperState);
+        setState(static_cast<State>(params.looperState));
     }
-
-    // Store current params for next comparison
     previousParams = params;
 }

@@ -48,12 +48,6 @@ void PluginEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-
-    g.setColour(juce::Colours::white);
-    g.setFont(16.0f);
-    //g.drawText("DELAY", 20, 10, 560, 20, juce::Justification::left);
-    //g.drawText("REVERB", 20, 160, 560, 20, juce::Justification::left);
-    //g.drawText("GRANULAR DELAY", 20, 470, 560, 20, juce::Justification::left);
 }
 
 void PluginEditor::resized()
@@ -63,28 +57,24 @@ void PluginEditor::resized()
 
     //=standard delay section===================================================
     auto delaySection = area.removeFromTop(140);
-    //delaySection.removeFromTop(30); // space for section label
 
     //=position the DelayLayout component in the delay section==================
     delayLayout.setBounds(delaySection);
 
     //=reverb section ==========================================================
     auto reverbSection = area.removeFromTop(200);
-    //reverbSection.removeFromTop(30); // space for section label
 
     //=position the ReverbLayout component in the reverb section================
     reverbLayout.setBounds(reverbSection);
 
     //=signal path manager section=============================================
     auto signalPathSection = area.removeFromTop(100);
-    signalPathSection.removeFromTop(30); // space for section label
 
     //=position the SignalPathManagerLayout component in the signal path section
     spmLayout.setBounds(signalPathSection);
 
     //=granular section=========================================================
     auto granularSection = area.removeFromTop(200);
-    //granularSection.removeFromTop(30); // space for section label
 
     //=position the GranularLayout component in the granular section============
     granularLayout.setBounds(granularSection);
