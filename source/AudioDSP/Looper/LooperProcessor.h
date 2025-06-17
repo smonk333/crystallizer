@@ -2,6 +2,14 @@
 // Created by smoke on 6/4/2025.
 //
 
+/**
+ * @brief Phrase looper processor with 60 seconds of memory, as well as an overdubbing layer (overdubbing tba)
+ *
+ * Implements a looper with recording, playback, overdubbing, and clearing functionality.
+ *
+ * @param looperState State of the looper (0: Recording, 1: Playing, 2: Overdubbing, 3: Stopped, 4: Clear)
+ */
+
 #pragma once
 
 #ifndef LOOPERPROCESSOR_H
@@ -29,7 +37,7 @@ public:
     void handlePlaying (float& outL, float& outR);
     void handleOverdubbing (float inputL, float inputR, float& outL, float& outR);
 
-    // Looper state management
+    // looper state management
     void startRecording();
     void startPlayback();
     void startOverdubbing();
@@ -63,15 +71,15 @@ public:
 
     void updateParameters(const LooperParams& params);
 
-    // Add a method to set the looper state parameter pointer
+    // add a method to set the looper state parameter pointer
     void setLooperStateParam(std::atomic<float>* param) { looperStateParam = param; }
 
-    // Add a method to check and clear the flag
+    // add a method to check and clear the flag
     bool consumeBufferLimitReachedFlag() {
         return bufferLimitReached.exchange(false);
     }
 
-    // Add a method to check and clear the flag
+    // add a method to check and clear the flag
     bool consumeClearProcessedFlag() {
         return clearProcessed.exchange(false);
     }
@@ -92,10 +100,10 @@ private:
 
     std::atomic<float>* looperStateParam = nullptr;
 
-    // Thread-safe flag to notify UI/main thread that the buffer limit was reached
+    // thread-safe flag to notify UI/main thread that the buffer limit was reached
     std::atomic<bool> bufferLimitReached { false };
 
-    // Thread-safe flag to notify UI/main thread that clear was processed
+    // thread-safe flag to notify UI/main thread that clear was processed
     std::atomic<bool> clearProcessed { false };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LooperProcessor)

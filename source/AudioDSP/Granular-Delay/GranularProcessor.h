@@ -2,6 +2,21 @@
 // Created by smoke on 6/2/2025.
 //
 
+/**
+ * @brief Granular delay processor with pitch shifting capabilities
+ *
+ * Implements real-time granular synthesis on delayed audio signals.
+ * Supports variable grain size, density, and pitch shifting.
+ *
+ * @param delayTime Delay time in seconds (0.01 - 5.0)
+ * @param grainSize Grain size in seconds (0.01 - 5.0)
+ * @param density Influences chance of grains spawning (0.01 - 10.0)
+ * @param pitchShift Ratio for pitch shifting (-4.0 to 4.0) (work in progress)
+ * @param feedback Feedback level (0.0 - 1.0)
+ * @param wetDryMix Wet/dry mix ratio (0.0 - 1.0)
+ * @param spread Random position spread for grains (0.0 - 1.0)
+ */
+
 #pragma once
 
 #ifndef GRANULARPROCESSOR_H

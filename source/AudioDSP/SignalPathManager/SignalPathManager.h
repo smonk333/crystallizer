@@ -2,6 +2,15 @@
 // Created by smoke on 6/6/2025.
 //
 
+/**
+ * @brief Class to manage how the signal travels through the audio processing chain
+ *
+ * By default, the signal path is set up as a serial chain of processors,
+ * with different processing modes made available by bypassing all other processors
+ *
+ * @param (?)
+*/
+
 #pragma once
 
 #ifndef SIGNALPATHMANAGER_H

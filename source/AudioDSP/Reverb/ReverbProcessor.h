@@ -2,6 +2,19 @@
 // Created by smoke on 5/30/2025.
 //
 
+/**
+ * @brief Reverb processor with adjustable parameters
+ *
+ * Implements a standard reverb effect, with parameters for room size, damping, wet/dry mix, stereo width, and freeze mode.
+ *
+ * @param roomSize Size of the reverb room (0.0 - 1.0)
+ * @param damping High pass filter damping (0.0 - 1.0)
+ * @param wetLevel Wet level of the reverb (0.0 - 1.0)
+ * @param dryLevel Dry level of the reverb (0.0 - 1.0)
+ * @param width Stereo width of the reverb (0.0 - 1.0)
+ * @param freezeMode Freeze mode (0.0 - 1.0, implemented as a toggle button in the UI
+ */
+
 #pragma once
 
 #include <juce_dsp/juce_dsp.h>
