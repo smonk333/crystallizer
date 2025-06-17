@@ -12,6 +12,7 @@
 
 class DelayProcessor : public juce::dsp::ProcessorBase {
 public:
+    // TDOD: PROCESSOR_ADDITION_CHAIN(EXAMPLE): Define a struct for parameters
     struct DelayParams {
         float delayTime = 0.5f;
         float feedback = 0.5f;

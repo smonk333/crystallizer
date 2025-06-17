@@ -103,18 +103,6 @@ void DelayProcessor::setWetLevel(float newWetLevel)
     currentWetLevel = newWetLevel;
 }
 
-// void DelayProcessor::updateParameters(const juce::AudioProcessorValueTreeState& apvts)
-// {
-//     // parameter retrieval from APVTS
-//     auto delayTimeParam = apvts.getRawParameterValue("delayTime");
-//     auto feedbackParam = apvts.getRawParameterValue("feedback");
-//     auto wetLevelParam = apvts.getRawParameterValue("wetDry");
-//
-//     if (delayTimeParam) setDelayTime(*delayTimeParam);
-//     if (feedbackParam) setFeedback(*feedbackParam);
-//     if (wetLevelParam) setWetLevel(*wetLevelParam);
-// }
-
 void DelayProcessor::updateParameters(const DelayParams& params)
 {
     setDelayTime(params.delayTime);
