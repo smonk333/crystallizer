@@ -81,6 +81,8 @@ public:
 
     void updateSignalPathManager(int newMode);
 
+    SignalPathManager& getSignalPathManager() { return signalPathManager; }
+
 private:
     class SignalPathParameterListener : public juce::AudioProcessorValueTreeState::Listener
     {
@@ -107,4 +109,3 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PluginProcessor)
 };
-

@@ -5,6 +5,7 @@
 #include "LooperLayout.h"
 #include "../../LayoutHelpers/ControlSetupHelpers/AttachmentSetup/AttachmentSetup.h"
 #include "../../LayoutHelpers/ControlSetupHelpers/ToggleSetup/ToggleSetup.h"
+#include <juce_gui_basics/juce_gui_basics.h>
 
 // Helper class to monitor parameter changes and update UI
 class LooperStateListener : public juce::AudioProcessorValueTreeState::Listener
@@ -27,8 +28,8 @@ private:
     LooperLayout& owner;
 };
 
-LooperLayout::LooperLayout(juce::AudioProcessorValueTreeState& apvts)
-    : apvts(apvts)
+LooperLayout::LooperLayout(juce::AudioProcessorValueTreeState& apvts, LooperProcessor& looperProcessor)
+    : apvts(apvts), looperProcessor(looperProcessor)
 {
     // Set up looper control buttons
     ToggleSetup::setupToggleButton(recordButton, "Record", this);
@@ -62,6 +63,12 @@ LooperLayout::LooperLayout(juce::AudioProcessorValueTreeState& apvts)
     apvts.addParameterListener("looperState", dynamic_cast<juce::AudioProcessorValueTreeState::Listener*>(parameterListener.get()));
 
     DBG("LooperLayout: Created with single parameter state control");
+
+    timerLabel = std::make_unique<juce::Label>("LooperTimer", "Time: 0.00s");
+    stateLabel = std::make_unique<juce::Label>("LooperState", "State: Stopped");
+    addAndMakeVisible(*timerLabel);
+    addAndMakeVisible(*stateLabel);
+    startTimerHz(1000); // Start the timer to update 1000 times per second
 }
 
 LooperLayout::~LooperLayout()
@@ -113,6 +120,24 @@ void LooperLayout::updateButtonStates(int looperState)
     DBG("LooperLayout: Updated button states to reflect looperState " << looperState);
 }
 
+void LooperLayout::updateTimerAndState() {
+    timerLabel->setText(juce::String("Time: ") + juce::String(looperProcessor.getElapsedTimeSeconds(), 2) + "s", juce::dontSendNotification);
+    stateLabel->setText(juce::String("State: ") + looperProcessor.getStateString(), juce::dontSendNotification);
+}
+
+void LooperLayout::timerCallback() {
+    // Check for buffer limit reached from the audio thread
+    if (looperProcessor.consumeBufferLimitReachedFlag()) {
+        // Set the looperState parameter to Playing (1) using the proper JUCE API
+        if (auto* param = apvts.getParameter("looperState")) {
+            param->beginChangeGesture();
+            param->setValueNotifyingHost(1.0f / param->getNormalisableRange().getRange().getLength()); // 1.0f for state 1
+            param->endChangeGesture();
+        }
+    }
+    updateTimerAndState();
+}
+
 void LooperLayout::resized()
 {
     auto bounds = getLocalBounds();
@@ -146,4 +171,8 @@ void LooperLayout::resized()
     // Perform the layout
     grid.performLayout(bounds);
     this->setText("Looper");
+
+    auto area = getLocalBounds();
+    timerLabel->setBounds(area.removeFromTop(24));
+    stateLabel->setBounds(area.removeFromTop(24));
 }

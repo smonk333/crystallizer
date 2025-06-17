@@ -2,6 +2,7 @@
 #include "LayoutHelpers/ControlSetupHelpers/SliderSetup/SliderSetup.h"
 #include "LayoutHelpers/ControlSetupHelpers/LabelSetup/LabelSetup.h"
 #include "LayoutHelpers/ControlSetupHelpers/ToggleSetup/ToggleSetup.h"
+#include "AudioDSP/Looper/LooperProcessor.h"
 
 // TODO: PROCESSOR_ADDITION_CHAIN(8): add layouts for new processors here
 PluginEditor::PluginEditor (PluginProcessor& p)
@@ -10,7 +11,7 @@ PluginEditor::PluginEditor (PluginProcessor& p)
     delayLayout(p.apvts),
     reverbLayout(p.apvts),
     granularLayout (p.apvts),
-    looperLayout(p.apvts),
+    looperLayout(p.apvts, *p.getSignalPathManager().getLooperProcessor()),
     spmLayout(p.apvts)
 {
     // Add the layout components to the editor

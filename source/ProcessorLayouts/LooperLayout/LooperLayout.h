@@ -9,15 +9,17 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <juce_gui_basics/juce_gui_basics.h>
+#include "../../AudioDSP/Looper/LooperProcessor.h"
 
 // Forward declaration for friendship
 class LooperStateListener;
 
 class LooperLayout : public juce::GroupComponent,
-                     public juce::Button::Listener
+                     public juce::Button::Listener,
+                     private juce::Timer // <-- Add juce::Timer for periodic updates
 {
 public:
-    LooperLayout(juce::AudioProcessorValueTreeState& apvts);
+    LooperLayout(juce::AudioProcessorValueTreeState& apvts, LooperProcessor& looperProcessor);
     ~LooperLayout() override;
     void resized() override;
 
@@ -40,7 +42,17 @@ private:
     // For updating UI when parameter changes
     std::unique_ptr<LooperStateListener> parameterListener;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LooperLayout)
+    // Reference to the LooperProcessor
+    LooperProcessor& looperProcessor;
+
+    // Labels for timer and state display
+    std::unique_ptr<juce::Label> timerLabel;
+    std::unique_ptr<juce::Label> stateLabel;
+
+    void updateTimerAndState(); // <-- Declare update method
+    void timerCallback();
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LooperLayout)
 };
 
 #endif //LOOPERLAYOUT_H

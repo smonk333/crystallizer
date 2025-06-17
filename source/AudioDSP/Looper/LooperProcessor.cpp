@@ -36,7 +36,7 @@ void LooperProcessor::reset()
 
 void LooperProcessor::setState(State newState)
 {
-    // DBG("setState: " << currentState << " -> " << newState);
+    DBG("setState: " << currentState << " -> " << newState);
     currentState = newState;
     switch (currentState)
     {
@@ -104,10 +104,11 @@ void LooperProcessor::handleRecording(float inputL, float inputR, float& outL, f
     outR = inputR;
     if (position >= maxBufferSize)
     {
-        // if we hit max buffer, set loopLength and switch to playing
+        DBG("RECORDING LIMIT REACHED, SHOULD SWITCH TO STATE 1 AND STAY THERE");
         loopLength = maxBufferSize;
         position = 0;
         setState(Playing);
+        bufferLimitReached = true;
     }
 }
 
@@ -146,7 +147,7 @@ void LooperProcessor::startPlayback()
         position = 0;
         setState(Playing);
     }
-    return
+    return;
 }
 
 void LooperProcessor::startOverdubbing()

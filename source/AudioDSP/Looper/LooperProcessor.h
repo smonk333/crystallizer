@@ -49,9 +49,27 @@ public:
     // parameter getters
     State getState() const noexcept { return currentState; }
     float getLoopPosition() const noexcept;
+    float getElapsedTimeSeconds() const noexcept { return position / static_cast<float>(sampleRate); }
+    const char* getStateString() const noexcept {
+        switch (currentState) {
+            case Recording: return "Recording";
+            case Playing: return "Playing";
+            case Overdubbing: return "Overdubbing";
+            case Stopped: return "Stopped";
+            case Clear: return "Clear";
+            default: return "Unknown";
+        }
+    }
 
     void updateParameters(const LooperParams& params);
 
+    // Add a method to set the looper state parameter pointer
+    void setLooperStateParam(std::atomic<float>* param) { looperStateParam = param; }
+
+    // Add a method to check and clear the flag
+    bool consumeBufferLimitReachedFlag() {
+        return bufferLimitReached.exchange(false);
+    }
 private:
     juce::AudioBuffer<float> loopBuffer;
     int loopLength = 0;
@@ -67,7 +85,13 @@ private:
     std::function<void(float, float, float&, float&)> processSample = nullptr;
     void setState(State newState);
 
+    std::atomic<float>* looperStateParam = nullptr;
+
+    // Thread-safe flag to notify UI/main thread that the buffer limit was reached
+    std::atomic<bool> bufferLimitReached { false };
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LooperProcessor)
 };
 
 #endif // LOOPERPROCESSOR_H
+
