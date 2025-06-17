@@ -16,7 +16,8 @@ class LooperStateListener;
 
 class LooperLayout : public juce::GroupComponent,
                      public juce::Button::Listener,
-                     private juce::Timer // <-- Add juce::Timer for periodic updates
+                     private juce::Timer,
+                     private juce::MessageListener
 {
 public:
     LooperLayout(juce::AudioProcessorValueTreeState& apvts, LooperProcessor& looperProcessor);
@@ -51,6 +52,7 @@ private:
 
     void updateTimerAndState(); // <-- Declare update method
     void timerCallback();
+    void handleMessage (const juce::Message& message);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LooperLayout)
 };

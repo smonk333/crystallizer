@@ -6,6 +6,14 @@
 #include "../../LayoutHelpers/ControlSetupHelpers/AttachmentSetup/AttachmentSetup.h"
 #include "../../LayoutHelpers/ControlSetupHelpers/ToggleSetup/ToggleSetup.h"
 #include <juce_gui_basics/juce_gui_basics.h>
+#include <juce_events/juce_events.h>
+
+// Custom message for looper state change
+class LooperStateChangeMessage : public juce::Message {
+public:
+    LooperStateChangeMessage(int newState) : state(newState) {}
+    int state;
+};
 
 // Helper class to monitor parameter changes and update UI
 class LooperStateListener : public juce::AudioProcessorValueTreeState::Listener
@@ -126,29 +134,35 @@ void LooperLayout::updateTimerAndState() {
 }
 
 void LooperLayout::timerCallback() {
-    // Check for buffer limit reached from the audio thread
     if (looperProcessor.consumeBufferLimitReachedFlag()) {
-        // Set the looperState parameter to Playing (1) using the proper JUCE API
-        if (auto* param = apvts.getParameter("looperState")) {
-            param->beginChangeGesture();
-            param->setValueNotifyingHost(1.0f / param->getNormalisableRange().getRange().getLength()); // 1.0f for state 1
-            param->endChangeGesture();
-        }
+        // use JUCE's MessageListener::postMessage to post to this component
+        postMessage(new LooperStateChangeMessage(1)); // 1 = Playing
     }
     updateTimerAndState();
+}
+
+// override handleMessage to process custom messages
+void LooperLayout::handleMessage(const juce::Message& message) {
+    // if (auto* looperMsg = dynamic_cast<const LooperStateChangeMessage*>(&message)) {
+        if (auto* param = apvts.getParameter("looperState")) {
+            param->beginChangeGesture();
+            param->setValueNotifyingHost(1.0f / param->getNormalisableRange().getRange().getLength());
+            param->endChangeGesture();
+        }
+    // }
 }
 
 void LooperLayout::resized()
 {
     auto bounds = getLocalBounds();
 
-    // Set up margin for buttons
+    // get up margin for buttons
     const int margin = 5;
 
     using Track = juce::Grid::TrackInfo;
     using Fr = juce::Grid::Fr;
 
-    // Create a 3x2 grid (3 rows, 2 columns)
+    // create a 3x2 grid (3 rows, 2 columns)
     juce::Grid grid;
     grid.templateRows = { Track(Fr(1)), Track(Fr(1)), Track(Fr(1)) };
     grid.templateColumns = { Track(Fr(1)), Track(Fr(1)) };
