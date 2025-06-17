@@ -70,6 +70,11 @@ public:
     bool consumeBufferLimitReachedFlag() {
         return bufferLimitReached.exchange(false);
     }
+
+    // Add a method to check and clear the flag
+    bool consumeClearProcessedFlag() {
+        return clearProcessed.exchange(false);
+    }
 private:
     juce::AudioBuffer<float> loopBuffer;
     int loopLength = 0;
@@ -90,8 +95,10 @@ private:
     // Thread-safe flag to notify UI/main thread that the buffer limit was reached
     std::atomic<bool> bufferLimitReached { false };
 
+    // Thread-safe flag to notify UI/main thread that clear was processed
+    std::atomic<bool> clearProcessed { false };
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LooperProcessor)
 };
 
 #endif // LOOPERPROCESSOR_H
-

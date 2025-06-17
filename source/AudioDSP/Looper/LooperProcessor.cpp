@@ -53,7 +53,11 @@ void LooperProcessor::setState(State newState)
             processSample = [this](float inL, float inR, float& outL, float& outR) { outL = inL; outR = inR; };
             break;
         case Clear:
-            processSample = [this](float, float, float&, float&) { clear(); currentState = Stopped; };
+            processSample = [this](float, float, float&, float&) {
+                clear();
+                clearProcessed = true;
+                currentState = Stopped;
+            };
             break;
         default:
             processSample = nullptr;

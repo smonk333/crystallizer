@@ -15,6 +15,12 @@ public:
     int state;
 };
 
+// Custom message for looper clear (one-shot)
+class LooperClearMessage : public juce::Message {
+public:
+    LooperClearMessage() = default;
+};
+
 // Helper class to monitor parameter changes and update UI
 class LooperStateListener : public juce::AudioProcessorValueTreeState::Listener
 {
@@ -68,7 +74,7 @@ LooperLayout::LooperLayout(juce::AudioProcessorValueTreeState& apvts, LooperProc
 
     // Set up parameter listener for external changes
     parameterListener = std::make_unique<LooperStateListener>(*this);
-    apvts.addParameterListener("looperState", dynamic_cast<juce::AudioProcessorValueTreeState::Listener*>(parameterListener.get()));
+    apvts.addParameterListener("looperState", parameterListener.get());
 
     DBG("LooperLayout: Created with single parameter state control");
 
@@ -105,8 +111,13 @@ void LooperLayout::buttonClicked(juce::Button* button)
         newState = 2; // Overdubbing
     else if (button == &stopButton)
         newState = 3; // Stopped
-    else if (button == &clearButton)
-        newState = 4; // Clear
+    else if (button == &clearButton) {
+        // Only post a clear message if not already in Clear state
+        if (static_cast<int>(looperProcessor.getState()) != 4) {
+            postMessage(new LooperClearMessage());
+        }
+        return;
+    }
 
     if (newState >= 0)
     {
@@ -135,21 +146,29 @@ void LooperLayout::updateTimerAndState() {
 
 void LooperLayout::timerCallback() {
     if (looperProcessor.consumeBufferLimitReachedFlag()) {
-        // use JUCE's MessageListener::postMessage to post to this component
         postMessage(new LooperStateChangeMessage(1)); // 1 = Playing
+    }
+    if (looperProcessor.consumeClearProcessedFlag()) {
+        postMessage(new LooperStateChangeMessage(3)); // 3 = Stopped
     }
     updateTimerAndState();
 }
 
 // override handleMessage to process custom messages
 void LooperLayout::handleMessage(const juce::Message& message) {
-    // if (auto* looperMsg = dynamic_cast<const LooperStateChangeMessage*>(&message)) {
+    if (auto* looperMsg = dynamic_cast<const LooperStateChangeMessage*>(&message)) {
         if (auto* param = apvts.getParameter("looperState")) {
             param->beginChangeGesture();
-            param->setValueNotifyingHost(1.0f / param->getNormalisableRange().getRange().getLength());
+            param->setValueNotifyingHost(looperMsg->state / param->getNormalisableRange().getRange().getLength());
             param->endChangeGesture();
         }
-    // }
+    } else if (dynamic_cast<const LooperClearMessage*>(&message)) {
+        if (auto* param = apvts.getParameter("looperState")) {
+            param->beginChangeGesture();
+            param->setValueNotifyingHost(4.0f / param->getNormalisableRange().getRange().getLength()); // 4 = Clear
+            param->endChangeGesture();
+        }
+    }
 }
 
 void LooperLayout::resized()
