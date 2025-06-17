@@ -4,7 +4,7 @@ This README file is a work in progress, so it's gonna be a mess for a while.
 
 # How to contribute / project structure:
 
-### Process Flow for Adding New Parameters:
+### ~Process Flow for Adding New Parameters:~ (THIS HAS CHANGED!! I WILL BE FIXING THESE INSTRUCTIONS SOON)
 
 When adding a new parameter/processor, you need to:
 
