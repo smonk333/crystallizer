@@ -15,7 +15,8 @@ class LooperProcessor : public juce::dsp::ProcessorBase
 {
 public:
     struct LooperParams {
-        mutable int looperState = 3; // Default to Stopped (matches enum State::Stopped)
+        // parameter for the looper, default to stopped (3, from the State enum)
+        mutable int looperState = 3;
     };
 
     LooperProcessor();
@@ -35,7 +36,7 @@ public:
     void stop();
     void clear();
 
-    // Enum for State
+    // enum for State
     enum State
     {
         Recording = 0,      // capturing new audio
@@ -45,7 +46,7 @@ public:
         Clear = 4           // special command to clear the loop
     };
 
-    // Parameter getters
+    // parameter getters
     State getState() const noexcept { return currentState; }
     float getLoopPosition() const noexcept;
 
@@ -57,12 +58,12 @@ private:
     int position = 0;
     State currentState = Stopped;
     double sampleRate = 44100.0f;
-    int maxBufferSize = 0; // Will be set in prepare() based on sampleRate
+    int maxBufferSize = 0;
 
-    // Keep track of previous button states to detect changes
+    // keep track of previous button states to detect changes
     LooperParams previousParams;
 
-    // Function pointer for per-sample processing
+    // function pointer for per-sample processing
     std::function<void(float, float, float&, float&)> processSample = nullptr;
     void setState(State newState);
 

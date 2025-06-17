@@ -104,7 +104,7 @@ void LooperProcessor::handleRecording(float inputL, float inputR, float& outL, f
     outR = inputR;
     if (position >= maxBufferSize)
     {
-        // If we hit max buffer, set loopLength and switch to playing
+        // if we hit max buffer, set loopLength and switch to playing
         loopLength = maxBufferSize;
         position = 0;
         setState(Playing);
@@ -115,13 +115,14 @@ void LooperProcessor::handlePlaying(float& outL, float& outR)
 {
     outL = loopBuffer.getSample(0, position);
     outR = loopBuffer.getSample(1, position);
-    // DBG("Playing: pos=" << position << ", outL=" << outL << ", outR=" << outR << ", loopLength=" << loopLength);
     position = (position + 1) % juce::jmax(1, loopLength);
 }
 
 void LooperProcessor::handleOverdubbing(float inputL, float inputR, float& outL, float& outR)
 {
-    // Simple overdub: add input to buffer sample
+    // simple overdub: add input to buffer sample.
+    // TODO: implement another buffer to hold the overdub layer, and allow it to
+    //       be cleared independently from the main loop buffer
     float mixL = loopBuffer.getSample(0, position) + inputL;
     float mixR = loopBuffer.getSample(1, position) + inputR;
     loopBuffer.setSample(0, position, mixL);
@@ -134,13 +135,8 @@ void LooperProcessor::handleOverdubbing(float inputL, float inputR, float& outL,
 // state management methods
 void LooperProcessor::startRecording()
 {
-    // Optionally clear previous loop (uncomment if you want this behavior)
-    // clear();
     setState(Recording);
-    // DBG("RECORDING");
     position = 0;
-    // Optionally clear loopLength to avoid confusion
-    // loopLength = 0;
 }
 
 void LooperProcessor::startPlayback()
@@ -149,12 +145,8 @@ void LooperProcessor::startPlayback()
     {
         position = 0;
         setState(Playing);
-        // DBG("PLAYING");
     }
-    else
-    {
-        // DBG("Cannot start playback: loopLength is 0");
-    }
+    return
 }
 
 void LooperProcessor::startOverdubbing()
@@ -162,17 +154,16 @@ void LooperProcessor::startOverdubbing()
     if (loopLength > 0)
     {
         setState(Overdubbing);
-        // DBG("OVERDUBBING");
     }
 }
 
 void LooperProcessor::stop()
 {
-    if (currentState == Recording)
-    {
-        loopLength = position; // Always set loopLength to number of recorded samples
-        // DBG("STOPPED RECORDING, LOOP LENGTH = " << loopLength << " samples (" << (loopLength / sampleRate) << " seconds)");
-    }
+    // if (currentState == Recording)
+    // {
+    //     loopLength = position; // Always set loopLength to number of recorded samples
+    // }
+    //
     position = 0;
     setState(Stopped);
 }
@@ -182,9 +173,7 @@ void LooperProcessor::clear()
     loopBuffer.clear();
     position = 0;
     loopLength = 0;
-    // DBG("LOOP CLEARED");
     setState(Stopped);
-    // DBG("current state: " << currentState);
 }
 
 float LooperProcessor::getLoopPosition() const noexcept
@@ -198,7 +187,6 @@ void LooperProcessor::updateParameters(const LooperParams& params)
 {
     if (static_cast<int>(currentState) != params.looperState)
     {
-        // DBG("LooperProcessor: State changing from " << currentState << " to " << params.looperState);
         setState(static_cast<State>(params.looperState));
     }
     previousParams = params;
