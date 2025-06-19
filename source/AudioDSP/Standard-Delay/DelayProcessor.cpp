@@ -33,7 +33,7 @@ void DelayProcessor::prepare(const juce::dsp::ProcessSpec& spec)
     currentSampleRate = spec.sampleRate;
 
     // update delay time based on current sample rate
-    setDelayTime(currentDelayTime);
+    updateParameters(delayParams);
 }
 
 void DelayProcessor::reset()
@@ -73,39 +73,23 @@ void DelayProcessor::process(const juce::dsp::ProcessContextReplacing<float>& co
             auto delayedL = leftDelay.popSample(0);
             auto delayedR = rightDelay.popSample(0);
 
-            leftDelay.pushSample(0, inputL + (delayedL * currentFeedback));
-            rightDelay.pushSample(0, inputR + (delayedR * currentFeedback));
+            leftDelay.pushSample(0, inputL + (delayedL * delayParams.feedback));
+            rightDelay.pushSample(0, inputR + (delayedR * delayParams.feedback));
 
             // mix clean and wet signals
-            outputBlock.setSample(0, i, (delayedL * currentWetLevel) + (cleanL * (1.0f - currentWetLevel)));
+            outputBlock.setSample(0, i, (delayedL * delayParams.wetLevel) + (cleanL * (1.0f - delayParams.wetLevel)));
             if (numChannels > 1)
-                outputBlock.setSample(1, i, (delayedR * currentWetLevel) + (cleanR * (1.0f - currentWetLevel)));
+                outputBlock.setSample(1, i, (delayedR * delayParams.wetLevel) + (cleanR * (1.0f - delayParams.wetLevel)));
         }
     }
 }
 
-void DelayProcessor::setDelayTime(float newDelayTime)
-{
-    currentDelayTime = newDelayTime;
-    auto delayInSamples = static_cast<float>(currentDelayTime * currentSampleRate);
-
-    leftDelay.setDelay(delayInSamples);
-    rightDelay.setDelay(delayInSamples);
-}
-
-void DelayProcessor::setFeedback(float newFeedback)
-{
-    currentFeedback = newFeedback;
-}
-
-void DelayProcessor::setWetLevel(float newWetLevel)
-{
-    currentWetLevel = newWetLevel;
-}
-
 void DelayProcessor::updateParameters(const DelayParams& params)
 {
-    setDelayTime(params.delayTime);
-    setFeedback(params.feedback);
-    setWetLevel(params.wetLevel);
+    delayParams = params;
+
+    // update delay time in samples for both delay lines
+    auto delayInSamples = static_cast<float>(delayParams.delayTime * currentSampleRate);
+    leftDelay.setDelay(delayInSamples);
+    rightDelay.setDelay(delayInSamples);
 }

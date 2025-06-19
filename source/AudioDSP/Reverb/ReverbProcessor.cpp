@@ -66,7 +66,7 @@ void ReverbProcessor::process(const juce::dsp::ProcessContextReplacing<float>& c
             cleanSignalR[i] = outputBlock.getNumChannels() > 1 ? outputBlock.getSample (1, i) : outputBlock.getSample (0, i);
         }
 
-        reverb.setParameters (reverbParams);
+        reverb.setParameters(reverbParams);
 
         // process through reverb
         juce::dsp::ProcessContextReplacing<float> reverbContext (outputBlock);

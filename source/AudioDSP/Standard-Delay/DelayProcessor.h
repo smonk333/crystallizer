@@ -31,18 +31,21 @@ public:
     // Set all parameters at once using a struct of raw types
     void updateParameters(const DelayParams& params);
 
-    // Optionally, keep the individual setters for flexibility
-    void setDelayTime(float newDelayTime);
-    void setFeedback(float newFeedback);
-    void setWetLevel(float newWetLevel);
+    // // Optionally, keep the individual setters for flexibility
+    // void setDelayTime(float newDelayTime);
+    // void setFeedback(float newFeedback);
+    // void setWetLevel(float newWetLevel);
 
 private:
     juce::dsp::DelayLine<float> leftDelay;
     juce::dsp::DelayLine<float> rightDelay;
 
-    float currentDelayTime = 0.5f;
-    float currentFeedback = 0.5f;
-    float currentWetLevel = 0.5f;
+    // set up parameters for the delay processor as a struct
+    DelayParams delayParams = {0.5f, 0.5f, 0.5f};
+
+    // float currentDelayTime = 0.5f;
+    // float currentFeedback = 0.5f;
+    // float currentWetLevel = 0.5f;
     double currentSampleRate = 44100.0;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DelayProcessor)
