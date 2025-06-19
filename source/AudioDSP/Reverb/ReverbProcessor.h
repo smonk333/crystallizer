@@ -3,16 +3,18 @@
 //
 
 /**
+ * @file ReverbProcessor.h
  * @brief Reverb processor with adjustable parameters
  *
  * Implements a standard reverb effect, with parameters for room size, damping, wet/dry mix, stereo width, and freeze mode.
  *
- * @param roomSize Size of the reverb room (0.0 - 1.0)
- * @param damping High pass filter damping (0.0 - 1.0)
- * @param wetLevel Wet level of the reverb (0.0 - 1.0)
- * @param dryLevel Dry level of the reverb (0.0 - 1.0)
- * @param width Stereo width of the reverb (0.0 - 1.0)
- * @param freezeMode Freeze mode (0.0 - 1.0, implemented as a toggle button in the UI
+ * @description
+ * roomSize: Size of the reverb room (0.0 - 1.0)
+ * damping: High pass filter damping (0.0 - 1.0)
+ * wetLevel: Wet level of the reverb (0.0 - 1.0)
+ * dryLevel: Dry level of the reverb (0.0 - 1.0)
+ * width: Stereo width of the reverb (0.0 - 1.0)
+ * freezeMode: Freeze mode (0.0 - 1.0, implemented as a toggle button in the UI
  */
 
 #pragma once
@@ -40,19 +42,7 @@ public:
     void prepare(const juce::dsp::ProcessSpec& spec) override;
     void reset() override;
 
-    // original process method (keep for backward compatibility)
-    // void process(
-    //     juce::AudioBuffer<float>& buffer,
-    //     float* cleanSignalL,
-    //     float* cleanSignalR,
-    //     float roomSize,
-    //     float damping,
-    //     float wetLevel,
-    //     float dryLevel,
-    //     float width,
-    //     float freezeMode);
-
-    // Required implementation of ProcessorBase::process
+    // required implementation of ProcessorBase::process
     void process(const juce::dsp::ProcessContextReplacing<float>& context) override;
 
     // parameter setters for ProcessorChain use

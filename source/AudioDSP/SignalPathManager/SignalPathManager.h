@@ -3,12 +3,14 @@
 //
 
 /**
+ * @file SignalPathManager.h
  * @brief Class to manage how the signal travels through the audio processing chain
  *
  * By default, the signal path is set up as a serial chain of processors,
  * with different processing modes made available by bypassing all other processors
  *
- * @param (?)
+ * @description
+ * currentMode: The current processing mode, determines which processors are active in the chain
 */
 
 #pragma once

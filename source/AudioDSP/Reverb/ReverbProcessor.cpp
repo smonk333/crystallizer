@@ -66,13 +66,13 @@ void ReverbProcessor::process(const juce::dsp::ProcessContextReplacing<float>& c
             cleanSignalR[i] = outputBlock.getNumChannels() > 1 ? outputBlock.getSample (1, i) : outputBlock.getSample (0, i);
         }
 
-        // apply reverb parameters
-        reverbParams.roomSize = currentRoomSize;
-        reverbParams.damping = currentDamping;
-        reverbParams.wetLevel = currentWetLevel;
-        reverbParams.dryLevel = currentDryLevel;
-        reverbParams.width = currentWidth;
-        reverbParams.freezeMode = currentFreezeMode > 0.5f;
+        // apply reverb parameters from struct
+        reverbParams.roomSize = currentParams.roomSize;
+        reverbParams.damping = currentParams.damping;
+        reverbParams.wetLevel = currentParams.wetLevel;
+        reverbParams.dryLevel = currentParams.dryLevel;
+        reverbParams.width = currentParams.width;
+        reverbParams.freezeMode = currentParams.freezeMode > 0.5f;
         reverb.setParameters (reverbParams);
 
         // process through reverb
@@ -88,60 +88,41 @@ void ReverbProcessor::process(const juce::dsp::ProcessContextReplacing<float>& c
 
 void ReverbProcessor::setRoomSize (float newRoomSize)
 {
-    currentRoomSize = newRoomSize;
+    currentParams.roomSize = newRoomSize;
+    updateParameters(currentParams);
 }
 
 void ReverbProcessor::setDamping (float newDamping)
 {
-    currentDamping = newDamping;
+    currentParams.damping = newDamping;
+    updateParameters(currentParams);
 }
 
 void ReverbProcessor::setWetLevel (float newWetLevel)
 {
-    currentWetLevel = newWetLevel;
+    currentParams.wetLevel = newWetLevel;
+    updateParameters(currentParams);
 }
 
 void ReverbProcessor::setDryLevel (float newDryLevel)
 {
-    currentDryLevel = newDryLevel;
+    currentParams.dryLevel = newDryLevel;
+    updateParameters(currentParams);
 }
 
 void ReverbProcessor::setWidth (float newWidth)
 {
-    currentWidth = newWidth;
+    currentParams.width = newWidth;
+    updateParameters(currentParams);
 }
 
 void ReverbProcessor::setFreezeMode (float newFreezeMode)
 {
-    currentFreezeMode = newFreezeMode;
+    currentParams.freezeMode = newFreezeMode;
+    updateParameters(currentParams);
 }
-
-// void ReverbProcessor::updateParameters(const juce::AudioProcessorValueTreeState& apvts)
-// {
-//     // parameter retrieval from APVTS
-//     auto roomSizeParam = apvts.getRawParameterValue("reverbRoomSize");
-//     auto dampingParam = apvts.getRawParameterValue("reverbDamping");
-//     auto mixParam = apvts.getRawParameterValue("reverbMix");
-//     auto widthParam = apvts.getRawParameterValue("reverbWidth");
-//     auto freezeModeParam = apvts.getRawParameterValue("reverbFreeze");
-//
-//     if (roomSizeParam) setRoomSize(*roomSizeParam);
-//     if (dampingParam) setDamping(*dampingParam);
-//     if (mixParam)
-//     {
-//         setWetLevel(*mixParam); // use reverbMix for wet level
-//         setDryLevel(1.0f - *mixParam); // complement for dry level
-//     }
-//     if (widthParam) setWidth(*widthParam);
-//     if (freezeModeParam) setFreezeMode(*freezeModeParam);
-// }
 
 void ReverbProcessor::updateParameters(const ReverbParams& params)
 {
-    setRoomSize(params.roomSize);
-    setDamping(params.damping);
-    setWetLevel(params.wetLevel);
-    setDryLevel(params.dryLevel);
-    setWidth(params.width);
-    setFreezeMode(params.freezeMode);
+    currentParams = params;
 }

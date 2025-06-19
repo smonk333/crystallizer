@@ -2,6 +2,16 @@
 // Created by smoke on 5/30/2025.
 //
 
+/**
+ * @file DelayProcessor.cpp
+ * @brief Simple standard delay processor with adjustable parameters.
+ *
+ * @details
+ * delayTime: Delay time in seconds (0.01 - 60.0)
+ * feedback: Feedback level (0.0 - 1.0)
+ * wetLevel: Wet/dry mix ratio (0.0 - 1.0)
+ */
+
 #pragma once
 
 #include <juce_dsp/juce_dsp.h>
