@@ -33,14 +33,14 @@ public:
 
     void process(const juce::dsp::ProcessContextReplacing<float>& context) override;
 
-    // parameter setters for ProcessorChain use
-    void setDelayTime(float newDelayTime);
-    void setGrainSize(float newGrainSize);
-    void setGrainDensity(float newDensity);
-    void setPitchShift(float newPitchShift);
-    void setFeedback(float newFeedback);
-    void setWetDryMix(float newWetDryMix);
-    void setSpread(float newSpread);
+    // // parameter setters for ProcessorChain use
+    // void setDelayTime(float newDelayTime);
+    // void setGrainSize(float newGrainSize);
+    // void setGrainDensity(float newDensity);
+    // void setPitchShift(float newPitchShift);
+    // void setFeedback(float newFeedback);
+    // void setWetDryMix(float newWetDryMix);
+    // void setSpread(float newSpread);
 
     void updateParameters(const GranularParams& params);
 
@@ -59,14 +59,19 @@ private:
         bool active = false;            // whether this grain is currently active
     };
 
-    // initialize parameters to a default value
-    float currentDelayTime = 0.5f;      // delay time in seconds
-    float currentGrainSize = 0.5f;      // grain size in seconds
-    float currentGrainDensity = 0.5f;   // grain density (grains per second)
-    float currentPitchShift = 0.5f;     // pitch shift ratio (1.0 = no shift)
-    float currentFeedback = 0.5f;       // feedback level (0.0 to 1.0)
-    float currentWetDryMix = 0.5f;      // wet/dry mix ratio (0.0 to 1.0)
-    float currentSpread = 0.5f;         // random position spread
+    // // initialize parameters to a default value
+    // float currentDelayTime = 0.5f;      // delay time in seconds
+    // float currentGrainSize = 0.5f;      // grain size in seconds
+    // float currentGrainDensity = 0.5f;   // grain density (grains per second)
+    // float currentPitchShift = 0.5f;     // pitch shift ratio (1.0 = no shift)
+    // float currentFeedback = 0.5f;       // feedback level (0.0 to 1.0)
+    // float currentWetDryMix = 0.5f;      // wet/dry mix ratio (0.0 to 1.0)
+    // float currentSpread = 0.5f;         // random position spread
+
+    // store the current parameters in a struct
+    GranularParams granularParams = {0.5f, 0.5f,
+        0.5f, 0.5f, 0.5f, 0.5f,
+        0.5f};
 
     // store the sample rate, which is set during prepare
     double sampleRate = 44100.0;

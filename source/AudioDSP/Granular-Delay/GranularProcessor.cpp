@@ -19,7 +19,7 @@ void GranularProcessor::prepare(const juce::dsp::ProcessSpec& spec)
     sampleRate = spec.sampleRate;
 
     // calculate buffer size for max delay in samples
-    bufferSize = static_cast<int>(spec.sampleRate * 5.0f); // 5 seconds max delay
+    bufferSize = static_cast<int>(sampleRate * 5.0f); // 5 seconds max delay
 
     // prepare AudioBuffer for delay
     delayBuffer.setSize(2, bufferSize); // allocate for a stereo buffer
@@ -95,14 +95,14 @@ void GranularProcessor::process(const juce::dsp::ProcessContextReplacing<float>&
             // write input + feedback to delay buffer
             delayBuffer.setSample(0,
                 writePos,
-                inputL + (delayedL * currentFeedback)
+                inputL + (delayedL * granularParams.feedback)
             );
 
             if (numChannels > 1)
             {
                 delayBuffer.setSample(1,
                     writePos,
-                    inputR + (delayedR * currentFeedback)
+                    inputR + (delayedR * granularParams.feedback)
                 );
             }
 
@@ -110,13 +110,13 @@ void GranularProcessor::process(const juce::dsp::ProcessContextReplacing<float>&
             {
                 delayBuffer.setSample(1,
                     writePos,
-                    inputL + (delayedL * currentFeedback)
+                    inputL + (delayedL * granularParams.feedback)
                 );
             }
 
             // mix clean and delayed signals
-            float outputL = (delayedL * currentWetDryMix) + (cleanL * (1.0f - currentWetDryMix));
-            float outputR = (delayedR * currentWetDryMix) + (cleanR * (1.0f - currentWetDryMix));
+            float outputL = (delayedL * granularParams.wetDryMix) + (cleanL * (1.0f - granularParams.wetDryMix));
+            float outputR = (delayedR * granularParams.wetDryMix) + (cleanR * (1.0f - granularParams.wetDryMix));
 
             // write output to the output block
             outputBlock.setSample(0, i, outputL);
@@ -132,41 +132,41 @@ void GranularProcessor::process(const juce::dsp::ProcessContextReplacing<float>&
 
 }
 
-void GranularProcessor::setDelayTime(float newDelayTime)
-{
-    currentDelayTime = juce::jlimit(0.01f, 5.0f, newDelayTime);
-}
-
-void GranularProcessor::setGrainSize(float newGrainSize)
-{
-    currentGrainSize = juce::jlimit(0.01f, 1.0f, newGrainSize);
-}
-
-void GranularProcessor::setGrainDensity(float newDensity)
-{
-    currentGrainDensity = juce::jlimit(0.5f, 50.0f, newDensity);
-    updateGrainTiming();
-}
-
-void GranularProcessor::setPitchShift(float newPitchShift)
-{
-    currentPitchShift = juce::jlimit(-4.0f, 4.0f, newPitchShift);
-}
-
-void GranularProcessor::setFeedback(float newFeedback)
-{
-    currentFeedback = juce::jlimit(0.0f, 1.0f, newFeedback);
-}
-
-void GranularProcessor::setWetDryMix(float newWetDryMix)
-{
-    currentWetDryMix = juce::jlimit(0.0f, 1.0f, newWetDryMix);
-}
-
-void GranularProcessor::setSpread(float newSpread)
-{
-    currentSpread = juce::jlimit(0.0f, 1.0f, newSpread);
-}
+// void GranularProcessor::setDelayTime(float newDelayTime)
+// {
+//     currentDelayTime = juce::jlimit(0.01f, 5.0f, newDelayTime);
+// }
+//
+// void GranularProcessor::setGrainSize(float newGrainSize)
+// {
+//     currentGrainSize = juce::jlimit(0.01f, 1.0f, newGrainSize);
+// }
+//
+// void GranularProcessor::setGrainDensity(float newDensity)
+// {
+//     currentGrainDensity = juce::jlimit(0.5f, 50.0f, newDensity);
+//     updateGrainTiming();
+// }
+//
+// void GranularProcessor::setPitchShift(float newPitchShift)
+// {
+//     currentPitchShift = juce::jlimit(-4.0f, 4.0f, newPitchShift);
+// }
+//
+// void GranularProcessor::setFeedback(float newFeedback)
+// {
+//     currentFeedback = juce::jlimit(0.0f, 1.0f, newFeedback);
+// }
+//
+// void GranularProcessor::setWetDryMix(float newWetDryMix)
+// {
+//     currentWetDryMix = juce::jlimit(0.0f, 1.0f, newWetDryMix);
+// }
+//
+// void GranularProcessor::setSpread(float newSpread)
+// {
+//     currentSpread = juce::jlimit(0.0f, 1.0f, newSpread);
+// }
 
 // void GranularProcessor::updateParameters(const juce::AudioProcessorValueTreeState& apvts)
 // {
@@ -189,13 +189,7 @@ void GranularProcessor::setSpread(float newSpread)
 
 void GranularProcessor::updateParameters(const GranularParams& params)
 {
-    setDelayTime(params.delayTime);
-    setGrainSize(params.grainSize);
-    setGrainDensity(params.grainDensity);
-    setPitchShift(params.pitchShift);
-    setFeedback(params.feedback);
-    setWetDryMix(params.wetDryMix);
-    setSpread(params.spread);
+    granularParams = params;
 }
 
 void GranularProcessor::triggerNewGrain()
@@ -205,14 +199,14 @@ void GranularProcessor::triggerNewGrain()
     newGrain.active = true;
 
     // calculate grain parameters
-    newGrain.totalSamples = static_cast<int>(currentGrainSize * sampleRate);
+    newGrain.totalSamples = static_cast<int>(granularParams.grainSize * sampleRate);
     newGrain.currentSample = 0;
-    newGrain.pitchRatio = currentPitchShift;
+    newGrain.pitchRatio = granularParams.pitchShift;
     newGrain.grainAmplitude = 0.5f; // base amplitude
 
     // set grain delay position with spread
-    float baseDelayTime = currentDelayTime;
-    float spreadAmount = currentSpread * currentDelayTime * spreadDist(rng);
+    float baseDelayTime = granularParams.delayTime;
+    float spreadAmount = granularParams.spread * granularParams.delayTime * spreadDist(rng);
     float grainDelayTime = baseDelayTime + spreadAmount;
 
     // ensure positive delay time
@@ -231,7 +225,7 @@ void GranularProcessor::triggerNewGrain()
 
 void GranularProcessor::updateGrainTiming()
 {
-    samplesPerGrainTrigger = static_cast<float>(sampleRate / currentGrainDensity);
+    samplesPerGrainTrigger = static_cast<float>(sampleRate / granularParams.grainDensity);
 }
 
 float GranularProcessor::processActiveGrains(int channel)
