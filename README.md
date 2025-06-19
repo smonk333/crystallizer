@@ -2,6 +2,8 @@
 This is my 5th attempt at writing a VST3 plugin with the PampleJUCE template + JUCE framework.
 This README file is a work in progress, so it's gonna be a mess for a while.
 
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/smonk333/crystallizer?utm_source=oss&utm_medium=github&utm_campaign=smonk333%2Fcrystallizer&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+
 # How to contribute / project structure:
 
 ### ~Process Flow for Adding New Parameters:~ (THIS HAS CHANGED!! I WILL BE FIXING THESE INSTRUCTIONS SOON)
