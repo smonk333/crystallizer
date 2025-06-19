@@ -86,8 +86,8 @@ private:
     // store the current write position in the delay buffer
     int writePos = 0;
 
-    // vector to hold grains
-    std::vector<Grain> grains;
+    // juce::Array to hold grains instead of std::vector
+    juce::Array<Grain> grains;
     float grainTriggerTimer = 0.0f;      // timer for triggering new grains
     float samplesPerGrainTrigger = 0.0f; // samples per grain trigger based on density
 
