@@ -146,7 +146,6 @@ void LooperProcessor::startPlayback()
         position = 0;
         setState(Playing);
     }
-    return
 }
 
 void LooperProcessor::startOverdubbing()

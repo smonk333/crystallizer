@@ -2,6 +2,21 @@
 // Created by smoke on 5/30/2025.
 //
 
+/**
+ * @file ReverbProcessor.cpp
+ * @brief Reverb processor with adjustable parameters
+ *
+ * Implements a standard reverb effect, with parameters for room size, damping, wet/dry mix, stereo width, and freeze mode.
+ *
+ * @description
+ * roomSize: Size of the reverb room (0.0 - 1.0)
+ * damping: High pass filter damping (0.0 - 1.0)
+ * wetLevel: Wet level of the reverb (0.0 - 1.0)
+ * dryLevel: Dry level of the reverb (0.0 - 1.0)
+ * width: Stereo width of the reverb (0.0 - 1.0)
+ * freezeMode: Freeze mode (0.0 - 1.0, implemented as a toggle button in the UI
+ */
+
 #pragma once
 
 #include <juce_dsp/juce_dsp.h>
@@ -27,31 +42,10 @@ public:
     void prepare(const juce::dsp::ProcessSpec& spec) override;
     void reset() override;
 
-    // original process method (keep for backward compatibility)
-    // void process(
-    //     juce::AudioBuffer<float>& buffer,
-    //     float* cleanSignalL,
-    //     float* cleanSignalR,
-    //     float roomSize,
-    //     float damping,
-    //     float wetLevel,
-    //     float dryLevel,
-    //     float width,
-    //     float freezeMode);
-
-    // Required implementation of ProcessorBase::process
+    // required implementation of ProcessorBase::process
     void process(const juce::dsp::ProcessContextReplacing<float>& context) override;
 
-    // parameter setters for ProcessorChain use
-    void setRoomSize (float newRoomSize);
-    void setDamping (float newDamping);
-    void setWetLevel (float newWetLevel);
-    void setDryLevel (float newDryLevel);
-    void setWidth (float newWidth);
-    void setFreezeMode (float newFreezeMode);
-
     void updateParameters(const ReverbParams& params);
-
 private:
     juce::dsp::Reverb reverb;
     juce::dsp::Reverb::Parameters reverbParams;
@@ -61,14 +55,6 @@ private:
                 juce::dsp::IIR::Coefficients<float>> lowPassFilter;
 
     double sampleRate;
-
-    // parameters for ProcessorChain compatibility
-    float currentRoomSize = 0.5f;
-    float currentDamping = 0.5f;
-    float currentWetLevel = 0.33f;
-    float currentDryLevel = 0.4f;
-    float currentWidth = 1.0f;
-    float currentFreezeMode = 0.0f;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ReverbProcessor)
 };
