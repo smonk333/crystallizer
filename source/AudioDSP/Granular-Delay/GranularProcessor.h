@@ -88,6 +88,7 @@ private:
 
     // juce::Array to hold grains instead of std::vector
     juce::Array<Grain> grains;
+    int maxGrains = 256; // maximum number of grains in the pool
     float grainTriggerTimer = 0.0f;      // timer for triggering new grains
     float samplesPerGrainTrigger = 0.0f; // samples per grain trigger based on density
 
@@ -104,6 +105,7 @@ private:
     float getDelayedSample(int channel, float position);
     float applyWindow(float phase); // hanning window function for grains (TODO: implement more window types)
     int samplesToDelayPosition(float delaySamples);
+    void resetGrain(Grain& grain);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GranularProcessor)
 };

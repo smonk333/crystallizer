@@ -34,8 +34,14 @@ void GranularProcessor::reset()
     delayBuffer.clear();
     writePos = 0;
 
-    // clear all active grains (no reserve for juce::Array)
+    // preallocate grain pool and mark all as inactive
     grains.clear();
+    for (int i = 0; i < maxGrains; ++i)
+    {
+        Grain g;
+        g.active = false;
+        grains.add(g);
+    }
 
     // reset grain trigger timer and update grain timing
     updateGrainTiming();
@@ -144,32 +150,16 @@ void GranularProcessor::updateParameters(const GranularParams& params)
 
 void GranularProcessor::triggerNewGrain()
 {
-    // create new grain
-    Grain newGrain;
-    newGrain.active = true;
-
-    // calculate grain parameters
-    newGrain.totalSamples = static_cast<int>(granularParams.grainSize * sampleRate);
-    newGrain.currentSample = 0;
-    newGrain.pitchRatio = granularParams.pitchShift;
-    newGrain.grainAmplitude = 0.5f; // base amplitude
-
-    // set grain delay position with spread
-    float baseDelayTime = granularParams.delayTime;
-    float spreadAmount = granularParams.spread * granularParams.delayTime * spreadDist(rng);
-    float grainDelayTime = baseDelayTime + spreadAmount;
-
-    // ensure positive delay time
-    grainDelayTime = juce::jmax(0.01f, grainDelayTime);
-
-    newGrain.delayPosition = static_cast<float>(grainDelayTime * sampleRate);
-    newGrain.readPosition = newGrain.delayPosition;
-
-    // add the new grain to the array
-    grains.add(newGrain);
-
-    // clean up finished grains to prevent unlimited growth
-    grains.removeIf([](const Grain& g) { return !g.active; });
+    // find an inactive grain to reuse
+    for (int i = 0; i < grains.size(); ++i)
+    {
+        if (!grains.getReference(i).active)
+        {
+            resetGrain(grains.getReference(i));
+            return;
+        }
+    }
+    // If all grains are active, do nothing (or could replace oldest)
 }
 
 void GranularProcessor::updateGrainTiming()
@@ -251,4 +241,19 @@ int GranularProcessor::samplesToDelayPosition(float delaySamples)
     while (delayPos < 0)
         delayPos += bufferSize;
     return delayPos % bufferSize;
+}
+
+void GranularProcessor::resetGrain(Grain& grain)
+{
+    grain.active = true;
+    grain.totalSamples = static_cast<int>(granularParams.grainSize * sampleRate);
+    grain.currentSample = 0;
+    grain.pitchRatio = granularParams.pitchShift;
+    grain.grainAmplitude = 0.5f;
+    float baseDelayTime = granularParams.delayTime;
+    float spreadAmount = granularParams.spread * granularParams.delayTime * spreadDist(rng);
+    float grainDelayTime = baseDelayTime + spreadAmount;
+    grainDelayTime = juce::jmax(0.01f, grainDelayTime);
+    grain.delayPosition = static_cast<float>(grainDelayTime * sampleRate);
+    grain.readPosition = grain.delayPosition;
 }
