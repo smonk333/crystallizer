@@ -2,6 +2,23 @@
 // Created by smoke on 6/2/2025.
 //
 
+/**
+ * @file GranularProcessor.cpp
+ * @brief Granular delay processor with pitch shifting capabilities
+ *
+ * Implements real-time granular synthesis on delayed audio signals.
+ * Supports variable grain size, density, and pitch shifting.
+ *
+ * @description
+ * delayTime: Delay time in seconds (0.01 - 5.0)
+ * grainSize: Grain size in seconds (0.01 - 5.0)
+ * density: Influences chance of grains spawning (0.01 - 10.0)
+ * pitchShift: Ratio for pitch shifting (-4.0 to 4.0) (work in progress)
+ * feedback: Feedback level (0.0 - 1.0)
+ * wetDryMix: Wet/dry mix ratio (0.0 - 1.0)
+ * spread: Random position spread for grains (0.0 - 1.0)
+ */
+
 #pragma once
 
 #ifndef GRANULARPROCESSOR_H
@@ -33,15 +50,6 @@ public:
 
     void process(const juce::dsp::ProcessContextReplacing<float>& context) override;
 
-    // // parameter setters for ProcessorChain use
-    // void setDelayTime(float newDelayTime);
-    // void setGrainSize(float newGrainSize);
-    // void setGrainDensity(float newDensity);
-    // void setPitchShift(float newPitchShift);
-    // void setFeedback(float newFeedback);
-    // void setWetDryMix(float newWetDryMix);
-    // void setSpread(float newSpread);
-
     void updateParameters(const GranularParams& params);
 
 
@@ -58,15 +66,6 @@ private:
         int totalSamples = 0;           // total grain length in samples
         bool active = false;            // whether this grain is currently active
     };
-
-    // // initialize parameters to a default value
-    // float currentDelayTime = 0.5f;      // delay time in seconds
-    // float currentGrainSize = 0.5f;      // grain size in seconds
-    // float currentGrainDensity = 0.5f;   // grain density (grains per second)
-    // float currentPitchShift = 0.5f;     // pitch shift ratio (1.0 = no shift)
-    // float currentFeedback = 0.5f;       // feedback level (0.0 to 1.0)
-    // float currentWetDryMix = 0.5f;      // wet/dry mix ratio (0.0 to 1.0)
-    // float currentSpread = 0.5f;         // random position spread
 
     // store the current parameters in a struct
     GranularParams granularParams = {0.5f, 0.5f,

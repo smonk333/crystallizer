@@ -2,6 +2,16 @@
 // Created by smoke on 6/4/2025.
 //
 
+/**
+* @file LooperProcessor.cpp
+* @brief Phrase looper processor with 60 seconds of memory, as well as an overdubbing layer (overdubbing tba)
+*
+* Implements a looper with recording, playback, overdubbing, and clearing functionality.
+*
+* @description
+* looperState: State of the looper (0: Recording, 1: Playing, 2: Overdubbing, 3: Stopped, 4: Clear)
+*/
+
 #pragma once
 
 #ifndef LOOPERPROCESSOR_H
