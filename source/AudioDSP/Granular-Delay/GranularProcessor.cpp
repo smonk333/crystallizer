@@ -50,8 +50,13 @@ void GranularProcessor::reset()
 
 void GranularProcessor::process(const juce::dsp::ProcessContextReplacing<float>& context)
 {
+    if (context.getOutputBlock().getNumChannels() != 0)
+    {
+        DBG("Signal has hit the GranularProcessor!");
+    }
     if (!context.isBypassed)
     {
+        DBG("Signal was not bypassed at the GranularProcessor");
         auto& inputBlock = context.getInputBlock();
         auto& outputBlock = context.getOutputBlock();
 
@@ -136,6 +141,7 @@ void GranularProcessor::process(const juce::dsp::ProcessContextReplacing<float>&
             writePos = (writePos + 1) % bufferSize;
         }
     }
+    else DBG("Signal was bypassed at the GranularProcessor");
 
 }
 
