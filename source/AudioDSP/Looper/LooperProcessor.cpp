@@ -41,22 +41,43 @@ void LooperProcessor::setState(State newState)
     switch (currentState)
     {
         case Recording:
-            processSample = [this](float inL, float inR, float& outL, float& outR) { handleRecording(inL, inR, outL, outR); };
+            processSample = [this](float inL, float inR, float& outL, float& outR)
+            {
+                handleRecording(inL, inR, outL, outR);
+            };
             break;
         case Playing:
-            processSample = [this](float, float, float& outL, float& outR) { handlePlaying(outL, outR); };
+            processSample = [this](float, float, float& outL, float& outR)
+            {
+                handlePlaying(outL, outR);
+            };
             break;
         case Overdubbing:
-            processSample = [this](float inL, float inR, float& outL, float& outR) { handleOverdubbing(inL, inR, outL, outR); };
+            processSample = [this](float inL, float inR, float& outL, float& outR)
+            {
+                handleOverdubbing(inL, inR, outL, outR);
+            };
             break;
         case Stopped:
-            processSample = [this](float inL, float inR, float& outL, float& outR) { outL = inL; outR = inR; };
+            processSample = [this](float inL, float inR, float& outL, float& outR) {
+                outL = inL;
+                outR = inR;
+            };
             break;
         case Clear:
-            processSample = [this](float, float, float&, float&) { clear(); currentState = Stopped; };
+            processSample = [this](float, float, float&, float&)
+            {
+                clear();
+                currentState = Stopped;
+            };
             break;
         default:
-            processSample = nullptr;
+            processSample = [this](float inL, float inR, float& outL, float& outR)
+            {
+                outL = inL;
+                outR = inR;
+                // default to stopped state processing so that the chain doesn't break
+            };
             break;
     }
 }
