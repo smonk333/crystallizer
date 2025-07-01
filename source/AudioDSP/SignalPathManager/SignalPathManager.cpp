@@ -68,7 +68,7 @@ void SignalPathManager::process(const juce::dsp::ProcessContextReplacing<float>&
     }
 
     // validate against prepared specs
-    if (outputBlock.getNumSamples() < currentSpec.maximumBlockSize)
+    if (outputBlock.getNumSamples() > currentSpec.maximumBlockSize)
     {
         jassertfalse;
         DBG("Process block size: " << outputBlock.getNumSamples() << " exceeds maximum: " << currentSpec.maximumBlockSize);
