@@ -40,8 +40,13 @@ void ReverbProcessor::reset()
 // required implementation for ProcessorBase inheritance
 void ReverbProcessor::process(const juce::dsp::ProcessContextReplacing<float>& context)
 {
+    if (context.getOutputBlock().getNumChannels() != 0)
+    {
+        DBG("Signal has hit the ReverbProcessor!");
+    }
     if (!context.isBypassed)
     {
+        DBG("Signal was not bypassed at the ReverbProcessor");
         auto& inputBlock = context.getInputBlock();
         auto& outputBlock = context.getOutputBlock();
 
@@ -76,7 +81,7 @@ void ReverbProcessor::process(const juce::dsp::ProcessContextReplacing<float>& c
         *lowPassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeLowPass (
             sampleRate, 12000.0f, 0.707f);
         lowPassFilter.process(reverbContext);
-    }
+    } else DBG("Signal was bypassed at the ReverbProcessor");
 }
 
 void ReverbProcessor::updateParameters(const ReverbParams& params)

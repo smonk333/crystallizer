@@ -84,32 +84,38 @@ void LooperProcessor::setState(State newState)
 
 void LooperProcessor::process (const juce::dsp::ProcessContextReplacing<float>& context)
 {
-    if (context.isBypassed) return;
-
-    auto& inputBlock = context.getInputBlock();
-    auto& outputBlock = context.getOutputBlock();
-    const auto numChannels = juce::jmin(
-        inputBlock.getNumChannels(),
-        outputBlock.getNumChannels(),
-        static_cast<size_t> (2)
-    );
-    const auto numSamples = inputBlock.getNumSamples();
-
-    for (int sample = 0; sample < numSamples; ++sample)
+    if (context.getOutputBlock().getNumChannels() != 0)
     {
-        float inputL = inputBlock.getSample(0, sample);
-        float inputR = (numChannels > 1) ? inputBlock.getSample(1, sample) : inputL;
-        float outL = 0.0f, outR = 0.0f;
-
-        if (processSample)
-            processSample(inputL, inputR, outL, outR);
-
-        outputBlock.setSample(0, sample, outL);
-        if (numChannels > 1)
-            outputBlock.setSample(1, sample, outR);
-        else
-            outputBlock.setSample(1, sample, outL); // mono case
+        DBG("Signal has hit the LooperProcessor!");
     }
+    if (!context.isBypassed)
+    {
+        DBG("Signal was not bypassed at the LooperProcessor");
+        auto& inputBlock = context.getInputBlock();
+        auto& outputBlock = context.getOutputBlock();
+        const auto numChannels = juce::jmin(
+            inputBlock.getNumChannels(),
+            outputBlock.getNumChannels(),
+            static_cast<size_t> (2)
+        );
+        const auto numSamples = inputBlock.getNumSamples();
+
+        for (int sample = 0; sample < numSamples; ++sample)
+        {
+            float inputL = inputBlock.getSample(0, sample);
+            float inputR = (numChannels > 1) ? inputBlock.getSample(1, sample) : inputL;
+            float outL = 0.0f, outR = 0.0f;
+
+            if (processSample)
+                processSample(inputL, inputR, outL, outR);
+
+            outputBlock.setSample(0, sample, outL);
+            if (numChannels > 1)
+                outputBlock.setSample(1, sample, outR);
+            else
+                outputBlock.setSample(1, sample, outL); // mono case
+        }
+    } else DBG("Signal was bypassed at the LooperProcessor");
 }
 
 // Helper methods for each state

@@ -16,6 +16,17 @@ SignalPathManager::~SignalPathManager()
 
 void SignalPathManager::prepare(const juce::dsp::ProcessSpec& spec)
 {
+    //=error handling===========================================================
+    jassert(spec.sampleRate > 0.0);
+    jassert(spec.maximumBlockSize > 0.0);
+    jassert(spec.numChannels > 0 && spec.numChannels <= 8);
+
+    if (spec.sampleRate <= 0.0 || spec.maximumBlockSize <= 0.0 || spec.numChannels <= 0)
+    {
+        throw std::invalid_argument("Invalid ProcessSpec in SignalPathManager");
+    }
+    //=end error handling=======================================================
+
     // store the spec for later use
     currentSpec = spec;
 
@@ -48,12 +59,39 @@ void SignalPathManager::reset()
 
 void SignalPathManager::process(const juce::dsp::ProcessContextReplacing<float>& context)
 {
+    //=error handling: context validation=======================================
+    auto& outputBlock = context.getOutputBlock();
+    if (outputBlock.getNumChannels() == 0 || outputBlock.getNumSamples() == 0)
+    {
+        jassertfalse; // output block is invalid
+        return;
+    }
+
+    // validate against prepared specs
+    if (outputBlock.getNumSamples() < currentSpec.maximumBlockSize)
+    {
+        jassertfalse;
+        DBG("Process block size: " << outputBlock.getNumSamples() << " exceeds maximum: " << currentSpec.maximumBlockSize);
+        return;
+    }
+    //=end error handling=======================================================
+
     if (processorChain)
     {
-        // apply bypass states for all processors using our helper function
-        setProcessorBypassStates(*processorChain);
+        //=wrap in try-catch to ensure the processorChain is initialized========
+        try
+        {
+            // apply bypass states for all processors using our helper function
+            setProcessorBypassStates(*processorChain);
 
-        processorChain->process(context);
+            processorChain->process(context);
+        }
+
+        catch (const std::exception& e)
+        {
+            DBG("Error in signal processing: " << e.what());
+            outputBlock.clear(); //safe fallback
+        }
     }
     else
         jassertfalse; // no processor chain initialized, should never happen
@@ -228,3 +266,4 @@ void SignalPathManager::updateProcessorChainParameters(const juce::AudioProcesso
     }
     // TODO: PROCESSOR_ADDITION_CHAIN(?): Add similar blocks for other processor parameters here
 }
+
