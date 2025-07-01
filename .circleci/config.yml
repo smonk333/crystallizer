@@ -2,34 +2,18 @@ version: 2.1
 
 jobs:
   build:
-    machine:
-      image: ubuntu-2004:2023.07.1
+    docker:
+      - image: cimg/cmake:3.25
     steps:
       - checkout
       - run:
-          name: "Update Git Submodules"
-          command: "git submodule update --init --recursive"
-      - run:
-          name: "Install JUCE Dependencies"
+          name: Build with CMake
           command: |
-            sudo apt-get update
-            sudo apt-get install -y build-essential cmake libasound2-dev libjack-jackd2-dev ladspa-sdk libcurl4-openssl-dev libfreetype6-dev libx11-dev libxinerama-dev libxrandr-dev libxcursor-dev mesa-common-dev libgl1-mesa-dev freeglut3-dev libgtk-3-dev
-      - run:
-          name: "Configure Project with CMake"
-          command: "cmake -B cmake-build -S ."
-      - run:
-          name: "Build Project with CMake"
-          command: "cmake --build cmake-build --config Release"
-      - run:
-          name: "Run Tests"
-          command: |
-            cd cmake-build
-            ctest -C Release --verbose
-      - store_artifacts:
-          path: cmake-build/smokeCrystallizer_artefacts/Release/
-          destination: artifacts
+            cmake .
+            make
 
 workflows:
-  build-and-test:
+  version: 2
+  build_and_test:
     jobs:
       - build
