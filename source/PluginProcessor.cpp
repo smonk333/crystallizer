@@ -19,33 +19,6 @@ PluginProcessor::PluginProcessor()
     // TODO: PROCESSOR_ADDITION_CHAIN(2): Assign apvts values for new parameters
     //       here for each new processor
 
-    // standard delay parameters
-    // std::atomic<float>* delayTimeParam = apvts.getRawParameterValue("delayTime");
-    // std::atomic<float>* feedbackParam = apvts.getRawParameterValue("feedback");
-    // std::atomic<float>* wetDryParam = apvts.getRawParameterValue("wetDry");
-
-    // // reverb parameters
-    // reverbRoomSizeParam = apvts.getRawParameterValue("reverbRoomSize");
-    // reverbDampingParam = apvts.getRawParameterValue("reverbDamping");
-    // reverbMixParam = apvts.getRawParameterValue("reverbMix");
-    // reverbWidthParam = apvts.getRawParameterValue("reverbWidth");
-    // reverbFreezeParam = apvts.getRawParameterValue("reverbFreeze");
-    //
-    // // granular delay parameters
-    // granularDelayTimeParam = apvts.getRawParameterValue("granularDelayTime");
-    // grainSizeParam = apvts.getRawParameterValue ("grainSize");
-    // grainDensityParam = apvts.getRawParameterValue ("grainDensity");
-    // granularPitchShiftParam = apvts.getRawParameterValue("pitchShift");
-    // granularFeedbackParam = apvts.getRawParameterValue("granularFeedback");
-    // granularWetDryParam = apvts.getRawParameterValue("granularWetDry");
-    // granularSpreadParam = apvts.getRawParameterValue("spread");
-    //
-    // // signal processing chain parameters
-    // // signalChainParam = apvts.getRawParameterValue("processingMode");
-    //
-    // // looper state management parameter
-    // looperStateParam = apvts.getRawParameterValue("looperState");
-
     // signalPathManager parameter
     signalChainParam = apvts.getRawParameterValue("signalPath");
 
@@ -124,13 +97,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout PluginProcessor::createParam
         "Looper State",
         juce::StringArray { "Recording", "Playing", "Overdubbing", "Stopped", "Clear" },
         3)); // default to Stopped (index 3)
-
-    // Comment out or remove the old boolean parameters
-    // params.push_back(std::make_unique<juce::AudioParameterBool>("looperRecord", "Looper Record", false));
-    // params.push_back(std::make_unique<juce::AudioParameterBool>("looperPlay", "Looper Play", false));
-    // params.push_back(std::make_unique<juce::AudioParameterBool>("looperOverdub", "Looper Overdub", false));
-    // params.push_back(std::make_unique<juce::AudioParameterBool>("looperStop", "Looper Stop", true));  // Default to stopped
-    // params.push_back(std::make_unique<juce::AudioParameterBool>("looperClear", "Looper Clear", false));
 
     // push more fx parameters here as we add classes to handle processing
 
@@ -213,6 +179,22 @@ void PluginProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
     // TODO: PROCESSOR_ADDITION_CHAIN(4): make sure the processor has been
     //       prepared either in its setup or perform the preparation here
 
+    //=error handling===========================================================
+
+    // validate input parameters
+    if (sampleRate <= 0.0 || samplesPerBlock <= 0)
+    {
+        jassertfalse;
+        throw std::invalid_argument("Invalid audio specification");
+    }
+
+    // validate sample rate and samples per block
+    if (sampleRate > 192000.0 || samplesPerBlock > 8192)
+    {
+        DBG("Warning: Extreme audio parameters -- Sample Rate:" << sampleRate << " Block Size:" << samplesPerBlock);
+        jassertfalse;
+    }
+
     // set up a ProcessSpec object to prepare the standard delay, reverb
     juce::dsp::ProcessSpec spec{};
     spec.sampleRate = sampleRate;
@@ -263,6 +245,26 @@ void PluginProcessor::processBlock (juce::AudioBuffer<float>& buffer,
     juce::ignoreUnused (midiMessages);
 
     juce::ScopedNoDenormals noDenormals;
+
+    //=error handling===========================================================
+
+    // validate buffer state
+    if (buffer.getNumChannels() == 0 || buffer.getNumSamples() == 0)
+    {
+        jassertfalse; // channels or samples are empty
+        return;
+    }
+
+    // validate audio engine state
+    if (getSampleRate() <= 0.0)
+    {
+        jassertfalse; // sample rate is invalid
+        buffer.clear();
+        return;
+    }
+
+    //=end error handling=======================================================
+
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 

@@ -47,8 +47,14 @@ void DelayProcessor::process(const juce::dsp::ProcessContextReplacing<float>& co
 {
     // TODO: PROCESSOR_ADDITION_CHAIN(EXAMPLE): make sure you wrap the processing
     //       in a check to see if the processor is bypassed, as shown below
+
+    if (context.getInputBlock().getNumChannels() != 0)
+    {
+        DBG("Signal has hit the DelayProcessor!");
+    }
     if (!context.isBypassed)
     {
+        DBG("Signal was not bypassed at the delayProcessor");
         auto& inputBlock = context.getInputBlock();
         auto& outputBlock = context.getOutputBlock();
 
@@ -81,7 +87,7 @@ void DelayProcessor::process(const juce::dsp::ProcessContextReplacing<float>& co
             if (numChannels > 1)
                 outputBlock.setSample(1, i, (delayedR * delayParams.wetLevel) + (cleanR * (1.0f - delayParams.wetLevel)));
         }
-    }
+    } else DBG("Signal was bypassed at the DelayProcessor");
 }
 
 void DelayProcessor::updateParameters(const DelayParams& params)
